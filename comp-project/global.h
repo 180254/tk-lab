@@ -11,7 +11,5 @@ extern int yylineno;
 extern FILE *yyin;
 
 // error
-void yyerror(const char *); // error.cpp
-
-
+void yyerror(const char *);
 

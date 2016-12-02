@@ -8,11 +8,7 @@ OUT=xcomp
 ${OUT}: ${OBJECTS}
 	${CC} -o $@ $^
 
-${OBJECTS}: global.h
-
-global.h: parser.h
-
-parser.h: parser.cpp
+${OBJECTS}: global.h parser.cpp
 
 parser.cpp: parser.y
 	bison --defines=parser.h --warning=all -o $@ $^
@@ -20,7 +16,7 @@ parser.cpp: parser.y
 lexer.cpp: lexer.l
 	flex -o $@ $^
 
-all: clean ${OUT}
+all: ${OUT}
 
 clean:
 	-rm -rf ${OUT} ${OBJECTS} parser.cpp lexer.cpp parser.h

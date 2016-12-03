@@ -31,10 +31,7 @@ int main(int argc, char *argv[]) {
 
     // memory dump
     if(CP_DEBUG) {
-        std::cout << "[memory]";
-        for(auto mem_ptr : memory) {
-            std::cout << mem_ptr->to_string() << "\n";
-        }
+        debug_dump();
     }
     
     // free memory

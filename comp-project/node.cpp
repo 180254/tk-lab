@@ -16,7 +16,7 @@ Array::~Array() {
 
 }
 
-std::string Array::to_string() {
+std::string Array::str() {
     std::stringstream ss;
     
     ss << "[";
@@ -30,38 +30,40 @@ std::string Array::to_string() {
 
 /* ---------------------------------------------------------------------------------------------*/
 
-Mem::Mem() : name_ptr(nullptr), type(UNKNOWN), array_ptr(nullptr), address(0) {
+Mem::Mem() : name(nullptr), type(UNKNOWN), array(nullptr), address(0) {
 
 }
 
 Mem::Mem(const Mem &obj) {
-    if(name_ptr != nullptr)
-        name_ptr = new std::string(*(obj.name_ptr));
+    if(obj.name != nullptr)
+        name = new std::string(*(obj.name));
+    else name = nullptr;
 
     type = obj.type;
     
-    if(array_ptr != nullptr)
-        array_ptr = new Array(*(obj.array_ptr));
+    if(obj.array != nullptr)
+        array = new Array(*(obj.array));
+    else array = nullptr;
 
     address = obj.address;
 }
 
 Mem::~Mem() { 
-    delete name_ptr;
-    name_ptr = nullptr;
+    delete name;
+    name = nullptr;
     
-    delete array_ptr;
-    array_ptr = nullptr;
+    delete array;
+    array = nullptr;
 }
 
-std::string Mem::to_string() {
+std::string Mem::str() {
     std::stringstream ss;
     
     ss << "[";
-    ss << "name_ptr: " << (name_ptr != nullptr ? *name_ptr : "NULL") << "; ";
-    ss << "var_type: " << type << "; ";
-    ss << "array_ptr: " << (array_ptr != nullptr ? array_ptr->to_string() : "NULL") << "; ";
-    ss << "address: " << address << "; ";
+    ss << "name: " << (name != nullptr ? *name : "NULL") << "; ";
+    ss << "type: " << type << "; ";
+    ss << "array: " << (array != nullptr ? array->str() : "NULL") << "; ";
+    ss << "address: " << address << ";";
     ss << "]";
     
     return ss.str();
@@ -73,4 +75,12 @@ std::string Mem::to_string() {
 int mem_ptr = 0;
 std::vector<Mem*> memory; 
 
+/* ---------------------------------------------------------------------------------------------*/
+
+void debug_dump() {
+    std::cout << "[MEMORY]\n";
+    for(auto mem : memory) {
+        std::cout << mem->str() << "\n";
+    }
+}
 

@@ -18,24 +18,28 @@ struct Array {
     Array(const Array &obj);
     ~Array();
     
-    std::string to_string();
+    std::string str();
 };
 
 struct Mem {
-    std::string *name_ptr;
+    std::string *name;
     Type type;
-    Array *array_ptr;
+    Array *array;
     int address;
     
     Mem();
     Mem(const Mem &obj);
     ~Mem();
     
-    std::string to_string();
+    std::string str();
 };
 
 /* ---------------------------------------------------------------------------------------------*/
 
 extern std::vector<Mem*> memory;
 extern int memory_current;
+
+/* ---------------------------------------------------------------------------------------------*/
+
+void debug_dump();
 

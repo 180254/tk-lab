@@ -8,9 +8,9 @@ DIGIT           [0-9]
 ID              {LETTER}({LETTER}|{DIGIT})*
 
 DIGITS          {DIGIT}{DIGIT}*
-OPT_FRACTION    (\.{DIGITS})?
-OPT_EXPONENT    ([eE][-+]?{DIGITS})?
-NUM             {DIGITS}{OPT_FRACTION}{OPT_EXPONENT}
+FRACTION_OPT    (\.{DIGITS})?
+EXPONENT_OPT    ([eE][-+]?{DIGITS})?
+NUM             {DIGITS}{FRACTION_OPT}{EXPONENT_OPT}
 
 /* -------------------------------------------------------------------------------------------- */
 
@@ -24,8 +24,8 @@ NUM             {DIGITS}{OPT_FRACTION}{OPT_EXPONENT}
 
 %%
 
-\{[^}]*\} { /* comments */ }
-[ \t\n] { /* whitespaces */ }
+\{[^}]*\}       { /* comments    */ }
+[ \t\n]         { /* whitespaces */ }
 
 "program"       return T_PROGRAM;
 "var"           return T_VAR;
@@ -48,23 +48,21 @@ NUM             {DIGITS}{OPT_FRACTION}{OPT_EXPONENT}
 "mod"           return T_MOD;
 "and"           return T_AND;
 "or"            return T_OR;
-
 ":="            return T_ASSIGN;
-
-"="             return T_EQ;
 "<>"            return T_NE;
 "<="            return T_LE;
 ">="            return T_GE;
 "<"             return T_LO;
 ">"             return T_GR;
+"="             return T_EQ;
 
 {ID}            {
-    yylval.str = new std::string(yytext);
+    yylval.str_ptr = new std::string(yytext);
     return T_ID;
 }
 
 {NUM}           {
-    yylval.str = new std::string(yytext);
+    yylval.str_ptr = new std::string(yytext);
     return T_NUM;
 }
 

@@ -2,17 +2,17 @@
 
 /* ---------------------------------------------------------------------------------------------*/
 
-enum VarType {
-    UNKNOWN,
-    REAL,
-    INTEGER,
-    ARRAY    
+enum Type {
+    UNKNOWN = 0,
+    REAL = 1,
+    INTEGER = 2,
+    ARRAY = 3
 };
 
 struct Array {
     int min;
     int max;
-    VarType var_type;
+    Type type;
     
     Array();
     Array(const Array &obj);
@@ -22,9 +22,9 @@ struct Array {
 };
 
 struct Mem {
-    std::string *name;
-    VarType var_type;
-    Array *array;
+    std::string *name_ptr;
+    Type type;
+    Array *array_ptr;
     int address;
     
     Mem();
@@ -36,6 +36,6 @@ struct Mem {
 
 /* ---------------------------------------------------------------------------------------------*/
 
-extern int mem_ptr;
-extern std::vector<Mem*> memory; 
+extern std::vector<Mem*> memory;
+extern int memory_current;
 

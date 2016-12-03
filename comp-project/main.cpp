@@ -3,6 +3,8 @@
 int main(int, char *[]);
 void usage(const char *, const char *);
 
+#define CP_DEBUG 1
+
 /* -------------------------------------------------------------------------------------------- */
 
 int main(int argc, char *argv[]) {
@@ -26,12 +28,20 @@ int main(int argc, char *argv[]) {
     
     yyparse();
     fclose(yyin);
-    
-     //memory dump
-     std::cout << "X\n";
-    for(auto mem_ptr : memory) {
-        std::cout << (*mem_ptr).to_string() << "\n";
+
+    // memory dump
+    if(CP_DEBUG) {
+        std::cout << "[memory]";
+        for(auto mem_ptr : memory) {
+            std::cout << mem_ptr->to_string() << "\n";
+        }
     }
+    
+    // free memory
+    for(auto mem_ptr : memory) {
+        delete mem_ptr;
+    }
+
     return 0;
 }
 

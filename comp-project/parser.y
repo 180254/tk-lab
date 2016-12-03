@@ -52,18 +52,18 @@
 /* -------------------------------------------------------------------------------------------- */
 
 %union {
-    std::string *str;
-    std::vector<std::string*> *strs;
-    VarType var_type;
-    Mem *mem;
+    std::string *str_ptr;
+    std::vector<std::string*> *str_vec_ptr;
+    Type type;
+    Mem *mem_ptr;
     
 }
 
-%type <strs> identifier_list
-%type <mem> type
-%type <var_type> standard_type
-%type <str> num
-%type <str> id
+%type <str_vec_ptr> identifier_list
+%type <mem_ptr> type
+%type <type> standard_type
+%type <str_ptr> num
+%type <str_ptr> id
 
 /* -------------------------------------------------------------------------------------------- */
 
@@ -72,14 +72,17 @@
 /* -------------------------------------------------------------------------------------------- */
 
 program :
-    T_PROGRAM T_ID '(' identifier_list ')' ';'
+    T_PROGRAM T_ID '(' identifier_list ')' ';' {
+        delete $4;
+    }
+
     declarations
     subprogram_declarations
     compound_statement
     '.'
     ;
     
-identifier_list : // std::vector<std::string*>
+identifier_list : // std::vector<std::string*>*
     id {
         $$ = new std::vector<std::string*>();
         $$->push_back($1);
@@ -92,10 +95,12 @@ identifier_list : // std::vector<std::string*>
 declarations :
     declarations T_VAR identifier_list ':' type ';' {
         for (auto identifier : *$3) {
-            Mem *mem = new Mem(*$5);
-            mem->name= new std::string(*identifier);
-            memory.push_back(mem);
+            Mem *mem_ptr = new Mem(*$5);
+            mem_ptr->name_ptr = new std::string(*identifier);
+            memory.push_back(mem_ptr);
         }
+        
+        delete $5;
     }
     | %empty
     ;
@@ -103,14 +108,14 @@ declarations :
 type : // Mem
     standard_type {
         $$ = new Mem();
-        $$->var_type = $1;
+        $$->type = $1;
     }
     | T_ARRAY '[' num T_ARRAY_RANGE num ']' T_OF standard_type {
         $$ = new Mem();
-        $$->array = new Array();
-        $$->array->min = std::stoi(*$3);
-        $$->array->max = std::stoi(*$5);
-        $$->array->var_type = $8;
+        $$->array_ptr = new Array();
+        $$->array_ptr->min = std::stoi(*$3);
+        $$->array_ptr->max = std::stoi(*$5);
+        $$->array_ptr->type = $8;
     }
     ;
     
@@ -235,13 +240,13 @@ assignop :
     
 num : // string
     T_NUM {
-        $$ = yylval.str;
+        $$ = yylval.str_ptr;
     }
     ;
     
 id  : // string
     T_ID {
-        $$ = yylval.str;;
+        $$ = yylval.str_ptr;
     }
     ;
    

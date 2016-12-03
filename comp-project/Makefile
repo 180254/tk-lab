@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=
-CPPFLAGS=-Wall -Wextra -O2 -std=gnu++14
+CPPFLAGS=-Wall -Wextra -O2 -std=gnu++14 -g -ggdb
 OBJECTS=main.o error.o parser.o lexer.o node.o
 OUT=xcomp
 
@@ -10,7 +10,7 @@ OUT=xcomp
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $< 
     
 ${OUT}: $(OBJECTS)
-	$(CC) -o $@ $^
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^
 
 ${OBJECTS}: global.h parser.h node.h
 

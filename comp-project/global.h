@@ -3,6 +3,14 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <string>
+#include <vector>
+#include <iterator>
+#include <sstream>
+#include <iostream>
+
+// node
+#include "node.h"
 
 // lexer
 int yylex();
@@ -14,4 +22,3 @@ void yyerror(const char *);
 
 // parser
 #include "parser.h"
-

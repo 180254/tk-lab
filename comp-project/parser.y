@@ -8,46 +8,62 @@
 
 /* -------------------------------------------------------------------------------------------- */
 
-%token L_PROGRAM
-%token L_VAR
-%token L_ARRAY
-%token L_ARRAY_RANGE
-%token L_OF
-%token L_INTEGER
-%token L_REAL
-%token L_FUNCTION
-%token L_PROCEDURE
-%token L_BEGIN
-%token L_END
-%token L_IF
-%token L_THEN
-%token L_ELSE
-%token L_WHILE
-%token L_DO
-%token L_NOT
-%token L_DIV
-%token L_MOD
-%token L_AND
-%token L_OR
+%token T_PROGRAM
+%token T_VAR
+%token T_ARRAY
+%token T_ARRAY_RANGE
+%token T_OF
+%token T_INTEGER
+%token T_REAL
+%token T_FUNCTION
+%token T_PROCEDURE
+%token T_BEGIN
+%token T_END
+%token T_IF
+%token T_THEN
+%token T_ELSE
+%token T_WHILE
+%token T_DO
+%token T_NOT
+%token T_DIV
+%token T_MOD
+%token T_AND
+%token T_OR
 
-%token ID
-%token NUM
+%token T_ID
+%token T_NUM
 
-%token EQ
-%token NE
-%token LE
-%token GE
-%token LO
-%token GR
+%token T_EQ
+%token T_NE
+%token T_LE
+%token T_GE
+%token T_LO
+%token T_GR
 
-%token ASSIGN
+%token T_ASSIGN
 
 /* -------------------------------------------------------------------------------------------- */
 
 %token UMINUS
 
-%precedence L_THEN
-%precedence L_ELSE
+%precedence T_THEN
+%precedence T_ELSE
+
+/* -------------------------------------------------------------------------------------------- */
+
+%union {
+    std::string *str;
+    std::vector<std::string*> *strs;
+    VarType var_type;
+    Mem *mem;
+    
+}
+
+%type <strs> identifier_list
+%type <mem> type
+%type <var_type> standard_type
+%type <str> num
+%type <str> id
 
 /* -------------------------------------------------------------------------------------------- */
 
@@ -56,30 +72,55 @@
 /* -------------------------------------------------------------------------------------------- */
 
 program :
-    L_PROGRAM ID '(' identifier_list ')' ';'
+    T_PROGRAM T_ID '(' identifier_list ')' ';'
     declarations
     subprogram_declarations
     compound_statement
     '.'
     ;
     
-identifier_list :
-    ID
-    | identifier_list ',' ID
+identifier_list : // std::vector<std::string*>
+    id {
+        $$ = new std::vector<std::string*>();
+        $$->push_back($1);
+    }
+    | identifier_list ',' id {
+        $$->push_back($3);
+    }
     ;
     
 declarations :
-    declarations L_VAR identifier_list ':' type ';'
-    | %empty;
+    declarations T_VAR identifier_list ':' type ';' {
+        for (auto identifier : *$3) {
+            Mem *mem = new Mem(*$5);
+            mem->name= new std::string(*identifier);
+            memory.push_back(mem);
+        }
+    }
+    | %empty
+    ;
 
-type :
-    standard_type
-    | L_ARRAY '[' NUM L_ARRAY_RANGE NUM ']' L_OF standard_type
+type : // Mem
+    standard_type {
+        $$ = new Mem();
+        $$->var_type = $1;
+    }
+    | T_ARRAY '[' num T_ARRAY_RANGE num ']' T_OF standard_type {
+        $$ = new Mem();
+        $$->array = new Array();
+        $$->array->min = std::stoi(*$3);
+        $$->array->max = std::stoi(*$5);
+        $$->array->var_type = $8;
+    }
     ;
     
-standard_type :
-    L_INTEGER
-    | L_REAL
+standard_type : // VarType
+    T_INTEGER {
+        $$ = INTEGER;
+    }
+    | T_REAL {
+        $$ = REAL;
+    }
     ;
     
 subprogram_declarations :
@@ -92,8 +133,8 @@ subprogram_declaration :
     ;
     
 subprogram_head :
-    L_FUNCTION ID arguments ':' standard_type ';'
-    | L_PROCEDURE ID arguments ';'
+    T_FUNCTION id arguments ':' standard_type ';'
+    | T_PROCEDURE id arguments ';'
     ;
 
 arguments :
@@ -106,12 +147,12 @@ parameter_list :
     ;
 
 compound_statement :
-    L_BEGIN
-    optional_statements
-    L_END
+    T_BEGIN
+    optionaT_statements
+    T_END
     ;
     
-optional_statements :
+optionaT_statements :
     statement_list
     | %empty
     ;
@@ -125,19 +166,19 @@ statement :
     variable assignop expression
     | procedure_statement
     | compound_statement
-    | L_IF expression L_THEN statement
-    | L_IF expression L_THEN statement L_ELSE statement
-    | L_WHILE expression L_DO statement
+    | T_IF expression T_THEN statement
+    | T_IF expression T_THEN statement T_ELSE statement
+    | T_WHILE expression T_DO statement
     ;
     
 variable :
-    ID
-    | ID '[' expression ']'
+    id
+    | id '[' expression ']'
     ;
 
 procedure_statement :
-    ID
-    | ID '(' expression_list ')'
+    id
+    | id '(' expression_list ')'
     ;
     
 expression_list:
@@ -164,16 +205,16 @@ term :
     
 factor :
     variable
-    | ID '(' expression_list ')'
-    | NUM
+    | id '(' expression_list ')'
+    | num
     | '(' expression ')'
-    | L_NOT factor
+    | T_NOT factor
     ;         
 
 /* -------------------------------------------------------------------------------------------- */
 
 relop :
-    EQ | NE | LE | GE | LO  | GR
+    T_EQ | T_NE | T_LE | T_GE | T_LO  | T_GR
     ;
     
 sign :
@@ -181,15 +222,27 @@ sign :
     ;
     
 mulop :
-    '*' | '/' | L_DIV | L_MOD | L_AND
+    '*' | '/' | T_DIV | T_MOD | T_AND
     ;  
        
 or :
-    L_OR
+    T_OR
     ;
 
-assignop:
-    ASSIGN
+assignop :
+    T_ASSIGN
+    ;
+    
+num : // string
+    T_NUM {
+        $$ = yylval.str;
+    }
+    ;
+    
+id  : // string
+    T_ID {
+        $$ = yylval.str;;
+    }
     ;
    
 %%

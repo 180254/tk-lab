@@ -27,6 +27,11 @@ int main(int argc, char *argv[]) {
     yyparse();
     fclose(yyin);
     
+     //memory dump
+     std::cout << "X\n";
+    for(auto mem_ptr : memory) {
+        std::cout << (*mem_ptr).to_string() << "\n";
+    }
     return 0;
 }
 

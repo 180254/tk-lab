@@ -27,39 +27,46 @@ NUM             {DIGITS}{OPT_FRACTION}{OPT_EXPONENT}
 \{[^}]*\} { /* comments */ }
 [ \t\n] { /* whitespaces */ }
 
-"program"       return L_PROGRAM;
-"var"           return L_VAR;
-"array"         return L_ARRAY;
-".."            return L_ARRAY_RANGE;
-"of"            return L_OF;
-"integer"       return L_INTEGER;
-"real"          return L_REAL;
-"function"      return L_FUNCTION;
-"procedure"     return L_PROCEDURE;
-"begin"         return L_BEGIN;
-"end"           return L_END;
-"if"            return L_IF;
-"then"          return L_THEN;
-"else"          return L_ELSE;
-"while"         return L_WHILE;
-"do"            return L_DO;
-"not"           return L_NOT;
-"div"           return L_DIV;
-"mod"           return L_MOD;
-"and"           return L_AND;
-"or"            return L_OR;
+"program"       return T_PROGRAM;
+"var"           return T_VAR;
+"array"         return T_ARRAY;
+".."            return T_ARRAY_RANGE;
+"of"            return T_OF;
+"integer"       return T_INTEGER;
+"real"          return T_REAL;
+"function"      return T_FUNCTION;
+"procedure"     return T_PROCEDURE;
+"begin"         return T_BEGIN;
+"end"           return T_END;
+"if"            return T_IF;
+"then"          return T_THEN;
+"else"          return T_ELSE;
+"while"         return T_WHILE;
+"do"            return T_DO;
+"not"           return T_NOT;
+"div"           return T_DIV;
+"mod"           return T_MOD;
+"and"           return T_AND;
+"or"            return T_OR;
 
-":="            return ASSIGN;
+":="            return T_ASSIGN;
 
-"="             return EQ;
-"<>"            return NE;
-"<="            return LE;
-">="            return GE;
-"<"             return LO;
-">"             return GR;
+"="             return T_EQ;
+"<>"            return T_NE;
+"<="            return T_LE;
+">="            return T_GE;
+"<"             return T_LO;
+">"             return T_GR;
 
-{ID}            return ID;
-{NUM}           return NUM;
+{ID}            {
+    yylval.str = new std::string(yytext);
+    return T_ID;
+}
+
+{NUM}           {
+    yylval.str = new std::string(yytext);
+    return T_NUM;
+}
 
 .               return *yytext;
                     

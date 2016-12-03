@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=
-CPPFLAGS=-Wall -Wextra -Weffc++ -O2 -std=gnu++14
-OBJECTS=main.o error.o parser.o lexer.o
+CPPFLAGS=-Wall -Wextra -O2 -std=gnu++14
+OBJECTS=main.o error.o parser.o lexer.o node.o
 OUT=xcomp
 
 .PHONY: all clean
@@ -12,7 +12,7 @@ OUT=xcomp
 ${OUT}: $(OBJECTS)
 	$(CC) -o $@ $^
 
-${OBJECTS}: global.h parser.h
+${OBJECTS}: global.h parser.h node.h
 
 parser.cpp parser.h: parser.y
 	bison --warning=all --feature=all --defines=parser.h -o parser.cpp parser.y

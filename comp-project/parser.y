@@ -44,6 +44,13 @@
 
 /* -------------------------------------------------------------------------------------------- */
 
+%token UMINUS
+
+%precedence L_THEN
+%precedence L_ELSE
+
+/* -------------------------------------------------------------------------------------------- */
+
 %%
 
 /* -------------------------------------------------------------------------------------------- */
@@ -118,6 +125,7 @@ statement :
     variable assignop expression
     | procedure_statement
     | compound_statement
+    | L_IF expression L_THEN statement
     | L_IF expression L_THEN statement L_ELSE statement
     | L_WHILE expression L_DO statement
     ;
@@ -144,7 +152,7 @@ expression :
     
 simple_expression :
     term
-    | sign term
+    | sign term %prec UMINUS
     | simple_expression sign term
     | simple_expression or term
     ;
@@ -165,25 +173,15 @@ factor :
 /* -------------------------------------------------------------------------------------------- */
 
 relop :
-    EQ 
-    | NE 
-    | LE
-    | GE
-    | LO
-    | GR
+    EQ | NE | LE | GE | LO  | GR
     ;
     
 sign :
-    '-' 
-    | '+'
+    '-' | '+'
     ;
     
 mulop :
-    '*'
-    | '/'
-    | L_DIV
-    | L_MOD
-    | L_AND
+    '*' | '/' | L_DIV | L_MOD | L_AND
     ;  
        
 or :

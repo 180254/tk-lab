@@ -1,22 +1,26 @@
 CC=g++
-CPPFLAGS=-Wall -Wextra -O2 -std=gnu++14
+CFLAGS=
+CPPFLAGS=-Wall -Wextra -Weffc++ -O2 -std=gnu++14
 OBJECTS=main.o error.o parser.o lexer.o
 OUT=xcomp
 
 .PHONY: all clean
 
-${OUT}: ${OBJECTS}
-	${CC} -o $@ $^
+.cpp.o:
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $< 
+    
+${OUT}: $(OBJECTS)
+	$(CC) -o $@ $^
 
-${OBJECTS}: global.h parser.cpp
+${OBJECTS}: global.h parser.h
 
-parser.cpp: parser.y
-	bison --defines=parser.h --warning=all -o $@ $^
+parser.cpp parser.h: parser.y
+	bison --warning=all --feature=all --defines=parser.h -o parser.cpp parser.y
 
 lexer.cpp: lexer.l
-	flex -o $@ $^
+	flex -o lexer.cpp lexer.l
 
-all: ${OUT}
+all: $(OUT)
 
 clean:
-	-rm -rf ${OUT} ${OBJECTS} parser.cpp lexer.cpp parser.h
+	-rm -f $(OUT) $(OBJECTS) parser.cpp parser.h parser.output lexer.cpp

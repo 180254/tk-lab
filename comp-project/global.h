@@ -1,6 +1,5 @@
 #pragma once
 
-#include "parser.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -12,4 +11,7 @@ extern FILE *yyin;
 
 // error
 void yyerror(const char *);
+
+// parser
+#include "parser.h"
 

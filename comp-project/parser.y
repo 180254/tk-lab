@@ -2,7 +2,7 @@
 
 #define YYERROR_VERBOSE
 
-#include "global.h"
+#include "global.hpp"
 
 %}
 

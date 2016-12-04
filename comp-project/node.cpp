@@ -1,4 +1,4 @@
-#include "global.h"
+#include "global.hpp"
 
 /* ---------------------------------------------------------------------------------------------*/
 
@@ -35,15 +35,17 @@ Mem::Mem() : name(nullptr), type(UNKNOWN), array(nullptr), address(0) {
 }
 
 Mem::Mem(const Mem &obj) {
-    if(obj.name != nullptr)
-        name = new std::string(*(obj.name));
-    else name = nullptr;
-
+    name =
+        obj.name != nullptr
+        ? new std::string(*(obj.name))
+        : nullptr;
+        
     type = obj.type;
     
-    if(obj.array != nullptr)
-        array = new Array(*(obj.array));
-    else array = nullptr;
+    array =
+        obj.array != nullptr
+        ? new Array(*(obj.array))
+        : nullptr;
 
     address = obj.address;
 }
@@ -77,10 +79,18 @@ std::vector<Mem*> memory;
 
 /* ---------------------------------------------------------------------------------------------*/
 
-void debug_dump() {
+void mem_debug() {
     std::cout << "[MEMORY]\n";
     for(auto mem : memory) {
         std::cout << mem->str() << "\n";
+    }
+}
+
+/* ---------------------------------------------------------------------------------------------*/
+
+void mem_free() {
+    for(auto mem : memory) {
+        delete mem;
     }
 }
 

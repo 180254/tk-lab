@@ -1,15 +1,10 @@
-#include "global.h"
-
-int main(int, char *[]);
-void usage(const char *, const char *);
-
-#define CP_DEBUG 1
+#include "global.hpp"
 
 /* -------------------------------------------------------------------------------------------- */
 
 int main(int argc, char *argv[]) {
     
-    const char *app = argv[0];
+    const char *app  = argv[0];
     const char *path = argv[1];
     
     if(argc < 2) {
@@ -29,15 +24,11 @@ int main(int argc, char *argv[]) {
     yyparse();
     fclose(yyin);
 
-    // memory dump
-    if(CP_DEBUG) {
-        debug_dump();
-    }
+    #if defined(CP_DEBUG) && CP_DEBUG
+    mem_debug();
+    #endif
     
-    // free memory
-    for(auto mem_ptr : memory) {
-        delete mem_ptr;
-    }
+    mem_free();
 
     return 0;
 }
@@ -46,8 +37,8 @@ int main(int argc, char *argv[]) {
 /* -------------------------------------------------------------------------------------------- */
 
 void usage(const char *app, const char *message) {
-    fprintf(stderr, "ERROR: %s.\n", message);
-    fprintf(stderr, "Usage: %s PATH\n", app);
-    fprintf(stderr, "PATH = FILE-PATH | '-'\n");
+    cerr << "ERROR: " << message << ".\n";
+    cerr << "Usage: " << app << " PATH\n";
+    cerr << "PATH = FILE-PATH | '-'\n";
 }
 

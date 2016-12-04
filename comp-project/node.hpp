@@ -41,5 +41,5 @@ extern int memory_current;
 
 /* ---------------------------------------------------------------------------------------------*/
 
-void debug_dump();
-
+void mem_debug();
+void mem_free();

@@ -9,17 +9,13 @@
 #include <sstream>
 #include <iostream>
 
-// node
-#include "node.h"
+#include "main.hpp"
+#include "node.hpp"
+#include "error.hpp"
+#include "parser.hpp"
+#include "lexer.hpp"
 
-// lexer
-int yylex();
-extern int yylineno;
-extern FILE *yyin;
+#define CP_DEBUG 1
 
-// error
-void yyerror(const char *);
-
-// parser
-#include "parser.h"
+using namespace std;
 

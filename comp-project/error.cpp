@@ -1,7 +1,7 @@
-#include "global.h"
+#include "global.hpp"
 
 void yyerror(const char *message) 
 {
-    fprintf(stderr, "yyerror: line %d, %s\n", yylineno, message);
+    cerr << "yyerror: line " << yylineno << ", " << message;
 }
 

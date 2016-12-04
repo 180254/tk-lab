@@ -7,8 +7,8 @@ Array::Array() : min(-1), max(-1), type(UNKNOWN) {
 }
 
 Array::Array(const Array &obj) {
-    min = obj.min;
-    max = obj.max;
+    min  = obj.min;
+    max  = obj.max;
     type = obj.type;
 }
 
@@ -20,8 +20,8 @@ string Array::str() {
     stringstream ss;
     
     ss << "[";
-    ss << "min: " << min << "; ";
-    ss << "max: " << max << "; ";
+    ss << "min: "  << min  << "; ";
+    ss << "max: "  << max  << "; ";
     ss << "type: " << type << ";";
     ss << "]";
     
@@ -51,20 +51,17 @@ Mem::Mem(const Mem &obj) {
 }
 
 Mem::~Mem() { 
-    delete name;
-    name = nullptr;
-    
-    delete array;
-    array = nullptr;
+    DELETE(name);
+    DELETE(array);
 }
 
 string Mem::str() {
     stringstream ss;
     
     ss << "[";
-    ss << "name: " << (name != nullptr ? *name : "NULL") << "; ";
-    ss << "type: " << type << "; ";
-    ss << "array: " << (array != nullptr ? array->str() : "NULL") << "; ";
+    ss << "name: "    << (name != nullptr  ? *name        : "NULL") << "; ";
+    ss << "type: "    << type << "; ";
+    ss << "array: "   << (array != nullptr ? array->str() : "NULL") << "; ";
     ss << "address: " << address << ";";
     ss << "]";
     
@@ -75,7 +72,6 @@ string Mem::str() {
 /* ---------------------------------------------------------------------------------------------*/
 
 vector<Mem*> memory; 
-int memory_current = 0;
 
 /* ---------------------------------------------------------------------------------------------*/
 

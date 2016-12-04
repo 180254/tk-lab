@@ -1,4 +1,4 @@
-CC=g++
+CC=clang++
 CFLAGS=
 CPPFLAGS=-Wall -Wextra -O0 -std=gnu++14 -g -ggdb
 

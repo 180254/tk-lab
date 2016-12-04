@@ -52,18 +52,19 @@
 /* -------------------------------------------------------------------------------------------- */
 
 %union {
-    string *str;
+    string          *str;
     vector<string*> *v_str;
-    Type type;
-    Mem *mem;
-    
+    Type            type;
+    Mem             *mem;
+    vector<Mem*>    *v_mem;
 }
 
-%type <v_str> identifier_list
-%type <mem> type
-%type <type> standard_type
-%type <str> num
-%type <str> id
+%type <v_str>  identifier_list
+%type <v_mem>  declarations
+%type <mem>    type
+%type <type>   standard_type
+%type <str>    num
+%type <str>    id
 
 /* -------------------------------------------------------------------------------------------- */
 
@@ -73,11 +74,15 @@
 
 program :
     T_PROGRAM id '(' identifier_list ')' ';' {
-        delete $2;
-        delete $4;
+        DELETE($2);
+        DELETE($4);
     }
-
-    declarations
+    declarations {
+        for (auto mem : *$8) {
+            memory.push_back(mem);
+        }
+        DELETE($8);
+    }
     subprogram_declarations
     compound_statement
     '.'
@@ -93,20 +98,26 @@ identifier_list : // vector<string*>*
     }
     ;
     
-declarations :
+declarations : // vector<mem*>*
     declarations T_VAR identifier_list ':' type ';' {
-        for (auto identifier : *$3) {
-            Mem *mem = new Mem(*$5);
-            mem->name = new string(*identifier);
-            memory.push_back(mem);
-            
-            delete identifier;
+        $$ = new vector<Mem*>();
+
+        for (auto mem : *$1) {
+            $$->push_back(mem);  
         }
+        DELETE($1);
         
-        delete $3;
-        delete $5;
+        for (auto ident : *$3) {
+            Mem *mem = new Mem(*$5);
+            mem->name = ident;
+            $$->push_back(mem);
+        }
+        DELETE($3);
+        DELETE($5);
     }
-    | %empty
+    | %empty {
+        $$ = new vector<Mem*>();
+    }
     ;
 
 type : // Mem*

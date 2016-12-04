@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     if(strcmp(path, "-") != 0) {
         yyin = fopen(path, "r");
         
-        if(yyin == NULL) {
+        if(yyin == nullptr) {
             usage(app, "given path is incorrect");
             return 2;
         }
@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
     yyparse();
     fclose(yyin);
 
-    #if defined(CP_DEBUG) && CP_DEBUG
+    #if defined(XC_DEBUG) && XC_DEBUG
     mem_debug();
     #endif
     

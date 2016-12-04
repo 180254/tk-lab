@@ -4,14 +4,14 @@
 
 enum Type {
     UNKNOWN = 0,
-    REAL = 1,
+    REAL    = 1,
     INTEGER = 2,
-    ARRAY = 3
+    ARRAY   = 3
 };
 
 struct Array {
-    int min;
-    int max;
+    int  min;
+    int  max;
     Type type;
     
     Array();
@@ -23,9 +23,9 @@ struct Array {
 
 struct Mem {
     std::string *name;
-    Type type;
-    Array *array;
-    int address;
+    Type        type;
+    Array       *array;
+    int         address;
     
     Mem();
     Mem(const Mem &obj);
@@ -37,7 +37,6 @@ struct Mem {
 /* ---------------------------------------------------------------------------------------------*/
 
 extern std::vector<Mem*> memory;
-extern int memory_current;
 
 /* ---------------------------------------------------------------------------------------------*/
 

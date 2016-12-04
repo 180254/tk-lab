@@ -2,6 +2,6 @@
 
 void yyerror(const char *message) 
 {
-    cerr << "yyerror: line " << yylineno << ", " << message;
+    cerr << "yyerror: line " << yylineno << ", " << message << "\n";
 }
 

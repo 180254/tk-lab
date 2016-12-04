@@ -52,17 +52,40 @@
 /* -------------------------------------------------------------------------------------------- */
 
 %union {
-    string          *str;
-    vector<string*> *v_str;
-    Type            type;
-    Mem             *mem;
-    vector<Mem*>    *v_mem;
+    void             *none;
+    string           *str;
+    vector<string *> *v_str;
+    Type             type;
+    Mem              *mem;
+    vector<Mem *>    *v_mem;
 }
 
+// %type <none>   program
 %type <v_str>  identifier_list
 %type <v_mem>  declarations
 %type <mem>    type
 %type <type>   standard_type
+// %type <none>   subprogram_declarations
+// %type <none>   subprogram_declaration
+// %type <none>   subprogram_head
+// %type <none>   arguments
+// %type <none>   parameter_list
+// %type <none>   compound_statement
+// %type <none>   optional_statements
+// %type <none>   statement_list
+// %type <none>   statement
+// %type <none>   variable
+// %type <none>   procedure_statement
+// %type <none>   expression_list
+// %type <none>   expression
+// %type <none>   simple_expression
+// %type <none>   term
+// %type <none>   factor
+// %type <none>   relop
+// %type <none>   sign
+// %type <none>   mulop
+// %type <none>   or
+// %type <none>   assignop
 %type <str>    num
 %type <str>    id
 
@@ -88,7 +111,7 @@ program :
     '.'
     ;
     
-identifier_list : // vector<string*>*
+identifier_list : // vector<string *> *
     id {
         $$ = new vector<string*>();
         $$->push_back($1);
@@ -98,7 +121,7 @@ identifier_list : // vector<string*>*
     }
     ;
     
-declarations : // vector<mem*>*
+declarations : // vector<Mem *> *
     declarations T_VAR identifier_list ':' type ';' {
         $$ = new vector<Mem*>();
 
@@ -120,7 +143,7 @@ declarations : // vector<mem*>*
     }
     ;
 
-type : // Mem*
+type : // Mem *
     standard_type {
         $$ = new Mem();
         $$->type = $1;
@@ -253,13 +276,13 @@ assignop :
     T_ASSIGN
     ;
     
-num : // string*
+num : // string *
     T_NUM {
         $$ = yylval.str;
     }
     ;
     
-id  : // string*
+id  : // string *
     T_ID {
         $$ = yylval.str;
     }

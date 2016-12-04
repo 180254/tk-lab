@@ -17,6 +17,7 @@ NUM             {DIGITS}{FRACTION_OPT}{EXPONENT_OPT}
 %{
 
 #include "global.hpp"
+#include "parser.hpp"
 
 %}
 

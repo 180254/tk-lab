@@ -15,7 +15,7 @@ OUT=xcomp
 ${OUT}: $(OBJECTS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^
 
-global.hpp:main.hpp node.hpp error.hpp parser.m.hpp lexer.hpp
+global.hpp: main.hpp node.hpp error.hpp parser.m.hpp lexer.hpp
 
 ${OBJECTS}: global.hpp
 

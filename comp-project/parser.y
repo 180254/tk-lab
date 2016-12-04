@@ -52,14 +52,14 @@
 /* -------------------------------------------------------------------------------------------- */
 
 %union {
-    std::string *str;
-    std::vector<std::string*> *vstr;
+    string *str;
+    vector<string*> *v_str;
     Type type;
     Mem *mem;
     
 }
 
-%type <vstr> identifier_list
+%type <v_str> identifier_list
 %type <mem> type
 %type <type> standard_type
 %type <str> num
@@ -83,9 +83,9 @@ program :
     '.'
     ;
     
-identifier_list : // std::vector<std::string*>*
+identifier_list : // vector<string*>*
     id {
-        $$ = new std::vector<std::string*>();
+        $$ = new vector<string*>();
         $$->push_back($1);
     }
     | identifier_list ',' id {
@@ -97,7 +97,7 @@ declarations :
     declarations T_VAR identifier_list ':' type ';' {
         for (auto identifier : *$3) {
             Mem *mem = new Mem(*$5);
-            mem->name = new std::string(*identifier);
+            mem->name = new string(*identifier);
             memory.push_back(mem);
             
             delete identifier;
@@ -117,8 +117,8 @@ type : // Mem*
     | T_ARRAY '[' num T_ARRAY_RANGE num ']' T_OF standard_type {
         $$ = new Mem();
         $$->array = new Array();
-        $$->array->min = std::stoi(*$3);
-        $$->array->max = std::stoi(*$5);
+        $$->array->min = stoi(*$3);
+        $$->array->max = stoi(*$5);
         $$->array->type = $8;
     }
     ;

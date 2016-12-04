@@ -58,12 +58,12 @@ NUM             {DIGITS}{FRACTION_OPT}{EXPONENT_OPT}
 "="             return T_EQ;
 
 {ID}            {
-    yylval.str = new std::string(yytext);
+    yylval.str = new string(yytext);
     return T_ID;
 }
 
 {NUM}           {
-    yylval.str = new std::string(yytext);
+    yylval.str = new string(yytext);
     return T_NUM;
 }
 

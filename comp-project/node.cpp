@@ -16,8 +16,8 @@ Array::~Array() {
 
 }
 
-std::string Array::str() {
-    std::stringstream ss;
+string Array::str() {
+    stringstream ss;
     
     ss << "[";
     ss << "min: " << min << "; ";
@@ -37,7 +37,7 @@ Mem::Mem() : name(nullptr), type(UNKNOWN), array(nullptr), address(0) {
 Mem::Mem(const Mem &obj) {
     name =
         obj.name != nullptr
-        ? new std::string(*(obj.name))
+        ? new string(*(obj.name))
         : nullptr;
         
     type = obj.type;
@@ -58,8 +58,8 @@ Mem::~Mem() {
     array = nullptr;
 }
 
-std::string Mem::str() {
-    std::stringstream ss;
+string Mem::str() {
+    stringstream ss;
     
     ss << "[";
     ss << "name: " << (name != nullptr ? *name : "NULL") << "; ";
@@ -74,13 +74,13 @@ std::string Mem::str() {
 
 /* ---------------------------------------------------------------------------------------------*/
 
-int mem_ptr = 0;
-std::vector<Mem*> memory; 
+vector<Mem*> memory; 
+int memory_current = 0;
 
 /* ---------------------------------------------------------------------------------------------*/
 
 void mem_debug() {
-    std::cout << "[MEMORY]\n";
+    cout << "[MEMORY]\n";
     for(auto mem : memory) {
         std::cout << mem->str() << "\n";
     }

@@ -72,7 +72,8 @@
 /* -------------------------------------------------------------------------------------------- */
 
 program :
-    T_PROGRAM T_ID '(' identifier_list ')' ';' {
+    T_PROGRAM id '(' identifier_list ')' ';' {
+        delete $2;
         delete $4;
     }
 
@@ -98,14 +99,17 @@ declarations :
             Mem *mem = new Mem(*$5);
             mem->name = new std::string(*identifier);
             memory.push_back(mem);
+            
+            delete identifier;
         }
         
+        delete $3;
         delete $5;
     }
     | %empty
     ;
 
-type : // Mem
+type : // Mem*
     standard_type {
         $$ = new Mem();
         $$->type = $1;
@@ -119,7 +123,7 @@ type : // Mem
     }
     ;
     
-standard_type : // VarType
+standard_type : // Type
     T_INTEGER {
         $$ = INTEGER;
     }
@@ -238,13 +242,13 @@ assignop :
     T_ASSIGN
     ;
     
-num : // string
+num : // string*
     T_NUM {
         $$ = yylval.str;
     }
     ;
     
-id  : // string
+id  : // string*
     T_ID {
         $$ = yylval.str;
     }

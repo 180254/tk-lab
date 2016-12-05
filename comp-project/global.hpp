@@ -19,10 +19,16 @@
 #include "parser.m.hpp"
 #include "lexer.hpp"
 
-#define DELETE(ptr) \
-{                   \
-    delete ptr;     \
-    ptr = nullptr;  \
+#define DELETE(ptr)  \
+{                    \
+    delete (ptr);    \
+    (ptr) = nullptr; \
+}
+
+#define DELETE_C(c_ptr, ptr)  \
+{                             \
+    delete (c_ptr);           \
+    (ptr) = nullptr;          \
 }
 
 

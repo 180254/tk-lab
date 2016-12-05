@@ -4,8 +4,8 @@
 
 int main(int argc, char *argv[]) {
     
-    const char *app  = argv[0];
-    const char *path = argv[1];
+    const char* app  = argv[0];
+    const char* path = argv[1];
     
     if(argc < 2) {
         usage(app, "path parameter is misssing");
@@ -37,8 +37,8 @@ int main(int argc, char *argv[]) {
 /* -------------------------------------------------------------------------------------------- */
 
 void usage(const char *app, const char *message) {
-    cerr << "ERROR: " << message << ".\n";
-    cerr << "Usage: " << app << " PATH\n";
-    cerr << "PATH = FILE-PATH | '-'\n";
+    cerr << "app error: " << message << "\n";
+    cerr << "app usage: " << app << " PATH\n";
+    cerr << "app usage: PATH = FILE-PATH | '-'\n";
 }
 

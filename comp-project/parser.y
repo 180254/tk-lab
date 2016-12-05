@@ -52,19 +52,19 @@
 /* -------------------------------------------------------------------------------------------- */
 
 %union {
-    void             *none;
-    string           *str;
-    vector<string *> *v_str;
-    Type             type;
-    Mem              *mem;
-    vector<Mem *>    *v_mem;
+    void*             none;
+    string*           str;
+    vector<string*>*  v_str;
+    Type              type;
+    Symbol*           symbol;
+    vector<Symbol*>*  v_symbol;
 }
 
 // %type <none>   program
-%type <v_str>  identifier_list
-%type <v_mem>  declarations
-%type <mem>    type
-%type <type>   standard_type
+%type <v_str>     identifier_list
+%type <v_symbol>  declarations
+%type <symbol>    type
+%type <type>      standard_type
 // %type <none>   subprogram_declarations
 // %type <none>   subprogram_declaration
 // %type <none>   subprogram_head
@@ -86,8 +86,8 @@
 // %type <none>   mulop
 // %type <none>   or
 // %type <none>   assignop
-%type <str>    num
-%type <str>    id
+%type <str>      num
+%type <str>      id
 
 /* -------------------------------------------------------------------------------------------- */
 
@@ -101,8 +101,8 @@ program :
         DELETE($4);
     }
     declarations {
-        for (auto mem : *$8) {
-            memory.push_back(mem);
+        for (auto symbol : *$8) {
+            memory.push_back(symbol);
         }
         DELETE($8);
     }
@@ -111,7 +111,7 @@ program :
     '.'
     ;
     
-identifier_list : // vector<string *> *
+identifier_list : // vector<string*>*
     id {
         $$ = new vector<string*>();
         $$->push_back($1);
@@ -121,39 +121,41 @@ identifier_list : // vector<string *> *
     }
     ;
     
-declarations : // vector<Mem *> *
+declarations : // vector<Symbol*>*
     declarations T_VAR identifier_list ':' type ';' {
-        $$ = new vector<Mem*>();
+        $$ = new vector<Symbol*>();
 
-        for (auto mem : *$1) {
-            $$->push_back(mem);  
+        for (auto symbol : *$1) {
+            $$->push_back(symbol);  
         }
         DELETE($1);
         
         for (auto ident : *$3) {
-            Mem *mem = new Mem(*$5);
-            mem->name = ident;
-            $$->push_back(mem);
+            Symbol* symbol = new Symbol(*$5);
+            symbol->name = ident;
+            $$->push_back(symbol);
         }
         DELETE($3);
         DELETE($5);
     }
     | %empty {
-        $$ = new vector<Mem*>();
+        $$ = new vector<Symbol*>();
     }
     ;
 
 type : // Mem *
     standard_type {
-        $$ = new Mem();
+        $$ = new Symbol();
         $$->type = $1;
     }
     | T_ARRAY '[' num T_ARRAY_RANGE num ']' T_OF standard_type {
-        $$ = new Mem();
-        $$->array = new Array();
-        $$->array->min = stoi(*$3);
-        $$->array->max = stoi(*$5);
-        $$->array->type = $8;
+        $$ = new Symbol();
+        $$->type = ARRAY;
+        Array* array = new Array();
+        array->min = stoi(*$3);
+        array->max = stoi(*$5);
+        array->type = $8;
+        $$->info = array;
     }
     ;
     
@@ -182,7 +184,6 @@ subprogram_head :
 
 arguments :
     '(' parameter_list ')'
-    | %empty;
 
 parameter_list :
     identifier_list ':' type
@@ -191,11 +192,11 @@ parameter_list :
 
 compound_statement :
     T_BEGIN
-    optionaT_statements
+    optional_statements
     T_END
     ;
     
-optionaT_statements :
+optional_statements :
     statement_list
     | %empty
     ;
@@ -276,13 +277,13 @@ assignop :
     T_ASSIGN
     ;
     
-num : // string *
+num : // string*
     T_NUM {
         $$ = yylval.str;
     }
     ;
     
-id  : // string *
+id  : // string*
     T_ID {
         $$ = yylval.str;
     }

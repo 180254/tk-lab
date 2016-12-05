@@ -1,4 +1,4 @@
 #pragma once
 
-void yyerror(const char *);
+void yyerror(const char*);
 

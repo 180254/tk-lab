@@ -2,7 +2,76 @@
 
 /* ---------------------------------------------------------------------------------------------*/
 
-Array::Array() : min(-1), max(-1), type(UNKNOWN) {
+Symbol::Symbol() :
+    name(nullptr),
+    type(UNKNOWN),
+    info(nullptr),
+    offset(-1),
+    reference(false) {
+
+}
+
+Symbol::Symbol(const Symbol &obj) {
+    if(obj.name != nullptr) {
+        name = new string(*(obj.name));
+    } else {
+        name = nullptr;
+    }
+        
+    type = obj.type;
+    
+    
+    if(type == ARRAY && obj.info != nullptr) {
+        info = new Array(*((Array*)obj.info));
+    } else {
+        info = nullptr;
+    }
+
+    offset = obj.offset;
+    reference = obj.reference;
+}
+
+Symbol::~Symbol() { 
+    DELETE(name);
+    
+    if(type == ARRAY) {
+        DELETE_C((Array*)info, info);
+    }
+}
+
+string Symbol::str() {
+    stringstream ss;
+    
+    ss << "[";
+    
+    if(name != nullptr) {
+        ss << "name: " <<  *name << "; ";
+    } else {
+        ss << "name: " << "NULL" << "; ";
+    }
+    
+    ss << "type: "    << type << "; ";
+    
+    if(type == ARRAY && info != nullptr) {
+        ss << "info: " << ((Array*)info)->str() << "; ";
+    } else {
+        ss << "info: " << "NULL" << "; ";
+    }
+    
+    ss << "offset: " << offset << "; ";
+    ss << "reference: " << reference << ";";
+    ss << "]";
+    
+    return ss.str();
+}
+
+
+/* ---------------------------------------------------------------------------------------------*/
+
+Array::Array() :
+    type(UNKNOWN),
+    min(-1),
+    max(-1) {
 
 }
 
@@ -30,63 +99,26 @@ string Array::str() {
 
 /* ---------------------------------------------------------------------------------------------*/
 
-Mem::Mem() : name(nullptr), type(UNKNOWN), array(nullptr), address(0) {
-
-}
-
-Mem::Mem(const Mem &obj) {
-    name =
-        obj.name != nullptr
-        ? new string(*(obj.name))
-        : nullptr;
-        
-    type = obj.type;
-    
-    array =
-        obj.array != nullptr
-        ? new Array(*(obj.array))
-        : nullptr;
-
-    address = obj.address;
-}
-
-Mem::~Mem() { 
-    DELETE(name);
-    DELETE(array);
-}
-
-string Mem::str() {
-    stringstream ss;
-    
-    ss << "[";
-    ss << "name: "    << (name != nullptr  ? *name        : "NULL") << "; ";
-    ss << "type: "    << type << "; ";
-    ss << "array: "   << (array != nullptr ? array->str() : "NULL") << "; ";
-    ss << "address: " << address << ";";
-    ss << "]";
-    
-    return ss.str();
-}
 
 
 /* ---------------------------------------------------------------------------------------------*/
 
-vector<Mem *> memory; 
+std::vector<Symbol*> memory;
 
 /* ---------------------------------------------------------------------------------------------*/
 
 void mem_debug() {
     cout << "[MEMORY]" << "\n";
-    for(auto mem : memory) {
-        std::cout << mem->str() << "\n";
+    for(auto symbol : memory) {
+        std::cout << symbol->str() << "\n";
     }
 }
 
 /* ---------------------------------------------------------------------------------------------*/
 
 void mem_free() {
-    for(auto mem : memory) {
-        delete mem;
+    for(auto symbol : memory) {
+        delete symbol;
     }
 }
 

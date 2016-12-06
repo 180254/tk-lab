@@ -11,6 +11,8 @@
 #include <sstream>
 #include <vector>
 #include <iterator>
+#include <map>
+#include <type_traits>
 
 #include "main.hpp"
 #include "node.hpp"

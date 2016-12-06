@@ -108,6 +108,7 @@ struct Expression {
     Expression();
     ~Expression();
     string str();
+    string str(int);
 };
 
 /* ---------------------------------------------------------------------------------------------*/
@@ -133,7 +134,7 @@ struct ExprArg {
     
     ExprArg();
     ~ExprArg();
-    string str();
+    string str(int);
 };
 
 

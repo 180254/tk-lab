@@ -109,8 +109,13 @@ program :
         }
         DELETE($8);
     }
-    subprogram_declarations
-    compound_statement
+    subprogram_declarations {
+    }
+    compound_statement {
+        for (auto st : *$12) {
+            cout << st->str();
+        } 
+    }
     '.'
     ;
     
@@ -433,33 +438,33 @@ factor : // Expression*
 /* -------------------------------------------------------------------------------------------- */
 
 relop : // Operation
-    T_EQ { return OP_LOG_EQ; }
-    | T_NE { return OP_LOG_NE; }
-    | T_LE { return OP_LOG_LE; } 
-    | T_GE { return OP_LOG_GE; }
-    | T_LO  { return OP_LOG_LO; }
-    | T_GR { return OP_LOG_GR; }
+    T_EQ { $$ = OP_LOG_EQ; }
+    | T_NE { $$ = OP_LOG_NE; }
+    | T_LE { $$ = OP_LOG_LE; } 
+    | T_GE { $$ = OP_LOG_GE; }
+    | T_LO  { $$ = OP_LOG_LO; }
+    | T_GR { $$ = OP_LOG_GR; }
     ;
     
 sign : // Operation
-    '-' { return OP_MATH_MINUS; }
-    | '+' { return OP_MATH_PLUS; }
+    '-' { $$ = OP_MATH_MINUS; }
+    | '+' { $$ = OP_MATH_PLUS; }
     ;
     
 mulop : // Operation
-    '*' { return OP_MATH_MUL; }
-    | '/' { return OP_MATH_DIV1; }
-    | T_DIV { return OP_MATH_DIV2; }
-    | T_MOD { return OP_MATH_MOD; }
-    | T_AND { return OP_LOG_AND; }
+    '*' { $$ = OP_MATH_MUL; }
+    | '/' { $$ = OP_MATH_DIV1; }
+    | T_DIV { $$ = OP_MATH_DIV2; }
+    | T_MOD { $$ = OP_MATH_MOD; }
+    | T_AND { $$ = OP_LOG_AND; }
     ;  
        
 or : // Operation
-    T_OR { return OP_LOG_OR; }
+    T_OR { $$ = OP_LOG_OR; }
     ;
 
 assignop : // Operation
-    T_ASSIGN { return OP_ASSIGN; }
+    T_ASSIGN { $$ = OP_ASSIGN; }
     ;
     
 num : // string*

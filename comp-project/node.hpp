@@ -2,59 +2,72 @@
 
 /* ---------------------------------------------------------------------------------------------*/
 
-// enum Type;
-struct Symbol;
+enum TypeEnum : int;
+struct Type;
 struct Array;
-// enum Operation;
-// enum ArgType;
-union ArgVal;
-struct Arg;
+struct Symbol;
+enum Operation : int;
 struct Expression;
+struct ExprArg;
+enum ExprArgType : int;
+union ExprArgVal;
+struct Function;
 
 /* ---------------------------------------------------------------------------------------------*/
 
-enum Type {
-    UNKNOWN = 0,
-    INTEGER = 1,
-    REAL    = 2,
-    ARRAY   = 3,
-    BOOLEAN = 4,
-    ERROR   = 5
+enum TypeEnum : int {
+    TE_UNKNOWN = 0,
+    TE_INTEGER = 1,
+    TE_REAL    = 2,
+    TE_ARRAY   = 3,
+    TE_BOOLEAN = 4,
+    TE_ERROR   = 5
 };
 
-/* ---------------------------------------------------------------------------------------------*/
-
-struct Symbol {
-    std::string* name;
-    Type         type;
-    void*        info; // Array, ?
-    int          offset; 
-    bool         reference;
+struct Type {
+    TypeEnum       type;
+    Array*         array;
     
-    Symbol();
-    Symbol(const Symbol &obj);
-    ~Symbol();
+    Type();
+    Type(const Type &other);
+    ~Type();
     
+    bool operator==(const Type& other);
     std::string str();
 };
 
 /* ---------------------------------------------------------------------------------------------*/
 
 struct Array {
-    Type type;
-    int  min;
-    int  max;
+    TypeEnum       type;
+    int            min;
+    int            max;
     
     Array();
-    Array(const Array &obj);
+    Array(const Array &other);
     ~Array();
     
+    bool operator==(const Array& other);
     std::string str();
 };
 
 /* ---------------------------------------------------------------------------------------------*/
 
-enum Operation {
+struct Symbol {
+    std::string*   name;
+    Type*          type;
+    int            offset; 
+    bool           reference;
+    
+    Symbol();
+    ~Symbol();
+    std::string str();
+};
+
+/* ---------------------------------------------------------------------------------------------*/
+
+enum Operation : int {
+    OP_UNKNOWN,
     OP_ID,
     OP_ASSIGN,
     MATH_PLUS,
@@ -77,33 +90,53 @@ enum Operation {
 
 /* ---------------------------------------------------------------------------------------------*/
 
-enum ArgType {
-    ID,
-    EXPRESSION
+struct Expression {
+    Operation                oper;
+    std::vector<ExprArg*>*   args;
+    int                      result; // index, -1 for error
+    int                      line;
+    
+    Expression();
+    ~Expression();
+    std::string str();
 };
 
-union ArgVal {
+/* ---------------------------------------------------------------------------------------------*/
+
+struct ExprArg {
+    ExprArgType    type;
+    ExprArgVal*    val;
+    
+    ExprArg();
+    ~ExprArg();
+    std::string str();
+};
+
+enum ExprArgType : int {
+    E_UNKNOWN,
+    E_ID,
+    E_EXPRESSION
+};
+
+union ExprArgVal {
     int          iVal;
     Expression*  eVal;
 };
 
-struct Arg {
-    ArgType      type;
-    ArgVal       val;
+/* ---------------------------------------------------------------------------------------------*/
+
+struct Function {
+    std::string*                name;
+    std::vector<Type*>*         args;
+    Type*                       result;
+    std::vector<Symbol*>*       memory;
+    std::vector<Expression*>*   expr;
 };
 
 /* ---------------------------------------------------------------------------------------------*/
 
-struct Expression {
-    Operation                oper;
-    std::vector<Arg>*        args;
-    int                      result; // -1 for error
-    int                      line;
-};
-
-/* ---------------------------------------------------------------------------------------------*/
-
-extern std::vector<Symbol*> memory;
+extern std::vector<Symbol*>     memory;
+extern std::vector<Function*>   functions;
 
 /* ---------------------------------------------------------------------------------------------*/
 

@@ -2,108 +2,126 @@
 
 /* ---------------------------------------------------------------------------------------------*/
 
-Symbol::Symbol() :
-    name(nullptr),
-    type(UNKNOWN),
-    info(nullptr),
-    offset(-1),
-    reference(false) {
-
+Type::Type() : type(TE_UNKNOWN), array(nullptr) {
 }
 
-Symbol::Symbol(const Symbol &obj) {
-    if(obj.name != nullptr) {
-        name = new string(*(obj.name));
-    } else {
-        name = nullptr;
-    }
-        
-    type = obj.type;
+Type::Type(const Type &other) {
+    type = other.type;
     
-    
-    if(type == ARRAY && obj.info != nullptr) {
-        info = new Array(*((Array*)obj.info));
+    if(other.array != nullptr) {
+        array = new Array(*array);
     } else {
-        info = nullptr;
+        array = nullptr;
     }
-
-    offset = obj.offset;
-    reference = obj.reference;
 }
 
-Symbol::~Symbol() { 
-    DELETE(name);
+
+Type::~Type() {
+    DELETE(array);
+}
+
+bool Type::operator==(const Type& other) {
+    return type == other.type &&
+        (array == nullptr ? other.array == nullptr : (*array == *(other.array)));
+}
+
+string Type::str() {
+    stringstream ss;
+    ss << "["
+       << "type: "   << type
+       << "; array:" << (array == nullptr ? "NULL" : array->str())
+       << "]";
+    return ss.str();
+}
+
+/* ---------------------------------------------------------------------------------------------*/
+
+Array::Array() : type(TE_UNKNOWN), min(-1), max(-1) {
+}
+
+Array::Array(const Array &other) {
+    type = other.type;
+    min = other.min;
+    max = other.max;
+}
+
+Array::~Array() {
+}
+
+bool Array::operator==(const Array& other) {
+    return type == other.type && (min == other.min) && max == other.max;
+}
     
-    if(type == ARRAY) {
-        DELETE_C((Array*)info, info);
-    }
+string Array::str() {
+    stringstream ss;
+    ss << "["
+       << "type: "  << type 
+       << "; min: " << min 
+       << "; max: " << max
+       << "]";
+    return ss.str();
+}
+
+/* ---------------------------------------------------------------------------------------------*/
+
+Symbol::Symbol() : name(nullptr), type(nullptr), offset(-1), reference(false) {
+}
+
+Symbol::~Symbol()  {
+   DELETE(name);
+   DELETE(type);
 }
 
 string Symbol::str() {
     stringstream ss;
-    
-    ss << "[";
-    
-    if(name != nullptr) {
-        ss << "name: " <<  *name << "; ";
-    } else {
-        ss << "name: " << "NULL" << "; ";
-    }
-    
-    ss << "type: "    << type << "; ";
-    
-    if(type == ARRAY && info != nullptr) {
-        ss << "info: " << ((Array*)info)->str() << "; ";
-    } else {
-        ss << "info: " << "NULL" << "; ";
-    }
-    
-    ss << "offset: " << offset << "; ";
-    ss << "reference: " << reference << ";";
-    ss << "]";
-    
+    ss << "[name: "       << (name == nullptr ? "NULL" : *name)
+       << "; type: "      << (type == nullptr ? "NULL" : type->str()) 
+       << "; offset: "    << offset
+       << "; reference: " << reference
+       << "]";
     return ss.str();
 }
 
 
 /* ---------------------------------------------------------------------------------------------*/
 
-Array::Array() :
-    type(UNKNOWN),
-    min(-1),
-    max(-1) {
-
+Expression::Expression() :
+    oper(OP_UNKNOWN),
+    args(new vector<ExprArg*>()),
+    result(-1),
+    line (-1) {
 }
 
-Array::Array(const Array &obj) {
-    min  = obj.min;
-    max  = obj.max;
-    type = obj.type;
-}
-
-Array::~Array() {
-
-}
-
-string Array::str() {
-    stringstream ss;
+Expression::~Expression() {
+    for(auto arg : *args) {
+        delete arg;
+    }
     
-    ss << "[";
-    ss << "min: "  << min  << "; ";
-    ss << "max: "  << max  << "; ";
-    ss << "type: " << type << ";";
-    ss << "]";
-    
-    return ss.str();
+    DELETE(args);
+}
+
+string Expression::str() {
+    return "";
 }
 
 /* ---------------------------------------------------------------------------------------------*/
 
+ExprArg::ExprArg() : type(E_UNKNOWN), val(nullptr) {
+}
 
+
+ExprArg::~ExprArg() {
+    if(type == E_EXPRESSION) {
+        DELETE(val->eVal);
+    }
+    
+    DELETE(val);
+}
 
 /* ---------------------------------------------------------------------------------------------*/
 
-std::vector<Symbol*> memory;
+std::vector<Symbol*>             memory;
+extern std::vector<Function*>    functions;
 
 /* ---------------------------------------------------------------------------------------------*/
 
@@ -117,8 +135,5 @@ void mem_debug() {
 /* ---------------------------------------------------------------------------------------------*/
 
 void mem_free() {
-    for(auto symbol : memory) {
-        delete symbol;
-    }
 }
 

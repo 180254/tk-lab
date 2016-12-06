@@ -55,7 +55,7 @@
     void*             none;
     string*           str;
     vector<string*>*  v_str;
-    Type              type;
+    Type*             type;
     Symbol*           symbol;
     vector<Symbol*>*  v_symbol;
 }
@@ -63,7 +63,7 @@
 // %type <none>   program
 %type <v_str>     identifier_list
 %type <v_symbol>  declarations
-%type <symbol>    type
+%type <type>      type
 %type <type>      standard_type
 // %type <none>   subprogram_declarations
 // %type <none>   subprogram_declaration
@@ -131,10 +131,12 @@ declarations : // vector<Symbol*>*
         DELETE($1);
         
         for (auto ident : *$3) {
-            Symbol* symbol = new Symbol(*$5);
+            Symbol* symbol = new Symbol();
+            symbol->type = new Type(*$5);
             symbol->name = ident;
             $$->push_back(symbol);
         }
+        
         DELETE($3);
         DELETE($5);
     }
@@ -143,28 +145,31 @@ declarations : // vector<Symbol*>*
     }
     ;
 
-type : // Mem *
+type : // Type*
     standard_type {
-        $$ = new Symbol();
-        $$->type = $1;
+        $$ = $1;
     }
     | T_ARRAY '[' num T_ARRAY_RANGE num ']' T_OF standard_type {
-        $$ = new Symbol();
-        $$->type = ARRAY;
+        $$ = new Type();
+        $$->type = TE_ARRAY;
         Array* array = new Array();
+        array->type = $8->type;
         array->min = stoi(*$3);
         array->max = stoi(*$5);
-        array->type = $8;
-        $$->info = array;
+        $$->array = array;
+        
+        DELETE($8);
     }
     ;
     
-standard_type : // Type
+standard_type : // Type*
     T_INTEGER {
-        $$ = INTEGER;
+        $$ = new Type();
+        $$->type = TE_INTEGER;
     }
     | T_REAL {
-        $$ = REAL;
+        $$ = new Type();
+        $$->type = TE_REAL;
     }
     ;
     

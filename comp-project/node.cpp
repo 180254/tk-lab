@@ -6,12 +6,12 @@ std::ostream& operator<< (std::ostream & os, TypeEnum eth)
 {
     switch (eth)
     {
-        case  TypeEnum::TE_UNKNOWN: return os << "TE_UNKNOWN" ;
-        case  TypeEnum::TE_INTEGER: return os << "TE_INTEGER";
-        case  TypeEnum::TE_REAL:    return os << "TE_REAL" ;
-        case  TypeEnum::TE_ARRAY:   return os << "TE_ARRAY" ;
-        case  TypeEnum::TE_BOOLEAN: return os << "TE_BOOLEAN" ;
-        case  TypeEnum::TE_ERROR:   return os << "TE_ERROR" ;
+        case TypeEnum::TE_UNKNOWN: return os << "TE_UNKNOWN" ;
+        case TypeEnum::TE_INTEGER: return os << "TE_INTEGER";
+        case TypeEnum::TE_REAL:    return os << "TE_REAL" ;
+        case TypeEnum::TE_ARRAY:   return os << "TE_ARRAY" ;
+        case TypeEnum::TE_BOOLEAN: return os << "TE_BOOLEAN" ;
+        case TypeEnum::TE_ERROR:   return os << "TE_ERROR" ;
     };
     return os << static_cast<std::uint16_t>(eth);
 }
@@ -43,10 +43,8 @@ bool Type::operator==(const Type& other) {
 
 string Type::str() {
     stringstream ss;
-    ss << "["
-       << "te: "   << te
-       << "; array:" << (array == nullptr ? "NULL" : array->str())
-       << "]";
+    ss << te;
+    ss << (array == nullptr ? "" : ("(" + array->str() + ")"));
     return ss.str();
 }
 
@@ -70,11 +68,9 @@ bool Array::operator==(const Array& other) {
     
 string Array::str() {
     stringstream ss;
-    ss << "["
-       << "te: "  << te 
-       << "; min: " << min 
-       << "; max: " << max
-       << "]";
+    ss << te << "|";
+    ss << min << "|";
+    ss << max;
     return ss.str();
 }
 
@@ -90,11 +86,10 @@ Symbol::~Symbol()  {
 
 string Symbol::str() {
     stringstream ss;
-    ss << "[name: "       << (name == nullptr ? "NULL" : *name)
-       << "; type: "      << (type == nullptr ? "NULL" : type->str()) 
-       << "; offset: "    << offset
-       << "; reference: " << reference
-       << "]";
+    ss << (name == nullptr ? "?" : *name) << "|";
+    ss << (type == nullptr ? "?" : type->str()) << "|";
+    ss << offset << "|";
+    ss << reference;
     return ss.str();
 }
 
@@ -104,33 +99,32 @@ std::ostream& operator<< (std::ostream & os, Operation eth)
 {
     switch (eth)
     {
-
-        case      Operation::OP_UNKNOWN : return os << "OP_UNKNOWN" ;
-        case   Operation::OP_ID: return os << "OP_ID" ;
-        case   Operation::OP_CONSTANT: return os << "OP_CONSTANT" ;
-        case   Operation::OP_ASSIGN: return os << "OP_ASSIGN" ;
-        case   Operation::OP_ARRAY_ACCESS: return os << "OP_ARRAY_ACCESS" ;
-        case   Operation::OP_MATH_PLUS: return os << "OP_MATH_PLUS" ;
-        case   Operation::OP_MATH_MINUS: return os << "OP_MATH_MINUS" ;
-        case   Operation::OP_MATH_UMINUS: return os << "OP_MATH_UMINUS" ;
-        case   Operation::OP_MATH_UPLUS: return os << "OP_MATH_UPLUS" ;
-       case    Operation::OP_MATH_MOD: return os << "OP_MATH_MOD" ;
-        case   Operation::OP_MATH_DIV1: return os << "OP_MATH_DIV1" ;
-        case   Operation::OP_MATH_DIV2: return os << "OP_MATH_DIV2" ;
-        case   Operation::OP_MATH_MUL: return os << "TE_UNKNOWN" ;
-        case   Operation::OP_FLOW_IF: return os << "OP_FLOW_IF" ;
-        case   Operation::OP_FLOW_IF_THEN: return os << "OP_FLOW_IF_THEN" ;
-        case   Operation::OP_FLOW_WHILE: return os << "OP_FLOW_WHILE" ;
-        case   Operation::OP_CALL_FUNC: return os << "OP_CALL_FUNC" ;
-        case   Operation::OP_LOG_NOT: return os << "OP_LOG_NOT" ;
-        case   Operation::OP_LOG_AND: return os << "OP_LOG_AND" ;
-        case   Operation::OP_LOG_OR: return os << "OP_LOG_OR" ;
-        case   Operation::OP_LOG_NE: return os << "OP_LOG_NE" ;
-        case   Operation::OP_LOG_LE: return os << "OP_LOG_LE" ;
-        case   Operation::OP_LOG_GE: return os << "OP_LOG_GE" ;
-        case   Operation::OP_LOG_LO: return os << "OP_LOG_LO" ;
-        case   Operation::OP_LOG_GR: return os << "OP_LOG_GR" ;
-       case    Operation::OP_LOG_EQ: return os << "OP_LOG_EQ" ;
+        case Operation::OP_UNKNOWN :        return os << "OP_UNKNOWN" ;
+        case Operation::OP_ID:              return os << "OP_ID" ;
+        case Operation::OP_CONSTANT:        return os << "OP_CONSTANT" ;
+        case Operation::OP_ASSIGN:          return os << "OP_ASSIGN" ;
+        case Operation::OP_ARRAY_ACCESS:    return os << "OP_ARRAY_ACCESS" ;
+        case Operation::OP_MATH_PLUS:       return os << "OP_MATH_PLUS" ;
+        case Operation::OP_MATH_MINUS:      return os << "OP_MATH_MINUS" ;
+        case Operation::OP_MATH_UMINUS:     return os << "OP_MATH_UMINUS" ;
+        case Operation::OP_MATH_UPLUS:      return os << "OP_MATH_UPLUS" ;
+        case Operation::OP_MATH_MOD:        return os << "OP_MATH_MOD" ;
+        case Operation::OP_MATH_DIV1:       return os << "OP_MATH_DIV1" ;
+        case Operation::OP_MATH_DIV2:       return os << "OP_MATH_DIV2" ;
+        case Operation::OP_MATH_MUL:        return os << "TE_UNKNOWN" ;
+        case Operation::OP_FLOW_IF:         return os << "OP_FLOW_IF" ;
+        case Operation::OP_FLOW_IF_THEN:    return os << "OP_FLOW_IF_THEN" ;
+        case Operation::OP_FLOW_WHILE:      return os << "OP_FLOW_WHILE" ;
+        case Operation::OP_CALL_FUNC:       return os << "OP_CALL_FUNC" ;
+        case Operation::OP_LOG_NOT:         return os << "OP_LOG_NOT" ;
+        case Operation::OP_LOG_AND:         return os << "OP_LOG_AND" ;
+        case Operation::OP_LOG_OR:          return os << "OP_LOG_OR" ;
+        case Operation::OP_LOG_NE:          return os << "OP_LOG_NE" ;
+        case Operation::OP_LOG_LE:          return os << "OP_LOG_LE" ;
+        case Operation::OP_LOG_GE:          return os << "OP_LOG_GE" ;
+        case Operation::OP_LOG_LO:          return os << "OP_LOG_LO" ;
+        case Operation::OP_LOG_GR:          return os << "OP_LOG_GR" ;
+        case Operation::OP_LOG_EQ:          return os << "OP_LOG_EQ" ;
     };
     return os << static_cast<std::uint16_t>(eth);
 }
@@ -152,35 +146,42 @@ Expression::~Expression() {
     DELETE(args);
 }
 
-string Expression::str() {
-    return str(0);
-}
-
 string Expression::str(int level) {
-    string tab = string(level, ' ');
     
     stringstream ss;
-    ss << tab
-       << "[line: " << line
-       << "; oper = " << oper
-       << "; result = " << result
-       << "; args=\n";
+    ss << string(level, ' ');
+    ss << line << "|";
+    ss << oper << "|";
+    ss << result;
        
     for(auto exp_arg : *args) {
-        ss << exp_arg->str(level+1);
+        ss << "\n" << exp_arg->str(level+1);
     }
     
-    ss.seekp(-1, std::ios_base::end);
-    ss << "]" << "\n";
     return ss.str();
+}
+
+/* ---------------------------------------------------------------------------------------------*/
+
+
+std::ostream& operator<< (std::ostream & os, ExprArgType eth)
+{
+    switch (eth)
+    {
+        case ExprArgType::E_UNKNOWN:        return os << "E_UNKNOWN" ;
+        case ExprArgType::E_ID_S:           return os << "E_ID_S";
+        case ExprArgType::E_CONSTANT_S:     return os << "E_CONSTANT_S" ;
+        case ExprArgType::E_EXPRESSION:     return os << "E_EXPRESSION" ;
+        case ExprArgType::E_EXPRESSION_V:   return os << "E_EXPRESSION_V" ;
+
+    };
+    return os << static_cast<std::uint16_t>(eth);
 }
 
 /* ---------------------------------------------------------------------------------------------*/
 
 ExprArg::ExprArg() : type(E_UNKNOWN) {
 }
-
-
 
 ExprArg::~ExprArg() {
     if(type == E_EXPRESSION) {
@@ -189,36 +190,31 @@ ExprArg::~ExprArg() {
 }
 
 string ExprArg::str(int level) {
-    string tab = string(level, ' ');
-    
+
     stringstream ss;
-    ss << tab
-       << "[arg!"
-       << "; type = " << type;
+    ss << string(level, ' ');
+    ss << type << "|";
     
     if(type == E_UNKNOWN) {
-        ss << "; val = 0";
+        ss << "0";
         
     } else if(type == E_ID_S) {
-        ss << "; val = " << *(val.sVal);
+        ss << *(val.sVal);
     
     } else if(type == E_CONSTANT_S) {
-        ss << "; val = " << *(val.sVal);
+        ss << *(val.sVal);
         
     } else if(type == E_EXPRESSION) {
-        ss << "; val = \n";
-        ss << val.eVal->str(level+1);
+        ss << "\n" << val.eVal->str(level+1);
     
     } else if(type == E_EXPRESSION_V) {
-        ss << "; val = \n";
         for(auto exp : *(val.evVal)) {
-            ss << exp->str(level+1);
+            ss << "\n" << exp->str(level+1);
         }
-
     }
     
-    ss << "]" << "\n";
     return ss.str();
+    
 }
 
 /* ---------------------------------------------------------------------------------------------*/
@@ -254,7 +250,8 @@ ExprArg* expr_arg_expr_v(vector<Expression*>* arg) {
 /* ---------------------------------------------------------------------------------------------*/
 
 vector<Symbol*>             memory;
-extern vector<Function*>    functions;
+vector<Function*>           functions;
+vector<Expression*>         program;
 
 /* ---------------------------------------------------------------------------------------------*/
 
@@ -262,6 +259,11 @@ void mem_debug() {
     cout << "[MEMORY]" << "\n";
     for(auto symbol : memory) {
         cout << symbol->str() << "\n";
+    }
+    
+    cout << "[PROGRAM]" << "\n";
+    for(auto expr : program) {
+        cout << expr->str(0) << "\n";
     }
 }
 

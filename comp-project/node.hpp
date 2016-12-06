@@ -107,7 +107,6 @@ struct Expression {
     
     Expression();
     ~Expression();
-    string str();
     string str(int);
 };
 
@@ -150,18 +149,20 @@ ExprArg* expr_arg_expr_v(vector<Expression*>*);
 struct Function {
     string*                name;
     vector<Type*>*         args;
-    Type*                       result;
+    Type*                  result;
     vector<Symbol*>*       memory;
     vector<Expression*>*   expr;
 };
 
 /* ---------------------------------------------------------------------------------------------*/
 
-extern vector<Symbol*>     memory;
-extern vector<Function*>   functions;
+extern vector<Symbol*>      memory;
+extern vector<Function*>    functions;
+extern vector<Expression*>  program;
 
 /* ---------------------------------------------------------------------------------------------*/
 
 void mem_debug();
 void mem_free();
+
 int mem_find(vector<Symbol*>, string);

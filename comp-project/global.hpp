@@ -1,6 +1,7 @@
 #pragma once
 
 #define XC_DEBUG 1
+#define YYDEBUG 0
 
 #include <cstdio>
 #include <cstdlib>
@@ -11,8 +12,6 @@
 #include <sstream>
 #include <vector>
 #include <iterator>
-#include <map>
-#include <type_traits>
 
 #include "main.hpp"
 #include "node.hpp"

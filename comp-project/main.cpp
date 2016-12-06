@@ -4,6 +4,10 @@
 
 int main(int argc, char *argv[]) {
     
+    #if defined(YYDEBUG) && YYDEBUG 
+    yydebug = 1;
+    #endif
+    
     const char* app  = argv[0];
     const char* path = argv[1];
     

@@ -112,9 +112,7 @@ program :
     subprogram_declarations {
     }
     compound_statement {
-        for (auto st : *$12) {
-            cout << st->str();
-        } 
+        program = *$12;
     }
     '.'
     ;

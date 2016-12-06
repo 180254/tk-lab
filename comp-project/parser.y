@@ -151,9 +151,9 @@ type : // Type*
     }
     | T_ARRAY '[' num T_ARRAY_RANGE num ']' T_OF standard_type {
         $$ = new Type();
-        $$->type = TE_ARRAY;
+        $$->te = TE_ARRAY;
         Array* array = new Array();
-        array->type = $8->type;
+        array->te = $8->te;
         array->min = stoi(*$3);
         array->max = stoi(*$5);
         $$->array = array;
@@ -165,11 +165,11 @@ type : // Type*
 standard_type : // Type*
     T_INTEGER {
         $$ = new Type();
-        $$->type = TE_INTEGER;
+        $$->te = TE_INTEGER;
     }
     | T_REAL {
         $$ = new Type();
-        $$->type = TE_REAL;
+        $$->te = TE_REAL;
     }
     ;
     

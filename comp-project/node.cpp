@@ -2,11 +2,11 @@
 
 /* ---------------------------------------------------------------------------------------------*/
 
-Type::Type() : type(TE_UNKNOWN), array(nullptr) {
+Type::Type() : te(TE_UNKNOWN), array(nullptr) {
 }
 
 Type::Type(const Type &other) {
-    type = other.type;
+    te = other.te;
     
     if(other.array != nullptr) {
         array = new Array(*array);
@@ -21,14 +21,14 @@ Type::~Type() {
 }
 
 bool Type::operator==(const Type& other) {
-    return type == other.type &&
+    return te == other.te &&
         (array == nullptr ? other.array == nullptr : (*array == *(other.array)));
 }
 
 string Type::str() {
     stringstream ss;
     ss << "["
-       << "type: "   << type
+       << "te: "   << te
        << "; array:" << (array == nullptr ? "NULL" : array->str())
        << "]";
     return ss.str();
@@ -36,11 +36,11 @@ string Type::str() {
 
 /* ---------------------------------------------------------------------------------------------*/
 
-Array::Array() : type(TE_UNKNOWN), min(-1), max(-1) {
+Array::Array() : te(TE_UNKNOWN), min(-1), max(-1) {
 }
 
 Array::Array(const Array &other) {
-    type = other.type;
+    te = other.te;
     min = other.min;
     max = other.max;
 }
@@ -49,13 +49,13 @@ Array::~Array() {
 }
 
 bool Array::operator==(const Array& other) {
-    return type == other.type && (min == other.min) && max == other.max;
+    return te == other.te && min == other.min && max == other.max;
 }
     
 string Array::str() {
     stringstream ss;
     ss << "["
-       << "type: "  << type 
+       << "te: "  << te 
        << "; min: " << min 
        << "; max: " << max
        << "]";

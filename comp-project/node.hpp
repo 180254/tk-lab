@@ -25,7 +25,7 @@ enum TypeEnum : int {
 };
 
 struct Type {
-    TypeEnum       type;
+    TypeEnum       te;
     Array*         array;
     
     Type();
@@ -39,7 +39,7 @@ struct Type {
 /* ---------------------------------------------------------------------------------------------*/
 
 struct Array {
-    TypeEnum       type;
+    TypeEnum       te;
     int            min;
     int            max;
     

@@ -73,12 +73,12 @@
 // %type <none>   subprogram_head
 // %type <none>   arguments
 // %type <none>   parameter_list
-// %type <none>   compound_statement
-// %type <none>   optional_statements
-// %type <none>   statement_list
-// %type <none>   statement
+%type <v_expr>   compound_statement
+%type <v_expr>   optional_statements
+%type <v_expr>   statement_list
+%type <v_expr>   statement
 %type <expr>     variable
-%type <v_expr>   procedure_statement
+%type <expr>     procedure_statement
 %type <v_expr>   expression_list
 %type <expr>     expression
 %type <expr>     simple_expression
@@ -198,75 +198,201 @@ parameter_list :
     | parameter_list ';' identifier_list ':' type
     ;
 
-compound_statement :
+compound_statement : // vector<Expression*>*
     T_BEGIN
     optional_statements
-    T_END
+    T_END {
+        $$ = $2;
+    }
     ;
     
-optional_statements :
-    statement_list
-    | %empty
+optional_statements : // vector<Expression*>*
+    statement_list {
+        $$ = $1;
+    }
+    | %empty {
+        $$ = new vector<Expression*>();
+    }
     ;
 
-statement_list :
-    statement
-    | statement_list ';' statement
+statement_list : // vector<Expression*>*
+    statement {
+        $$ = new vector<Expression*>();
+        
+        for(auto st : *$1) {
+            $$->push_back(st);
+        }
+        
+        DELETE($1);
+    }
+    | statement_list ';' statement {
+        $$ = new vector<Expression*>();
+        
+        for(auto st : *$1) {
+            $$->push_back(st);
+        }
+        for(auto st : *$3) {
+            $$->push_back(st);
+        }
+          
+        DELETE($1);
+        DELETE($3);
+    } 
     ;
     
-statement :
-    variable assignop expression
-    | procedure_statement
-    | compound_statement
-    | T_IF expression T_THEN statement
-    | T_IF expression T_THEN statement T_ELSE statement
-    | T_WHILE expression T_DO statement
+statement : // vector<Expression*>*
+    variable assignop expression {
+        auto expr = new Expression();
+        expr->oper = OP_ASSIGN;
+        expr->args->push_back(expr_arg_expr($1));
+        expr->args->push_back(expr_arg_expr($3));
+        expr->line = yylineno;
+        
+        $$ = new vector<Expression*>();
+        $$->push_back(expr);
+    }
+    | procedure_statement {
+        $$ = new vector<Expression*>();
+        $$->push_back($1);
+
+    }
+    | compound_statement {
+        $$ = $1;
+    }
+    | T_IF expression T_THEN statement {
+        auto expr = new Expression();
+        expr->oper = OP_FLOW_IF;
+        expr->args->push_back(expr_arg_expr($2));
+        expr->args->push_back(expr_arg_expr_v($4));
+        expr->line = yylineno;
+        
+        $$ = new vector<Expression*>();
+        $$->push_back(expr);
+    }
+    | T_IF expression T_THEN statement T_ELSE statement {
+        auto expr = new Expression();
+        expr->oper = OP_FLOW_IF_THEN;
+        expr->args->push_back(expr_arg_expr($2));
+        expr->args->push_back(expr_arg_expr_v($4));
+        expr->args->push_back(expr_arg_expr_v($6));
+        expr->line = yylineno;
+        
+        $$ = new vector<Expression*>();
+        $$->push_back(expr);
+    }
+    | T_WHILE expression T_DO statement {
+        auto expr = new Expression();
+        expr->oper = OP_FLOW_WHILE;
+        expr->args->push_back(expr_arg_expr($2));
+        expr->args->push_back(expr_arg_expr_v($4));
+        expr->line = yylineno;
+        
+        $$ = new vector<Expression*>();
+        $$->push_back(expr);
+    } 
     ;
     
 variable : // Expression*
     id {
         $$ = new Expression();
         $$->oper = OP_ID;
-        
-        auto arg = new ExprArg();
-        arg->type = E_ID_S;
-        arg->val->sVal = new string(*$1);
-        
+        $$->args->push_back(expr_arg_id($1));
         $$->line = yylineno;
-        
-        DELETE($1);
     }
     | id '[' expression ']' {
         $$ = new Expression();
-        // TODO
+        $$->oper = OP_ARRAY_ACCESS;
+        $$->args->push_back(expr_arg_id($1));
+        $$->args->push_back(expr_arg_expr($3));
+        $$->line = yylineno;
     }
     ;
 
-procedure_statement :
-    id
-    | id '(' expression_list ')'
+procedure_statement : // Expression*
+    id { // ???
+        $$ = new Expression();
+        $$->oper = OP_CALL_FUNC;
+        $$->args->push_back(expr_arg_id($1));
+        $$->line = yylineno;
+    }
+    | id '(' expression_list ')' {
+        $$ = new Expression();
+        $$->oper = OP_CALL_FUNC;
+        $$->args->push_back(expr_arg_id($1));
+        
+        for(auto expr : *$3) {
+            $$->args->push_back(expr_arg_expr(expr));
+        }
+        
+        $$->line = yylineno;
+        
+        DELETE($3);
+    }
     ;
     
-expression_list:
-    expression
-    | expression_list ',' expression
+expression_list: // vector<Expression*>*
+    expression {
+        $$ = new vector<Expression*>();
+        $$->push_back($1);
+    }
+    | expression_list ',' expression {
+        $$ = $1;
+        $1->push_back($3);
+    }
     ;
     
-expression :
-    simple_expression
-    | simple_expression relop simple_expression
+expression : // Expression*
+    simple_expression {
+        $$ = $1;
+        $$->line = yylineno;
+    }
+    | simple_expression relop simple_expression {
+        $$ = new Expression();
+        $$->oper = $2;
+        $$->args->push_back(expr_arg_expr($1));
+        $$->args->push_back(expr_arg_expr($3));
+        $$->line = yylineno;
+    }
     ;
     
-simple_expression :
-    term
-    | sign term %prec UMINUS
-    | simple_expression sign term
-    | simple_expression or term
+simple_expression : // Expression*
+    term {
+        $$ = $1;
+        $$->line = yylineno;
+    }
+    | sign term %prec UMINUS {
+        $$ = new Expression();
+        $$->oper = $1 == OP_MATH_MINUS ? OP_MATH_UMINUS : OP_MATH_UPLUS;
+        $$->args->push_back(expr_arg_expr($2));
+        $$->line = yylineno;
+    }
+    | simple_expression sign term {
+        $$ = new Expression();
+        $$->oper = $2;
+        $$->args->push_back(expr_arg_expr($1));
+        $$->args->push_back(expr_arg_expr($3));
+        $$->line = yylineno;
+    }
+    | simple_expression or term {
+        $$ = new Expression();
+        $$->oper = $2;
+        $$->args->push_back(expr_arg_expr($1));
+        $$->args->push_back(expr_arg_expr($3));
+        $$->line = yylineno;
+    }
     ;
     
-term :
-    factor
-    | term mulop factor
+term : // Expression*
+    factor {
+        $$ = $1;
+    }
+    | term mulop factor {
+        $$ = new Expression();
+        $$->oper = $2;
+        $$->args->push_back(expr_arg_expr($1));
+        $$->args->push_back(expr_arg_expr($3));
+        $$->line = yylineno;
+    }
     ;
     
 factor : // Expression*
@@ -276,31 +402,21 @@ factor : // Expression*
     | id '(' expression_list ')' {
         $$ = new Expression();
         $$->oper = OP_CALL_FUNC;
-        
-        auto name = new ExprArg();
-        name->type = E_ID_S;
-        name->val->sVal = new string(*$1);
-        $$->args->push_back(name);
+        $$->args->push_back(expr_arg_id($1));
         
         for(auto expr : *$3) {
-            auto arg = new ExprArg();
-            arg->type = E_EXPRESSION;
-            arg->val->eVal = expr;
-            $$->args->push_back(arg);
+            $$->args->push_back(expr_arg_expr(expr));
         }
         
-        DELETE($1);
+        $$->line = yylineno;
+        
         DELETE($3);
     }
     | num {
         $$ = new Expression();
         $$->oper = OP_CONSTANT;
-        
-        auto arg = new ExprArg();
-        arg->type = E_CONSTANT_S;
-        arg->val->sVal = $1;
-        
-        $$->args->push_back(arg);
+        $$->args->push_back(expr_arg_const($1));
+        $$->line = yylineno;
         
     }
     | '(' expression ')' {
@@ -309,27 +425,28 @@ factor : // Expression*
     | T_NOT factor {
         $$ = new Expression();
         $$->oper = OP_LOG_NOT;
-        
+        $$->args->push_back(expr_arg_expr($2)); 
+        $$->line = yylineno;
     }
     ;         
 
 /* -------------------------------------------------------------------------------------------- */
 
-relop :
+relop : // Operation
     T_EQ { return OP_LOG_EQ; }
     | T_NE { return OP_LOG_NE; }
     | T_LE { return OP_LOG_LE; } 
     | T_GE { return OP_LOG_GE; }
     | T_LO  { return OP_LOG_LO; }
-    | T_GR {return OP_LOG_GR; }
+    | T_GR { return OP_LOG_GR; }
     ;
     
-sign :
+sign : // Operation
     '-' { return OP_MATH_MINUS; }
     | '+' { return OP_MATH_PLUS; }
     ;
     
-mulop :
+mulop : // Operation
     '*' { return OP_MATH_MUL; }
     | '/' { return OP_MATH_DIV1; }
     | T_DIV { return OP_MATH_DIV2; }
@@ -337,11 +454,11 @@ mulop :
     | T_AND { return OP_LOG_AND; }
     ;  
        
-or :
+or : // Operation
     T_OR { return OP_LOG_OR; }
     ;
 
-assignop :
+assignop : // Operation
     T_ASSIGN { return OP_ASSIGN; }
     ;
     

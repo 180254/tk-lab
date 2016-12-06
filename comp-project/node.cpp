@@ -106,16 +106,14 @@ string Expression::str() {
 
 /* ---------------------------------------------------------------------------------------------*/
 
-ExprArg::ExprArg() : type(E_UNKNOWN), val(nullptr) {
+ExprArg::ExprArg() : type(E_UNKNOWN) {
 }
 
 
 ExprArg::~ExprArg() {
     if(type == E_EXPRESSION) {
-        DELETE(val->eVal);
+        DELETE(val.eVal);
     }
-    
-    DELETE(val);
 }
 
 /* ---------------------------------------------------------------------------------------------*/
@@ -123,21 +121,28 @@ ExprArg::~ExprArg() {
 ExprArg* expr_arg_id(string* arg) {
     auto var = new ExprArg();
     var->type = E_ID_S;
-    var->val->sVal = arg;
+    var->val.sVal = arg;
     return var;
 }
 
 ExprArg* expr_arg_const(string* arg) {
     auto var = new ExprArg();
     var->type = E_CONSTANT_S;
-    var->val->sVal = arg;
+    var->val.sVal = arg;
     return var;
 }
 
 ExprArg* expr_arg_expr(Expression* arg) {
     auto var = new ExprArg();
     var->type = E_EXPRESSION;
-    var->val->eVal = arg;
+    var->val.eVal = arg;
+    return var;
+}
+
+ExprArg* expr_arg_expr_v(vector<Expression*>* arg) {
+    auto var = new ExprArg();
+    var->type = E_EXPRESSION_V;
+    var->val.evVal = arg;
     return var;
 }
 

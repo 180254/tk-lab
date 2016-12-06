@@ -73,6 +73,7 @@ enum Operation : int {
     OP_ID,
     OP_CONSTANT,
     OP_ASSIGN,
+    OP_ARRAY_ACCESS,
     OP_MATH_PLUS,
     OP_MATH_MINUS,
     OP_MATH_UMINUS,
@@ -82,6 +83,7 @@ enum Operation : int {
     OP_MATH_DIV2,
     OP_MATH_MUL,
     OP_FLOW_IF,
+    OP_FLOW_IF_THEN,
     OP_FLOW_WHILE,
     OP_CALL_FUNC,
     OP_LOG_NOT,
@@ -110,33 +112,37 @@ struct Expression {
 
 /* ---------------------------------------------------------------------------------------------*/
 
+enum ExprArgType : int {
+    E_UNKNOWN,
+    E_ID_S,
+    E_CONSTANT_S,
+    E_EXPRESSION,
+    E_EXPRESSION_V
+};
+
+union ExprArgVal {
+    int                   iVal;
+    string*               sVal;
+    Expression*           eVal;
+    vector<Expression*>*  evVal;
+};
+
 struct ExprArg {
     ExprArgType    type;
-    ExprArgVal*    val;
+    ExprArgVal     val;
     
     ExprArg();
     ~ExprArg();
     string str();
 };
 
-enum ExprArgType : int {
-    E_UNKNOWN,
-    E_ID_S,
-    E_CONSTANT_S,
-    E_EXPRESSION
-};
-
-union ExprArgVal {
-    int          iVal;
-    string*      sVal;
-    Expression*  eVal;
-};
 
 /* ---------------------------------------------------------------------------------------------*/
 
 ExprArg* expr_arg_id(string*);
 ExprArg* expr_arg_const(string*);
 ExprArg* expr_arg_expr(Expression*);
+ExprArg* expr_arg_expr_v(vector<Expression*>*);
 
 /* ---------------------------------------------------------------------------------------------*/
 

@@ -15,9 +15,7 @@ OUT=xcomp
 ${OUT}: $(OBJECTS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^
 
-global.hpp: main.hpp node.hpp error.hpp parser.m.hpp lexer.hpp
-
-${OBJECTS}: global.hpp
+${OBJECTS}: global.hpp main.hpp node.hpp error.hpp parser.m.hpp lexer.hpp
 
 parser.cpp parser.hpp: parser.y
 	bison --warning=all --feature=all --defines=parser.hpp -o parser.cpp parser.y

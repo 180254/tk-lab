@@ -56,7 +56,7 @@ struct Array {
 /* ---------------------------------------------------------------------------------------------*/
 
 struct Symbol {
-    string*   name;
+    string*        name;
     Type*          type;
     int            offset; 
     bool           reference;

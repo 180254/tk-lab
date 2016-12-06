@@ -139,7 +139,14 @@ void mem_free() {
 
 /* ---------------------------------------------------------------------------------------------*/
 
-int mem_find(vector<Symbol*>, string) {
-    return 0;
+int mem_find(vector<Symbol*> v_sym, string str) {
+
+    for(size_t i = 0; i < v_sym.size(); i++) {
+        if(*(v_sym[i]->name) == str) {
+            return i;
+        }
+    }
+    
+    return -1;
 }
 

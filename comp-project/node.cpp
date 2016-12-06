@@ -120,20 +120,26 @@ ExprArg::~ExprArg() {
 
 /* ---------------------------------------------------------------------------------------------*/
 
-std::vector<Symbol*>             memory;
-extern std::vector<Function*>    functions;
+vector<Symbol*>             memory;
+extern vector<Function*>    functions;
 
 /* ---------------------------------------------------------------------------------------------*/
 
 void mem_debug() {
     cout << "[MEMORY]" << "\n";
     for(auto symbol : memory) {
-        std::cout << symbol->str() << "\n";
+        cout << symbol->str() << "\n";
     }
 }
 
 /* ---------------------------------------------------------------------------------------------*/
 
 void mem_free() {
+}
+
+/* ---------------------------------------------------------------------------------------------*/
+
+int mem_find(vector<Symbol*>, string) {
+    return 0;
 }
 

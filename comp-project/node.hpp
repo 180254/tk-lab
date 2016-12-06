@@ -1,5 +1,7 @@
 #pragma once
 
+using namespace std;
+
 /* ---------------------------------------------------------------------------------------------*/
 
 enum TypeEnum : int;
@@ -33,7 +35,7 @@ struct Type {
     ~Type();
     
     bool operator==(const Type& other);
-    std::string str();
+    string str();
 };
 
 /* ---------------------------------------------------------------------------------------------*/
@@ -48,20 +50,20 @@ struct Array {
     ~Array();
     
     bool operator==(const Array& other);
-    std::string str();
+    string str();
 };
 
 /* ---------------------------------------------------------------------------------------------*/
 
 struct Symbol {
-    std::string*   name;
+    string*   name;
     Type*          type;
     int            offset; 
     bool           reference;
     
     Symbol();
     ~Symbol();
-    std::string str();
+    string str();
 };
 
 /* ---------------------------------------------------------------------------------------------*/
@@ -97,13 +99,13 @@ enum Operation : int {
 
 struct Expression {
     Operation                oper;
-    std::vector<ExprArg*>*   args;
+    vector<ExprArg*>*   args;
     int                      result; // index, -1 for error
     int                      line;
     
     Expression();
     ~Expression();
-    std::string str();
+    string str();
 };
 
 /* ---------------------------------------------------------------------------------------------*/
@@ -114,7 +116,7 @@ struct ExprArg {
     
     ExprArg();
     ~ExprArg();
-    std::string str();
+    string str();
 };
 
 enum ExprArgType : int {
@@ -131,19 +133,20 @@ union ExprArgVal {
 /* ---------------------------------------------------------------------------------------------*/
 
 struct Function {
-    std::string*                name;
-    std::vector<Type*>*         args;
+    string*                name;
+    vector<Type*>*         args;
     Type*                       result;
-    std::vector<Symbol*>*       memory;
-    std::vector<Expression*>*   expr;
+    vector<Symbol*>*       memory;
+    vector<Expression*>*   expr;
 };
 
 /* ---------------------------------------------------------------------------------------------*/
 
-extern std::vector<Symbol*>     memory;
-extern std::vector<Function*>   functions;
+extern vector<Symbol*>     memory;
+extern vector<Function*>   functions;
 
 /* ---------------------------------------------------------------------------------------------*/
 
 void mem_debug();
 void mem_free();
+int mem_find(vector<Symbol*>, string);

@@ -58,6 +58,7 @@
     Type*             type;
     Symbol*           symbol;
     vector<Symbol*>*  v_symbol;
+    Operation         oper;
 }
 
 // %type <none>   program
@@ -81,11 +82,11 @@
 // %type <none>   simple_expression
 // %type <none>   term
 // %type <none>   factor
-// %type <none>   relop
-// %type <none>   sign
-// %type <none>   mulop
-// %type <none>   or
-// %type <none>   assignop
+%type <oper>     relop
+%type <oper>     sign
+%type <oper>     mulop
+%type <oper>     or
+%type <oper>     assignop
 %type <str>      num
 %type <str>      id
 
@@ -263,35 +264,41 @@ factor :
 /* -------------------------------------------------------------------------------------------- */
 
 relop :
-    T_EQ | T_NE | T_LE | T_GE | T_LO  | T_GR
+    T_EQ { return OP_LOG_EQ; }
+    | T_NE { return OP_LOG_NE; }
+    | T_LE { return OP_LOG_LE; } 
+    | T_GE { return OP_LOG_GE; }
+    | T_LO  { return OP_LOG_LO; }
+    | T_GR {return OP_LOG_GR; }
     ;
     
 sign :
-    '-' | '+'
+    '-' { return OP_MATH_MINUS; }
+    | '+' { return OP_MATH_PLUS; }
     ;
     
 mulop :
-    '*' | '/' | T_DIV | T_MOD | T_AND
+    '*' { return OP_MATH_MUL; }
+    | '/' { return OP_MATH_DIV1; }
+    | T_DIV { return OP_MATH_DIV2; }
+    | T_MOD { return OP_MATH_MOD; }
+    | T_AND { return OP_LOG_AND; }
     ;  
        
 or :
-    T_OR
+    T_OR { return OP_LOG_OR; }
     ;
 
 assignop :
-    T_ASSIGN
+    T_ASSIGN { return OP_ASSIGN; }
     ;
     
 num : // string*
-    T_NUM {
-        $$ = yylval.str;
-    }
+    T_NUM { $$ = yylval.str; }
     ;
     
 id  : // string*
-    T_ID {
-        $$ = yylval.str;
-    }
+    T_ID { $$ = yylval.str; }
     ;
    
 %%

@@ -120,6 +120,29 @@ ExprArg::~ExprArg() {
 
 /* ---------------------------------------------------------------------------------------------*/
 
+ExprArg* expr_arg_id(string* arg) {
+    auto var = new ExprArg();
+    var->type = E_ID_S;
+    var->val->sVal = arg;
+    return var;
+}
+
+ExprArg* expr_arg_const(string* arg) {
+    auto var = new ExprArg();
+    var->type = E_CONSTANT_S;
+    var->val->sVal = arg;
+    return var;
+}
+
+ExprArg* expr_arg_expr(Expression* arg) {
+    auto var = new ExprArg();
+    var->type = E_EXPRESSION;
+    var->val->eVal = arg;
+    return var;
+}
+
+/* ---------------------------------------------------------------------------------------------*/
+
 vector<Symbol*>             memory;
 extern vector<Function*>    functions;
 

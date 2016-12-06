@@ -71,6 +71,7 @@ struct Symbol {
 enum Operation : int {
     OP_UNKNOWN,
     OP_ID,
+    OP_CONSTANT,
     OP_ASSIGN,
     OP_MATH_PLUS,
     OP_MATH_MINUS,
@@ -82,7 +83,6 @@ enum Operation : int {
     OP_MATH_MUL,
     OP_FLOW_IF,
     OP_FLOW_WHILE,
-    OP_CALL_PROC,
     OP_CALL_FUNC,
     OP_LOG_NOT,
     OP_LOG_AND,
@@ -99,7 +99,7 @@ enum Operation : int {
 
 struct Expression {
     Operation                oper;
-    vector<ExprArg*>*   args;
+    vector<ExprArg*>*        args;
     int                      result; // index, -1 for error
     int                      line;
     
@@ -121,14 +121,22 @@ struct ExprArg {
 
 enum ExprArgType : int {
     E_UNKNOWN,
-    E_ID,
+    E_ID_S,
+    E_CONSTANT_S,
     E_EXPRESSION
 };
 
 union ExprArgVal {
     int          iVal;
+    string*      sVal;
     Expression*  eVal;
 };
+
+/* ---------------------------------------------------------------------------------------------*/
+
+ExprArg* expr_arg_id(string*);
+ExprArg* expr_arg_const(string*);
+ExprArg* expr_arg_expr(Expression*);
 
 /* ---------------------------------------------------------------------------------------------*/
 

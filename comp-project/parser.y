@@ -52,13 +52,15 @@
 /* -------------------------------------------------------------------------------------------- */
 
 %union {
-    void*             none;
-    string*           str;
-    vector<string*>*  v_str;
-    Type*             type;
-    Symbol*           symbol;
-    vector<Symbol*>*  v_symbol;
-    Operation         oper;
+    void*                 none;
+    string*               str;
+    vector<string*>*      v_str;
+    Type*                 type;
+    Symbol*               symbol;
+    vector<Symbol*>*      v_symbol;
+    Operation             oper;
+    Expression*           expr;
+    vector<Expression*>*  v_expr;
 }
 
 // %type <none>   program
@@ -75,13 +77,13 @@
 // %type <none>   optional_statements
 // %type <none>   statement_list
 // %type <none>   statement
-// %type <none>   variable
-// %type <none>   procedure_statement
-// %type <none>   expression_list
-// %type <none>   expression
-// %type <none>   simple_expression
-// %type <none>   term
-// %type <none>   factor
+%type <expr>     variable
+%type <v_expr>   procedure_statement
+%type <v_expr>   expression_list
+%type <expr>     expression
+%type <expr>     simple_expression
+%type <expr>     term
+%type <expr>     factor
 %type <oper>     relop
 %type <oper>     sign
 %type <oper>     mulop
@@ -221,9 +223,23 @@ statement :
     | T_WHILE expression T_DO statement
     ;
     
-variable :
-    id
-    | id '[' expression ']'
+variable : // Expression*
+    id {
+        $$ = new Expression();
+        $$->oper = OP_ID;
+        
+        auto arg = new ExprArg();
+        arg->type = E_ID_S;
+        arg->val->sVal = new string(*$1);
+        
+        $$->line = yylineno;
+        
+        DELETE($1);
+    }
+    | id '[' expression ']' {
+        $$ = new Expression();
+        // TODO
+    }
     ;
 
 procedure_statement :
@@ -253,12 +269,48 @@ term :
     | term mulop factor
     ;
     
-factor :
-    variable
-    | id '(' expression_list ')'
-    | num
-    | '(' expression ')'
-    | T_NOT factor
+factor : // Expression*
+    variable {
+        $$ = $1;
+    }
+    | id '(' expression_list ')' {
+        $$ = new Expression();
+        $$->oper = OP_CALL_FUNC;
+        
+        auto name = new ExprArg();
+        name->type = E_ID_S;
+        name->val->sVal = new string(*$1);
+        $$->args->push_back(name);
+        
+        for(auto expr : *$3) {
+            auto arg = new ExprArg();
+            arg->type = E_EXPRESSION;
+            arg->val->eVal = expr;
+            $$->args->push_back(arg);
+        }
+        
+        DELETE($1);
+        DELETE($3);
+    }
+    | num {
+        $$ = new Expression();
+        $$->oper = OP_CONSTANT;
+        
+        auto arg = new ExprArg();
+        arg->type = E_CONSTANT_S;
+        arg->val->sVal = $1;
+        
+        $$->args->push_back(arg);
+        
+    }
+    | '(' expression ')' {
+        $$ = $2;
+    }
+    | T_NOT factor {
+        $$ = new Expression();
+        $$->oper = OP_LOG_NOT;
+        
+    }
     ;         
 
 /* -------------------------------------------------------------------------------------------- */

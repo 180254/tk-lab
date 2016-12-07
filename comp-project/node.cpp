@@ -11,6 +11,7 @@ std::ostream& operator<< (std::ostream& os, TypeEnum eth)
         case TypeEnum::TE_REAL:    return os << "TE_REAL" ;
         case TypeEnum::TE_ARRAY:   return os << "TE_ARRAY" ;
         case TypeEnum::TE_BOOLEAN: return os << "TE_BOOLEAN" ;
+        case TypeEnum::TE_SPEC:    return os << "TE_SPEC" ;
         case TypeEnum::TE_ERROR:   return os << "TE_ERROR" ;
     };
     return os << static_cast<std::uint16_t>(eth);
@@ -79,7 +80,22 @@ string Array::str() {
 Symbol::Symbol() : name(nullptr), type(nullptr), offset(-1), reference(false) {
 }
 
-/*----------------------------------------------------------------------------------------------*/
+Symbol::Symbol(const Symbol &other) {
+    if(other.name != nullptr) {
+        name = new string(*(other.name));
+    } else {
+        name = nullptr;
+    }
+    
+    if(other.type != nullptr) {
+        type = new Type(*(other.type));
+    } else {
+        type = nullptr;
+    }
+    
+    offset = other.offset;
+    reference = other.reference;
+}
 
 Symbol::~Symbol()  {
    DELETE(name);
@@ -274,6 +290,28 @@ ExprArg* expr_arg_expr_v(vector<Expression*>* arg) {
 
 /* ---------------------------------------------------------------------------------------------*/
 
+Function::Function() :
+    name(nullptr),
+    args(nullptr),
+    result(nullptr),
+    memory(nullptr),
+    expr(nullptr) {
+}
+
+Function::~Function() {
+    DELETE(name);
+    DELETE(args);
+    DELETE(result);
+    DELETE(memory);
+    DELETE(expr);
+}
+
+string Function::str(int) {
+    return "X";
+}
+    
+/* ---------------------------------------------------------------------------------------------*/
+
 vector<Symbol*>             memory;
 vector<Function*>           functions;
 vector<Expression*>         program;
@@ -289,7 +327,7 @@ void mem_debug() {
     
     cout << "[FUNCTIONS]" << "\n";
     for(auto func : functions) {
-        // cout << func->str(0) << "\n";
+        cout << func->str(0) << "\n";
     }
     cout << "\n";
     
@@ -309,7 +347,7 @@ void mem_free() {
     memory.clear();
     
     for(auto func : functions) {
-        // delete func;
+        delete func;
     }
     functions.clear();
     

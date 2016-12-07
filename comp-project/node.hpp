@@ -23,7 +23,8 @@ enum TypeEnum : int {
     TE_REAL    = 2,
     TE_ARRAY   = 3,
     TE_BOOLEAN = 4,
-    TE_ERROR   = 5
+    TE_SPEC = 5,
+    TE_ERROR   = 6
 };
 
 /* ---------------------------------------------------------------------------------------------*/
@@ -64,6 +65,7 @@ struct Symbol {
     bool           reference;
     
     Symbol();
+    Symbol(const Symbol &other);
     ~Symbol();
     string str();
 };
@@ -154,10 +156,14 @@ ExprArg* expr_arg_expr_v(vector<Expression*>*);
 
 struct Function {
     string*                name;
-    vector<Type*>*         args;
+    vector<Symbol*>*       args;
     Type*                  result;
     vector<Symbol*>*       memory;
     vector<Expression*>*   expr;
+    
+    Function();
+    ~Function();
+    string str(int);
 };
 
 /* ---------------------------------------------------------------------------------------------*/

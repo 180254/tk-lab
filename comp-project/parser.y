@@ -61,36 +61,38 @@
     Operation             oper;
     Expression*           expr;
     vector<Expression*>*  v_expr;
+    Function*             func;
+    vector<Function*>*    v_func;
 }
 
-// %type <none>   program
-%type <v_str>     identifier_list
-%type <v_symbol>  declarations
-%type <type>      type
-%type <type>      standard_type
-// %type <none>   subprogram_declarations
-// %type <none>   subprogram_declaration
-// %type <none>   subprogram_head
-%type <v_symbol> arguments
-%type <v_symbol> parameter_list
-%type <v_expr>   compound_statement
-%type <v_expr>   optional_statements
-%type <v_expr>   statement_list
-%type <v_expr>   statement
-%type <expr>     variable
-%type <expr>     procedure_statement
-%type <v_expr>   expression_list
-%type <expr>     expression
-%type <expr>     simple_expression
-%type <expr>     term
-%type <expr>     factor
-%type <oper>     relop
-%type <oper>     sign
-%type <oper>     mulop
-%type <oper>     or
-%type <oper>     assignop
-%type <str>      num
-%type <str>      id
+// %type <none>     program
+%type <v_str>       identifier_list
+%type <v_symbol>    declarations
+%type <type>        type
+%type <type>        standard_type
+%type <v_func>      subprogram_declarations
+%type <func>        subprogram_declaration
+%type <func>        subprogram_head
+%type <v_symbol>    arguments
+%type <v_symbol>    parameter_list
+%type <v_expr>      compound_statement
+%type <v_expr>      optional_statements
+%type <v_expr>      statement_list
+%type <v_expr>      statement
+%type <expr>        variable
+%type <expr>        procedure_statement
+%type <v_expr>      expression_list
+%type <expr>        expression
+%type <expr>        simple_expression
+%type <expr>        term
+%type <expr>        factor
+%type <oper>        relop
+%type <oper>        sign
+%type <oper>        mulop
+%type <oper>        or
+%type <oper>        assignop
+%type <str>         num
+%type <str>         id
 
 /* -------------------------------------------------------------------------------------------- */
 
@@ -107,9 +109,13 @@ program :
         for (auto symbol : *$8) {
             memory.push_back(symbol);
         }
-        DELETE($8);
+       // DELETE($8);
     }
     subprogram_declarations {
+        for (auto func : *$10) {
+            functions.push_back(func);
+        }
+     //   DELETE($10);
     }
     compound_statement {
         program = *$12;
@@ -138,8 +144,8 @@ declarations : // vector<Symbol*>*
             $$->push_back(symbol);
         }
         
-        DELETE($3);
-        DELETE($5);
+        //DELETE($3);
+        //DELETE($5);
     }
     | %empty {
         $$ = new vector<Symbol*>();
@@ -158,7 +164,7 @@ type : // Type*
         $$->array->min = stoi(*$3);
         $$->array->max = stoi(*$5);
         
-        DELETE($8);
+       // DELETE($8);
     }
     ;
     
@@ -173,31 +179,73 @@ standard_type : // Type*
     }
     ;
     
-subprogram_declarations :
-    subprogram_declarations subprogram_declaration ';'
-    | %empty;
+subprogram_declarations : // vector<Function*>*
+    subprogram_declarations subprogram_declaration ';' {
+        $$ = $1;
+        $$->push_back($2);
+    }
+    | %empty {
+        $$ = new vector<Function*>();
+    }
     ;
     
-subprogram_declaration :
-    subprogram_head declarations compound_statement
+subprogram_declaration : // Function*
+    subprogram_head declarations compound_statement {
+        $$ = $1;
+        
+        $$->memory = new vector<Symbol*>();
+        
+        for(auto sym : memory) {
+            $$->memory->push_back(sym);
+        }
+        
+       // for(auto sym : *($$->args)) {
+       //     auto sym2 = new Symbol(*sym);
+      //      sym2->reference = true;
+      //      $$->memory->push_back(sym2);
+      //  }
+        
+        auto retaddr = new Symbol();
+        retaddr->name = new string("__retaddr__");
+        retaddr->type = new Type();
+        retaddr->type->te = TE_SPEC;
+        $$->memory->push_back(retaddr);
+        
+        auto old_bp = new Symbol();
+        old_bp->name = new string("__old_BP__");
+        old_bp->type = new Type();
+        old_bp->type->te = TE_SPEC;
+        $$->memory->push_back(old_bp);
+        
+        for(auto sym : *($2)) {
+            $$->memory->push_back(sym);
+        }
+        
+        $$->expr = $3;
+    }
     ;
     
-subprogram_head :
+subprogram_head : // Function*
     T_FUNCTION id arguments ':' standard_type ';' {
-    
+        auto func = new Function();
+        func->name = $2;
+     //   func->args = $3;
+        func->result = $5;
     }
     | T_PROCEDURE id arguments ';' {
-    
+        auto func = new Function();
+        func->name = $2;
+      //  func->args = $3;
     }
     ;
 
-arguments :
+arguments : // vector<Symbol*>*
     '(' parameter_list ')' {
         $$ = $2;
     }
     ;
 
-parameter_list :
+parameter_list : // vector<Symbol*>*
     identifier_list ':' type {
         $$ = new vector<Symbol*>();
         
@@ -208,8 +256,8 @@ parameter_list :
             $$->push_back(symbol);
         }
         
-        DELETE($1);
-        DELETE($3);
+        //DELETE($1);
+        //DELETE($3);
     }
     | parameter_list ';' identifier_list ':' type {
         $$ = $1;
@@ -221,8 +269,8 @@ parameter_list :
             $$->push_back(symbol);
         }
         
-        DELETE($3);
-        DELETE($5);
+        //DELETE($3);
+       // DELETE($5);
     }
     ;
 
@@ -251,7 +299,7 @@ statement_list : // vector<Expression*>*
             $$->push_back(st);
         }
         
-        DELETE($1);
+       // DELETE($1);
     }
     | statement_list ';' statement {
         $$ = new vector<Expression*>();
@@ -263,8 +311,8 @@ statement_list : // vector<Expression*>*
             $$->push_back(st);
         }
           
-        DELETE($1);
-        DELETE($3);
+       // DELETE($1);
+       // DELETE($3);
     } 
     ;
     

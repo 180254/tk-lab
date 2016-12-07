@@ -294,16 +294,29 @@ Function::Function() :
     name(nullptr),
     args(nullptr),
     result(nullptr),
-    memory(nullptr),
-    expr(nullptr) {
+    stack(nullptr),
+    body(nullptr) {
 }
 
 Function::~Function() {
     DELETE(name);
+    
+    for(auto arg : *args) {
+        delete arg;
+    }
     DELETE(args);
+    
     DELETE(result);
-    DELETE(memory);
-    DELETE(expr);
+    
+    for(auto sym : *stack) {
+        delete sym;
+    }
+    DELETE(stack);
+    
+    for(auto expr : *body) {
+        delete expr;
+    }
+    DELETE(body);
 }
 
 string Function::str(int level) {
@@ -317,13 +330,21 @@ string Function::str(int level) {
         ss << " p|" << arg->str() << "\n";
     }
    
-    ss << " r|" << result->str() << "\n";
+    ss << " r|" << (result != nullptr ? result->str() : "_none_") << "\n";
     
-    for(auto symbol : *(this->memory)) {
+    for(auto symbol : *stack) {
         ss << " m|" << symbol->str() << "\n";
     }
+
+    for(auto expr : *body) {
+        ss << expr->str(0) << "\n";
+    }
     
-    return ss.str();
+    
+    auto result = ss.str();
+    result.pop_back();
+    
+    return result;
 }
     
 /* ---------------------------------------------------------------------------------------------*/

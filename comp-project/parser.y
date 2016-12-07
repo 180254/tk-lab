@@ -193,53 +193,49 @@ subprogram_declaration : // Function*
     subprogram_head declarations compound_statement {
         $$ = $1;
         
-        $$->memory = new vector<Symbol*>();
+        $$->stack = new vector<Symbol*>();
         
         for(auto sym : memory) {
-            $$->memory->push_back(sym);
+            $$->stack->push_back(new Symbol(*sym));
         }
         
         for(auto sym : *($$->args)) {
             auto sym2 = new Symbol(*sym);
             sym2->reference = true;
-            $$->memory->push_back(sym2);
+            $$->stack->push_back(sym2);
         }
         
         auto retaddr = new Symbol();
         retaddr->name = new string("__retaddr__");
         retaddr->type = new Type();
         retaddr->type->te = TE_SPEC;
-        $$->memory->push_back(retaddr);
+        $$->stack->push_back(retaddr);
         
         auto old_bp = new Symbol();
         old_bp->name = new string("__old_BP__");
         old_bp->type = new Type();
         old_bp->type->te = TE_SPEC;
-        $$->memory->push_back(old_bp);
+        $$->stack->push_back(old_bp);
         
         for(auto sym : *($2)) {
-            $$->memory->push_back(sym);
+            $$->stack->push_back(sym);
         }
         
-        $$->expr = $3;
+        $$->body = $3;
     }
     ;
     
 subprogram_head : // Function*
     T_FUNCTION id arguments ':' standard_type ';' {
-        auto func = new Function();
-        func->name = $2;
-        func->args = $3;
-        func->result = $5;
-        
-        $$ = func;
+        $$ = new Function();
+        $$->name = $2;
+        $$->args = $3;
+        $$->result = $5;
     }
     | T_PROCEDURE id arguments ';' {
-        auto func = new Function();
-        func->name = $2;
-        func->args = $3;
-      
-        $$ = func;
+        $$ = new Function();
+        $$->name = $2;
+        $$->args = $3;
     }
     ;
 

@@ -158,8 +158,8 @@ struct Function {
     string*                name;
     vector<Symbol*>*       args;
     Type*                  result;
-    vector<Symbol*>*       memory;
-    vector<Expression*>*   expr;
+    vector<Symbol*>*       stack;
+    vector<Expression*>*   body;
     
     Function();
     ~Function();

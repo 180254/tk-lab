@@ -306,8 +306,24 @@ Function::~Function() {
     DELETE(expr);
 }
 
-string Function::str(int) {
-    return "X";
+string Function::str(int level) {
+
+    stringstream ss;
+    ss << string(level, ' ');
+    
+    ss << *name << "\n";
+   
+    for(auto arg : *args) {
+        ss << " p|" << arg->str() << "\n";
+    }
+   
+    ss << " r|" << result->str() << "\n";
+    
+    for(auto symbol : *(this->memory)) {
+        ss << " m|" << symbol->str() << "\n";
+    }
+    
+    return ss.str();
 }
     
 /* ---------------------------------------------------------------------------------------------*/

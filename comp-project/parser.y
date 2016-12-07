@@ -109,13 +109,13 @@ program :
         for (auto symbol : *$8) {
             memory.push_back(symbol);
         }
-       // DELETE($8);
+        DELETE($8);
     }
     subprogram_declarations {
         for (auto func : *$10) {
             functions.push_back(func);
         }
-     //   DELETE($10);
+        DELETE($10);
     }
     compound_statement {
         program = *$12;
@@ -144,8 +144,8 @@ declarations : // vector<Symbol*>*
             $$->push_back(symbol);
         }
         
-        //DELETE($3);
-        //DELETE($5);
+        DELETE($3);
+        DELETE($5);
     }
     | %empty {
         $$ = new vector<Symbol*>();
@@ -164,7 +164,7 @@ type : // Type*
         $$->array->min = stoi(*$3);
         $$->array->max = stoi(*$5);
         
-       // DELETE($8);
+        DELETE($8);
     }
     ;
     
@@ -199,11 +199,11 @@ subprogram_declaration : // Function*
             $$->memory->push_back(sym);
         }
         
-       // for(auto sym : *($$->args)) {
-       //     auto sym2 = new Symbol(*sym);
-      //      sym2->reference = true;
-      //      $$->memory->push_back(sym2);
-      //  }
+        for(auto sym : *($$->args)) {
+            auto sym2 = new Symbol(*sym);
+            sym2->reference = true;
+            $$->memory->push_back(sym2);
+        }
         
         auto retaddr = new Symbol();
         retaddr->name = new string("__retaddr__");
@@ -229,13 +229,17 @@ subprogram_head : // Function*
     T_FUNCTION id arguments ':' standard_type ';' {
         auto func = new Function();
         func->name = $2;
-     //   func->args = $3;
+        func->args = $3;
         func->result = $5;
+        
+        $$ = func;
     }
     | T_PROCEDURE id arguments ';' {
         auto func = new Function();
         func->name = $2;
-      //  func->args = $3;
+        func->args = $3;
+      
+        $$ = func;
     }
     ;
 
@@ -256,8 +260,8 @@ parameter_list : // vector<Symbol*>*
             $$->push_back(symbol);
         }
         
-        //DELETE($1);
-        //DELETE($3);
+        DELETE($1);
+        DELETE($3);
     }
     | parameter_list ';' identifier_list ':' type {
         $$ = $1;
@@ -269,8 +273,8 @@ parameter_list : // vector<Symbol*>*
             $$->push_back(symbol);
         }
         
-        //DELETE($3);
-       // DELETE($5);
+        DELETE($3);
+        DELETE($5);
     }
     ;
 
@@ -299,7 +303,7 @@ statement_list : // vector<Expression*>*
             $$->push_back(st);
         }
         
-       // DELETE($1);
+        DELETE($1);
     }
     | statement_list ';' statement {
         $$ = new vector<Expression*>();
@@ -311,8 +315,8 @@ statement_list : // vector<Expression*>*
             $$->push_back(st);
         }
           
-       // DELETE($1);
-       // DELETE($3);
+        DELETE($1);
+        DELETE($3);
     } 
     ;
     

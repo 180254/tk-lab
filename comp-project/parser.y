@@ -103,6 +103,10 @@
 program :
     T_PROGRAM id '(' identifier_list ')' ';' {
         DELETE($2);
+
+        for(auto ident : *$4) {
+            DELETE(ident);
+        }
         DELETE($4);
     }
     declarations {

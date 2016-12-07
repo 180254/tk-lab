@@ -25,7 +25,7 @@ Type::Type(const Type &other) {
     te = other.te;
     
     if(other.array != nullptr) {
-        array = new Array(*array);
+        array = new Array(*other.array);
     } else {
         array = nullptr;
     }
@@ -115,7 +115,7 @@ std::ostream& operator<< (std::ostream& os, Operation eth)
         case Operation::OP_MATH_MOD:        return os << "OP_MATH_MOD" ;
         case Operation::OP_MATH_DIV1:       return os << "OP_MATH_DIV1" ;
         case Operation::OP_MATH_DIV2:       return os << "OP_MATH_DIV2" ;
-        case Operation::OP_MATH_MUL:        return os << "TE_UNKNOWN" ;
+        case Operation::OP_MATH_MUL:        return os << "OP_MATH_MUL" ;
         case Operation::OP_FLOW_IF:         return os << "OP_FLOW_IF" ;
         case Operation::OP_FLOW_IF_THEN:    return os << "OP_FLOW_IF_THEN" ;
         case Operation::OP_FLOW_WHILE:      return os << "OP_FLOW_WHILE" ;
@@ -140,6 +140,13 @@ Expression::Expression() :
     args(new vector<ExprArg*>()),
     result(-1),
     line (-1) {
+}
+
+Expression::Expression(Operation operation) :
+    oper(operation),
+    args(new vector<ExprArg*>()),
+    result(-1),
+    line(yylineno) {
 }
 
 Expression::~Expression() {

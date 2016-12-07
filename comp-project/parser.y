@@ -158,11 +158,10 @@ type : // Type*
     | T_ARRAY '[' num T_ARRAY_RANGE num ']' T_OF standard_type {
         $$ = new Type();
         $$->te = TE_ARRAY;
-        Array* array = new Array();
-        array->te = $8->te;
-        array->min = stoi(*$3);
-        array->max = stoi(*$5);
-        $$->array = array;
+        $$->array = new Array();
+        $$->array->te = $8->te;
+        $$->array->min = stoi(*$3);
+        $$->array->max = stoi(*$5);
         
         DELETE($8);
     }
@@ -245,11 +244,9 @@ statement_list : // vector<Expression*>*
     
 statement : // vector<Expression*>*
     variable assignop expression {
-        auto expr = new Expression();
-        expr->oper = OP_ASSIGN;
+        auto expr = new Expression(OP_ASSIGN);
         expr->args->push_back(expr_arg_expr($1));
         expr->args->push_back(expr_arg_expr($3));
-        expr->line = yylineno;
         
         $$ = new vector<Expression*>();
         $$->push_back(expr);
@@ -257,38 +254,31 @@ statement : // vector<Expression*>*
     | procedure_statement {
         $$ = new vector<Expression*>();
         $$->push_back($1);
-
     }
     | compound_statement {
         $$ = $1;
     }
     | T_IF expression T_THEN statement {
-        auto expr = new Expression();
-        expr->oper = OP_FLOW_IF;
+        auto expr = new Expression(OP_FLOW_IF);
         expr->args->push_back(expr_arg_expr($2));
         expr->args->push_back(expr_arg_expr_v($4));
-        expr->line = yylineno;
         
         $$ = new vector<Expression*>();
         $$->push_back(expr);
     }
     | T_IF expression T_THEN statement T_ELSE statement {
-        auto expr = new Expression();
-        expr->oper = OP_FLOW_IF_THEN;
+        auto expr = new Expression(OP_FLOW_IF_THEN);
         expr->args->push_back(expr_arg_expr($2));
         expr->args->push_back(expr_arg_expr_v($4));
         expr->args->push_back(expr_arg_expr_v($6));
-        expr->line = yylineno;
         
         $$ = new vector<Expression*>();
         $$->push_back(expr);
     }
     | T_WHILE expression T_DO statement {
-        auto expr = new Expression();
-        expr->oper = OP_FLOW_WHILE;
+        auto expr = new Expression(OP_FLOW_WHILE);
         expr->args->push_back(expr_arg_expr($2));
         expr->args->push_back(expr_arg_expr_v($4));
-        expr->line = yylineno;
         
         $$ = new vector<Expression*>();
         $$->push_back(expr);
@@ -297,38 +287,29 @@ statement : // vector<Expression*>*
     
 variable : // Expression*
     id {
-        $$ = new Expression();
-        $$->oper = OP_ID;
+        $$ = new Expression(OP_ID);
         $$->args->push_back(expr_arg_id($1));
-        $$->line = yylineno;
     }
     | id '[' expression ']' {
-        $$ = new Expression();
-        $$->oper = OP_ARRAY_ACCESS;
+        $$ = new Expression(OP_ARRAY_ACCESS);
         $$->args->push_back(expr_arg_id($1));
         $$->args->push_back(expr_arg_expr($3));
-        $$->line = yylineno;
     }
     ;
 
 procedure_statement : // Expression*
     id { // ???
-        $$ = new Expression();
-        $$->oper = OP_CALL_FUNC;
+        $$ = new Expression(OP_CALL_FUNC);
         $$->args->push_back(expr_arg_id($1));
-        $$->line = yylineno;
     }
     | id '(' expression_list ')' {
-        $$ = new Expression();
-        $$->oper = OP_CALL_FUNC;
+        $$ = new Expression(OP_CALL_FUNC);
         $$->args->push_back(expr_arg_id($1));
         
         for(auto expr : *$3) {
             $$->args->push_back(expr_arg_expr(expr));
         }
-        
-        $$->line = yylineno;
-        
+
         DELETE($3);
     }
     ;
@@ -347,41 +328,32 @@ expression_list: // vector<Expression*>*
 expression : // Expression*
     simple_expression {
         $$ = $1;
-        $$->line = yylineno;
     }
     | simple_expression relop simple_expression {
-        $$ = new Expression();
-        $$->oper = $2;
+        $$ = new Expression($2);
         $$->args->push_back(expr_arg_expr($1));
         $$->args->push_back(expr_arg_expr($3));
-        $$->line = yylineno;
     }
     ;
     
 simple_expression : // Expression*
     term {
         $$ = $1;
-        $$->line = yylineno;
     }
     | sign term %prec UMINUS {
-        $$ = new Expression();
-        $$->oper = $1 == OP_MATH_MINUS ? OP_MATH_UMINUS : OP_MATH_UPLUS;
+        auto oper = $1 == OP_MATH_MINUS ? OP_MATH_UMINUS : OP_MATH_UPLUS;
+        $$ = new Expression(oper);
         $$->args->push_back(expr_arg_expr($2));
-        $$->line = yylineno;
     }
     | simple_expression sign term {
-        $$ = new Expression();
-        $$->oper = $2;
+        $$ = new Expression($2);
         $$->args->push_back(expr_arg_expr($1));
         $$->args->push_back(expr_arg_expr($3));
-        $$->line = yylineno;
     }
     | simple_expression or term {
-        $$ = new Expression();
-        $$->oper = $2;
+        $$ = new Expression($2);
         $$->args->push_back(expr_arg_expr($1));
         $$->args->push_back(expr_arg_expr($3));
-        $$->line = yylineno;
     }
     ;
     
@@ -390,11 +362,9 @@ term : // Expression*
         $$ = $1;
     }
     | term mulop factor {
-        $$ = new Expression();
-        $$->oper = $2;
+        $$ = new Expression($2);
         $$->args->push_back(expr_arg_expr($1));
         $$->args->push_back(expr_arg_expr($3));
-        $$->line = yylineno;
     }
     ;
     
@@ -403,74 +373,67 @@ factor : // Expression*
         $$ = $1;
     }
     | id '(' expression_list ')' {
-        $$ = new Expression();
-        $$->oper = OP_CALL_FUNC;
+        $$ = new Expression(OP_CALL_FUNC);
         $$->args->push_back(expr_arg_id($1));
         
         for(auto expr : *$3) {
             $$->args->push_back(expr_arg_expr(expr));
         }
         
-        $$->line = yylineno;
-        
         DELETE($3);
     }
     | num {
-        $$ = new Expression();
-        $$->oper = OP_CONSTANT;
+        $$ = new Expression(OP_CONSTANT);
         $$->args->push_back(expr_arg_const($1));
-        $$->line = yylineno;
         
     }
     | '(' expression ')' {
         $$ = $2;
     }
     | T_NOT factor {
-        $$ = new Expression();
-        $$->oper = OP_LOG_NOT;
+        $$ = new Expression(OP_LOG_NOT);
         $$->args->push_back(expr_arg_expr($2)); 
-        $$->line = yylineno;
     }
     ;         
 
 /* -------------------------------------------------------------------------------------------- */
 
 relop : // Operation
-    T_EQ { $$ = OP_LOG_EQ; }
-    | T_NE { $$ = OP_LOG_NE; }
-    | T_LE { $$ = OP_LOG_LE; } 
-    | T_GE { $$ = OP_LOG_GE; }
-    | T_LO  { $$ = OP_LOG_LO; }
-    | T_GR { $$ = OP_LOG_GR; }
+    T_EQ        { $$ = OP_LOG_EQ; }
+    | T_NE      { $$ = OP_LOG_NE; }
+    | T_LE      { $$ = OP_LOG_LE; } 
+    | T_GE      { $$ = OP_LOG_GE; }
+    | T_LO      { $$ = OP_LOG_LO; }
+    | T_GR      { $$ = OP_LOG_GR; }
     ;
     
 sign : // Operation
-    '-' { $$ = OP_MATH_MINUS; }
-    | '+' { $$ = OP_MATH_PLUS; }
+    '-'         { $$ = OP_MATH_MINUS; }
+    | '+'       { $$ = OP_MATH_PLUS; }
     ;
     
 mulop : // Operation
-    '*' { $$ = OP_MATH_MUL; }
-    | '/' { $$ = OP_MATH_DIV1; }
-    | T_DIV { $$ = OP_MATH_DIV2; }
-    | T_MOD { $$ = OP_MATH_MOD; }
-    | T_AND { $$ = OP_LOG_AND; }
+    '*'         { $$ = OP_MATH_MUL; }
+    | '/'       { $$ = OP_MATH_DIV1; }
+    | T_DIV     { $$ = OP_MATH_DIV2; }
+    | T_MOD     { $$ = OP_MATH_MOD; }
+    | T_AND     { $$ = OP_LOG_AND; }
     ;  
        
 or : // Operation
-    T_OR { $$ = OP_LOG_OR; }
+    T_OR        { $$ = OP_LOG_OR; }
     ;
 
 assignop : // Operation
-    T_ASSIGN { $$ = OP_ASSIGN; }
+    T_ASSIGN    { $$ = OP_ASSIGN; }
     ;
     
 num : // string*
-    T_NUM { $$ = yylval.str; }
+    T_NUM       { $$ = yylval.str; }
     ;
     
 id  : // string*
-    T_ID { $$ = yylval.str; }
+    T_ID        { $$ = yylval.str; }
     ;
    
 %%

@@ -108,6 +108,7 @@ struct Expression {
     int                      line;
     
     Expression();
+    Expression(Operation);
     ~Expression();
     string str(int);
 };

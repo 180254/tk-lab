@@ -71,8 +71,8 @@
 // %type <none>   subprogram_declarations
 // %type <none>   subprogram_declaration
 // %type <none>   subprogram_head
-// %type <none>   arguments
-// %type <none>   parameter_list
+%type <v_symbol> arguments
+%type <v_symbol> parameter_list
 %type <v_expr>   compound_statement
 %type <v_expr>   optional_statements
 %type <v_expr>   statement_list
@@ -129,12 +129,7 @@ identifier_list : // vector<string*>*
     
 declarations : // vector<Symbol*>*
     declarations T_VAR identifier_list ':' type ';' {
-        $$ = new vector<Symbol*>();
-
-        for (auto symbol : *$1) {
-            $$->push_back(symbol);  
-        }
-        DELETE($1);
+        $$ = $1;
         
         for (auto ident : *$3) {
             Symbol* symbol = new Symbol();
@@ -188,16 +183,47 @@ subprogram_declaration :
     ;
     
 subprogram_head :
-    T_FUNCTION id arguments ':' standard_type ';'
-    | T_PROCEDURE id arguments ';'
+    T_FUNCTION id arguments ':' standard_type ';' {
+    
+    }
+    | T_PROCEDURE id arguments ';' {
+    
+    }
     ;
 
 arguments :
-    '(' parameter_list ')'
+    '(' parameter_list ')' {
+        $$ = $2;
+    }
+    ;
 
 parameter_list :
-    identifier_list ':' type
-    | parameter_list ';' identifier_list ':' type
+    identifier_list ':' type {
+        $$ = new vector<Symbol*>();
+        
+        for (auto ident : *$1) {
+            Symbol* symbol = new Symbol();
+            symbol->type = new Type(*$3);
+            symbol->name = ident;
+            $$->push_back(symbol);
+        }
+        
+        DELETE($1);
+        DELETE($3);
+    }
+    | parameter_list ';' identifier_list ':' type {
+        $$ = $1;
+        
+        for (auto ident : *$3) {
+            Symbol* symbol = new Symbol();
+            symbol->type = new Type(*$5);
+            symbol->name = ident;
+            $$->push_back(symbol);
+        }
+        
+        DELETE($3);
+        DELETE($5);
+    }
     ;
 
 compound_statement : // vector<Expression*>*

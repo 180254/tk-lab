@@ -118,7 +118,10 @@ program :
         DELETE($10);
     }
     compound_statement {
-        program = *$12;
+        for (auto expr : *$12) {
+            program.push_back(expr);
+        }
+        DELETE($12);
     }
     '.'
     ;
@@ -164,6 +167,8 @@ type : // Type*
         $$->array->min = stoi(*$3);
         $$->array->max = stoi(*$5);
         
+        DELETE($3);
+        DELETE($5);
         DELETE($8);
     }
     ;
@@ -220,6 +225,7 @@ subprogram_declaration : // Function*
         for(auto sym : *($2)) {
             $$->stack->push_back(sym);
         }
+        DELETE($2);
         
         $$->body = $3;
     }

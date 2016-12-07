@@ -10,10 +10,10 @@ OUT=xcomp
 .PHONY: all clean
 
 .cpp.o:
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $< 
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $< 
 
 ${OUT}: $(OBJECTS)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ $^
 
 ${OBJECTS}: global.hpp main.hpp node.hpp error.hpp parser.m.hpp lexer.hpp
 

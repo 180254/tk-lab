@@ -2,7 +2,7 @@
 
 /* ---------------------------------------------------------------------------------------------*/
 
-std::ostream& operator<< (std::ostream & os, TypeEnum eth)
+std::ostream& operator<< (std::ostream& os, TypeEnum eth)
 {
     switch (eth)
     {
@@ -31,10 +31,10 @@ Type::Type(const Type &other) {
     }
 }
 
-
 Type::~Type() {
     DELETE(array);
 }
+
 
 bool Type::operator==(const Type& other) {
     return te == other.te &&
@@ -65,7 +65,7 @@ Array::~Array() {
 bool Array::operator==(const Array& other) {
     return te == other.te && min == other.min && max == other.max;
 }
-    
+
 string Array::str() {
     stringstream ss;
     ss << te << "|";
@@ -79,10 +79,14 @@ string Array::str() {
 Symbol::Symbol() : name(nullptr), type(nullptr), offset(-1), reference(false) {
 }
 
+/*----------------------------------------------------------------------------------------------*/
+
 Symbol::~Symbol()  {
    DELETE(name);
    DELETE(type);
 }
+
+/*----------------------------------------------------------------------------------------------*/
 
 string Symbol::str() {
     stringstream ss;
@@ -95,7 +99,7 @@ string Symbol::str() {
 
 /* ---------------------------------------------------------------------------------------------*/
 
-std::ostream& operator<< (std::ostream & os, Operation eth)
+std::ostream& operator<< (std::ostream& os, Operation eth)
 {
     switch (eth)
     {
@@ -163,8 +167,7 @@ string Expression::str(int level) {
 
 /* ---------------------------------------------------------------------------------------------*/
 
-
-std::ostream& operator<< (std::ostream & os, ExprArgType eth)
+std::ostream& operator<< (std::ostream& os, ExprArgType eth)
 {
     switch (eth)
     {
@@ -184,8 +187,23 @@ ExprArg::ExprArg() : type(E_UNKNOWN) {
 }
 
 ExprArg::~ExprArg() {
-    if(type == E_EXPRESSION) {
+
+    if(type == E_UNKNOWN) {
+        
+    } else if(type == E_ID_S) {
+        DELETE(val.sVal);
+    
+    } else if(type == E_CONSTANT_S) {
+        DELETE(val.sVal);
+        
+    } else if(type == E_EXPRESSION) {
         DELETE(val.eVal);
+    
+    } else if(type == E_EXPRESSION_V) {
+        for(auto exp : *(val.evVal)) {
+            DELETE(exp);
+        }
+        DELETE(val.evVal);
     }
 }
 
@@ -193,16 +211,16 @@ string ExprArg::str(int level) {
 
     stringstream ss;
     ss << string(level, ' ');
-    ss << type << "|";
+    ss << type;
     
     if(type == E_UNKNOWN) {
-        ss << "0";
+        ss << "|" << "0";
         
     } else if(type == E_ID_S) {
-        ss << *(val.sVal);
+        ss << "|" << *(val.sVal);
     
     } else if(type == E_CONSTANT_S) {
-        ss << *(val.sVal);
+        ss << "|" << *(val.sVal);
         
     } else if(type == E_EXPRESSION) {
         ss << "\n" << val.eVal->str(level+1);
@@ -261,6 +279,11 @@ void mem_debug() {
         cout << symbol->str() << "\n";
     }
     
+    cout << "[FUNCTIONS]" << "\n";
+    for(auto func : functions) {
+        // cout << func->str(0) << "\n";
+    }
+    
     cout << "[PROGRAM]" << "\n";
     for(auto expr : program) {
         cout << expr->str(0) << "\n";
@@ -270,6 +293,20 @@ void mem_debug() {
 /* ---------------------------------------------------------------------------------------------*/
 
 void mem_free() {
+    for(auto symbol : memory) {
+        delete symbol;
+    }
+    memory.clear();
+    
+    for(auto func : functions) {
+        // delete func;
+    }
+    functions.clear();
+    
+    for(auto expr : program) {
+         delete expr;
+    }
+    program.clear();
 }
 
 /* ---------------------------------------------------------------------------------------------*/

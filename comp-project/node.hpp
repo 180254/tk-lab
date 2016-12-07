@@ -26,6 +26,8 @@ enum TypeEnum : int {
     TE_ERROR   = 5
 };
 
+/* ---------------------------------------------------------------------------------------------*/
+
 struct Type {
     TypeEnum       te;
     Array*         array;
@@ -102,7 +104,7 @@ enum Operation : int {
 struct Expression {
     Operation                oper;
     vector<ExprArg*>*        args;
-    int                      result; // index, -1 for error
+    int                      result;
     int                      line;
     
     Expression();
@@ -120,12 +122,16 @@ enum ExprArgType : int {
     E_EXPRESSION_V
 };
 
+/* ---------------------------------------------------------------------------------------------*/
+
 union ExprArgVal {
     int                   iVal;
     string*               sVal;
     Expression*           eVal;
     vector<Expression*>*  evVal;
 };
+
+/* ---------------------------------------------------------------------------------------------*/
 
 struct ExprArg {
     ExprArgType    type;
@@ -135,7 +141,6 @@ struct ExprArg {
     ~ExprArg();
     string str(int);
 };
-
 
 /* ---------------------------------------------------------------------------------------------*/
 

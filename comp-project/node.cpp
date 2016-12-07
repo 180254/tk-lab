@@ -53,6 +53,28 @@ string Type::str() {
 
 /* ---------------------------------------------------------------------------------------------*/
 
+int type_size(Symbol* symbol) {
+    if(symbol->reference) return 4;
+
+    Type* type = symbol->type;
+    switch (type->te) {
+        case TE_UNKNOWN: return 0;
+        case TE_INTEGER: return 4;
+        case TE_REAL:    return 8;
+        case TE_ARRAY:   {
+            Array* array = type->array;
+            Type aType; aType.te = array->te;
+            Symbol aSymbol; aSymbol.type = &aType;
+            return (array->max - array->min + 1) * type_size(&aSymbol);
+        }
+        case TE_BOOLEAN: return 4; // ? stored as int
+        case TE_SPEC:    return 4;
+        case TE_ERROR:   return 0;
+    };
+}
+
+/* ---------------------------------------------------------------------------------------------*/
+
 Array::Array() : te(TE_UNKNOWN), min(-1), max(-1) {
 }
 
@@ -79,7 +101,12 @@ string Array::str() {
 
 /* ---------------------------------------------------------------------------------------------*/
 
-Symbol::Symbol() : name(nullptr), type(nullptr), offset(-1), reference(false) {
+Symbol::Symbol() :
+    name(nullptr),
+    type(nullptr),
+    offset(-1),
+    level(0),
+    reference(false) {
 }
 
 Symbol::Symbol(const Symbol &other) {
@@ -96,6 +123,7 @@ Symbol::Symbol(const Symbol &other) {
     }
     
     offset = other.offset;
+    level = other.level;
     reference = other.reference;
 }
 
@@ -111,6 +139,7 @@ string Symbol::str() {
     ss << (name == nullptr ? "?" : *name) << "|";
     ss << (type == nullptr ? "?" : type->str()) << "|";
     ss << offset << "|";
+    ss << level << "|";
     ss << reference;
     return ss.str();
 }
@@ -364,8 +393,16 @@ int mem_find(vector<Symbol*> v_sym, string str) {
 
 /* ---------------------------------------------------------------------------------------------*/
 
-int mem_add(vector<Symbol*>, Symbol*) {
-    return 1;
+void mem_add(vector<Symbol*>& v_sym, Symbol* sym, bool asc, int offset) {
+    if(offset == 0 && v_sym.size() > 0) {
+        auto last_sym = v_sym[v_sym.size()-1];
+        sym->offset = last_sym->offset + (asc ? 1 : -1) * type_size(last_sym);
+
+    } else {
+        sym->offset = offset;
+    }
+
+    v_sym.push_back(sym);
 }
 
 /* ---------------------------------------------------------------------------------------------*/

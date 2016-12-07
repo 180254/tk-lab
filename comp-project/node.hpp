@@ -43,6 +43,10 @@ struct Type {
 
 /* ---------------------------------------------------------------------------------------------*/
 
+int type_size(Type type);
+
+/* ---------------------------------------------------------------------------------------------*/
+
 struct Array {
     TypeEnum       te;
     int            min;
@@ -62,6 +66,7 @@ struct Symbol {
     string*        name;
     Type*          type;
     int            offset; 
+    int            level;
     bool           reference;
     
     Symbol();
@@ -175,7 +180,7 @@ extern vector<Expression*>  program;
 /* ---------------------------------------------------------------------------------------------*/
 
 int mem_find(vector<Symbol*>, string);
-int mem_add(vector<Symbol*>, Symbol*);
+void mem_add(vector<Symbol*>&, Symbol*, bool, int);
 
 /* ---------------------------------------------------------------------------------------------*/
 

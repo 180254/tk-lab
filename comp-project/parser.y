@@ -111,7 +111,7 @@ program :
     }
     declarations {
         for (auto symbol : *$8) {
-            memory.push_back(symbol);
+            mem_add(memory, symbol, true, 0);
         }
         DELETE($8);
     }
@@ -204,30 +204,54 @@ subprogram_declaration : // Function*
         
         $$->stack = new vector<Symbol*>();
         
+        // copy global memory
         for(auto sym : memory) {
             $$->stack->push_back(new Symbol(*sym));
         }
         
+        auto& stack = *($$->stack);
+        int stack_top_offset = ($$->args->size()+1)*4;
+        stack_top_offset += ($$->result != nullptr ? 4 : 0);
+        
+        // push to stack args
+        int args_i = 0;
         for(auto sym : *($$->args)) {
-            auto sym2 = new Symbol(*sym);
-            sym2->reference = true;
-            $$->stack->push_back(sym2);
+            auto sym_a = new Symbol(*sym);
+            sym_a->level = 1;
+            sym_a->reference = true;
+            mem_add(stack, sym_a, false, args_i == 0 ? stack_top_offset : 0);
+            args_i++;
         }
         
+        // push to stack result
+        if($$->result != nullptr) {
+            auto result = new Symbol();
+            result->name = new string(*($$->name));
+            result->type = new Type(*($$->result));
+            result->level = 1;
+            result->reference = true;
+            mem_add(stack, result, false, 0);
+        }
+        
+        // push to stack special vals
         auto retaddr = new Symbol();
         retaddr->name = new string("__retaddr__");
         retaddr->type = new Type();
         retaddr->type->te = TE_SPEC;
-        $$->stack->push_back(retaddr);
+        retaddr->level = 1;
+        mem_add(stack, retaddr, false, 0);
         
         auto old_bp = new Symbol();
-        old_bp->name = new string("__old_BP__");
+        old_bp->name = new string("__old__BP__");
         old_bp->type = new Type();
         old_bp->type->te = TE_SPEC;
-        $$->stack->push_back(old_bp);
+        old_bp->level = 1;
+        mem_add(stack, old_bp, false, 0);
         
+        // push to stack local vars
         for(auto sym : *($2)) {
-            $$->stack->push_back(sym);
+            sym->level = 1;
+            mem_add(stack, sym, false, 0);
         }
         DELETE($2);
         

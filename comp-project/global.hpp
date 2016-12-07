@@ -25,7 +25,5 @@
     ptr = nullptr;  \
 }
 
-
-
 using namespace std;
 

@@ -23,7 +23,7 @@ enum TypeEnum : int {
     TE_REAL    = 2,
     TE_ARRAY   = 3,
     TE_BOOLEAN = 4,
-    TE_SPEC = 5,
+    TE_SPEC    = 5,
     TE_ERROR   = 6
 };
 
@@ -174,7 +174,11 @@ extern vector<Expression*>  program;
 
 /* ---------------------------------------------------------------------------------------------*/
 
+int mem_find(vector<Symbol*>, string);
+int mem_add(vector<Symbol*>, Symbol*);
+
+/* ---------------------------------------------------------------------------------------------*/
+
 void mem_debug();
 void mem_free();
 
-int mem_find(vector<Symbol*>, string);

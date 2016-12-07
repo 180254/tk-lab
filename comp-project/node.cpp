@@ -2,10 +2,8 @@
 
 /* ---------------------------------------------------------------------------------------------*/
 
-std::ostream& operator<< (std::ostream& os, TypeEnum eth)
-{
-    switch (eth)
-    {
+std::ostream& operator<< (std::ostream& os, TypeEnum te) {
+    switch (te) {
         case TypeEnum::TE_UNKNOWN: return os << "TE_UNKNOWN" ;
         case TypeEnum::TE_INTEGER: return os << "TE_INTEGER";
         case TypeEnum::TE_REAL:    return os << "TE_REAL" ;
@@ -14,7 +12,7 @@ std::ostream& operator<< (std::ostream& os, TypeEnum eth)
         case TypeEnum::TE_SPEC:    return os << "TE_SPEC" ;
         case TypeEnum::TE_ERROR:   return os << "TE_ERROR" ;
     };
-    return os << static_cast<std::uint16_t>(eth);
+    return os << static_cast<std::uint16_t>(te);
 }
 
 /*----------------------------------------------------------------------------------------------*/
@@ -38,8 +36,12 @@ Type::~Type() {
 
 
 bool Type::operator==(const Type& other) {
-    return te == other.te &&
-        (array == nullptr ? other.array == nullptr : (*array == *(other.array)));
+    return te == other.te
+        && (
+            te == TE_ARRAY
+                ? (*array == *(other.array))
+                : true
+        );
 }
 
 string Type::str() {
@@ -115,9 +117,9 @@ string Symbol::str() {
 
 /* ---------------------------------------------------------------------------------------------*/
 
-std::ostream& operator<< (std::ostream& os, Operation eth)
+std::ostream& operator<< (std::ostream& os, Operation oper)
 {
-    switch (eth)
+    switch (oper)
     {
         case Operation::OP_UNKNOWN :        return os << "OP_UNKNOWN" ;
         case Operation::OP_ID:              return os << "OP_ID" ;
@@ -146,7 +148,7 @@ std::ostream& operator<< (std::ostream& os, Operation eth)
         case Operation::OP_LOG_GR:          return os << "OP_LOG_GR" ;
         case Operation::OP_LOG_EQ:          return os << "OP_LOG_EQ" ;
     };
-    return os << static_cast<std::uint16_t>(eth);
+    return os << static_cast<std::uint16_t>(oper);
 }
 
 /* ---------------------------------------------------------------------------------------------*/
@@ -167,7 +169,7 @@ Expression::Expression(Operation operation) :
 
 Expression::~Expression() {
     for(auto arg : *args) {
-        delete arg;
+        DELETE(arg);
     }
     
     DELETE(args);
@@ -190,10 +192,8 @@ string Expression::str(int level) {
 
 /* ---------------------------------------------------------------------------------------------*/
 
-std::ostream& operator<< (std::ostream& os, ExprArgType eth)
-{
-    switch (eth)
-    {
+std::ostream& operator<< (std::ostream& os, ExprArgType eat) {
+    switch (eat) {
         case ExprArgType::E_UNKNOWN:        return os << "E_UNKNOWN" ;
         case ExprArgType::E_ID_S:           return os << "E_ID_S";
         case ExprArgType::E_CONSTANT_S:     return os << "E_CONSTANT_S" ;
@@ -201,7 +201,7 @@ std::ostream& operator<< (std::ostream& os, ExprArgType eth)
         case ExprArgType::E_EXPRESSION_V:   return os << "E_EXPRESSION_V" ;
 
     };
-    return os << static_cast<std::uint16_t>(eth);
+    return os << static_cast<std::uint16_t>(eat);
 }
 
 /* ---------------------------------------------------------------------------------------------*/
@@ -255,7 +255,6 @@ string ExprArg::str(int level) {
     }
     
     return ss.str();
-    
 }
 
 /* ---------------------------------------------------------------------------------------------*/
@@ -302,19 +301,19 @@ Function::~Function() {
     DELETE(name);
     
     for(auto arg : *args) {
-        delete arg;
+        DELETE(arg);
     }
     DELETE(args);
     
     DELETE(result);
     
     for(auto sym : *stack) {
-        delete sym;
+        DELETE(sym);
     }
     DELETE(stack);
     
     for(auto expr : *body) {
-        delete expr;
+        DELETE(expr);
     }
     DELETE(body);
 }
@@ -330,21 +329,18 @@ string Function::str(int level) {
         ss << " p|" << arg->str() << "\n";
     }
    
-    ss << " r|" << (result != nullptr ? result->str() : "_none_") << "\n";
+    ss << " r|" << (result != nullptr ? result->str() : "_none_");
     
     for(auto symbol : *stack) {
-        ss << " m|" << symbol->str() << "\n";
+        ss << "\n" << " m|" << symbol->str();
     }
 
     for(auto expr : *body) {
-        ss << expr->str(0) << "\n";
+        ss << "\n" << expr->str(0) ;
     }
     
     
-    auto result = ss.str();
-    result.pop_back();
-    
-    return result;
+    return ss.str();
 }
     
 /* ---------------------------------------------------------------------------------------------*/
@@ -352,6 +348,25 @@ string Function::str(int level) {
 vector<Symbol*>             memory;
 vector<Function*>           functions;
 vector<Expression*>         program;
+
+/* ---------------------------------------------------------------------------------------------*/
+
+int mem_find(vector<Symbol*> v_sym, string str) {
+
+    for(size_t i = 0; i < v_sym.size(); i++) {
+        if(*(v_sym[i]->name) == str) {
+            return i;
+        }
+    }
+    
+    return -1;
+}
+
+/* ---------------------------------------------------------------------------------------------*/
+
+int mem_add(vector<Symbol*>, Symbol*) {
+    return 1;
+}
 
 /* ---------------------------------------------------------------------------------------------*/
 
@@ -379,31 +394,18 @@ void mem_debug() {
 
 void mem_free() {
     for(auto symbol : memory) {
-        delete symbol;
+        DELETE(symbol);
     }
     memory.clear();
     
     for(auto func : functions) {
-        delete func;
+        DELETE(func);
     }
     functions.clear();
     
     for(auto expr : program) {
-         delete expr;
+         DELETE(expr);
     }
     program.clear();
-}
-
-/* ---------------------------------------------------------------------------------------------*/
-
-int mem_find(vector<Symbol*> v_sym, string str) {
-
-    for(size_t i = 0; i < v_sym.size(); i++) {
-        if(*(v_sym[i]->name) == str) {
-            return i;
-        }
-    }
-    
-    return -1;
 }
 

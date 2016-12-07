@@ -32,6 +32,7 @@ enum TypeEnum : int {
 struct Type {
     TypeEnum       te;
     Array*         array;
+    bool           reference;
     
     Type();
     Type(const Type &other);
@@ -67,7 +68,6 @@ struct Symbol {
     Type*          type;
     int            offset; 
     int            level;
-    bool           reference;
     
     Symbol();
     Symbol(const Symbol &other);

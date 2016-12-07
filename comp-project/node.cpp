@@ -17,7 +17,7 @@ std::ostream& operator<< (std::ostream& os, TypeEnum te) {
 
 /*----------------------------------------------------------------------------------------------*/
 
-Type::Type() : te(TE_UNKNOWN), array(nullptr) {
+Type::Type() : te(TE_UNKNOWN), array(nullptr), reference(false) {
 }
 
 Type::Type(const Type &other) {
@@ -28,6 +28,8 @@ Type::Type(const Type &other) {
     } else {
         array = nullptr;
     }
+
+    reference = other.reference;
 }
 
 Type::~Type() {
@@ -41,22 +43,23 @@ bool Type::operator==(const Type& other) {
             te == TE_ARRAY
                 ? (*array == *(other.array))
                 : true
-        );
+        )
+        && reference == other.reference;
 }
 
 string Type::str() {
     stringstream ss;
     ss << te;
-    ss << (array == nullptr ? "" : ("(" + array->str() + ")"));
+    ss << (array == nullptr ? "" : ("(" + array->str() + ")")) << "|";
+    ss << (reference ? "R" : "N");
     return ss.str();
 }
 
 /* ---------------------------------------------------------------------------------------------*/
 
-int type_size(Symbol* symbol) {
-    if(symbol->reference) return 4;
+int type_size(Type* type) {
+    if(type->reference) return 4;
 
-    Type* type = symbol->type;
     switch (type->te) {
         case TE_UNKNOWN: return 0;
         case TE_INTEGER: return 4;
@@ -64,8 +67,7 @@ int type_size(Symbol* symbol) {
         case TE_ARRAY:   {
             Array* array = type->array;
             Type aType; aType.te = array->te;
-            Symbol aSymbol; aSymbol.type = &aType;
-            return (array->max - array->min + 1) * type_size(&aSymbol);
+            return (array->max - array->min + 1) * type_size(&aType);
         }
         case TE_BOOLEAN: return 4; // ? stored as int
         case TE_SPEC:    return 4;
@@ -105,8 +107,7 @@ Symbol::Symbol() :
     name(nullptr),
     type(nullptr),
     offset(-1),
-    level(0),
-    reference(false) {
+    level(0) {
 }
 
 Symbol::Symbol(const Symbol &other) {
@@ -124,7 +125,6 @@ Symbol::Symbol(const Symbol &other) {
     
     offset = other.offset;
     level = other.level;
-    reference = other.reference;
 }
 
 Symbol::~Symbol()  {
@@ -139,8 +139,7 @@ string Symbol::str() {
     ss << (name == nullptr ? "?" : *name) << "|";
     ss << (type == nullptr ? "?" : type->str()) << "|";
     ss << offset << "|";
-    ss << level << "|";
-    ss << reference;
+    ss << level;
     return ss.str();
 }
 
@@ -396,7 +395,7 @@ int mem_find(vector<Symbol*> v_sym, string str) {
 void mem_add(vector<Symbol*>& v_sym, Symbol* sym, bool asc, int offset) {
     if(offset == 0 && v_sym.size() > 0) {
         auto last_sym = v_sym[v_sym.size()-1];
-        sym->offset = last_sym->offset + (asc ? 1 : -1) * type_size(last_sym);
+        sym->offset = last_sym->offset + (asc ? 1 : -1) * type_size(last_sym->type);
 
     } else {
         sym->offset = offset;

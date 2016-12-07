@@ -217,8 +217,8 @@ subprogram_declaration : // Function*
         int args_i = 0;
         for(auto sym : *($$->args)) {
             auto sym_a = new Symbol(*sym);
+            sym_a->type->reference = true;
             sym_a->level = 1;
-            sym_a->reference = true;
             mem_add(stack, sym_a, false, args_i == 0 ? stack_top_offset : 0);
             args_i++;
         }
@@ -228,8 +228,8 @@ subprogram_declaration : // Function*
             auto result = new Symbol();
             result->name = new string(*($$->name));
             result->type = new Type(*($$->result));
+            result->type->reference = true;
             result->level = 1;
-            result->reference = true;
             mem_add(stack, result, false, 0);
         }
         

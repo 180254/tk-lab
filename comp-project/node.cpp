@@ -278,16 +278,19 @@ void mem_debug() {
     for(auto symbol : memory) {
         cout << symbol->str() << "\n";
     }
+    cout << "\n";
     
     cout << "[FUNCTIONS]" << "\n";
     for(auto func : functions) {
         // cout << func->str(0) << "\n";
     }
+    cout << "\n";
     
     cout << "[PROGRAM]" << "\n";
     for(auto expr : program) {
         cout << expr->str(0) << "\n";
     }
+    cout << "\n";
 }
 
 /* ---------------------------------------------------------------------------------------------*/

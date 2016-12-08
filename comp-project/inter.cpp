@@ -78,8 +78,8 @@ Attr* compute(Expression* expr, Memory* mem) {
             attr->type  = new Type();
             attr->type->te = TE_VOID;
             
-            
-            
+            string* assign_asm = asm_gen("mov", arg1a, arg2a);
+            attr->code->push_back(assign_asm);
         }
         break;
         
@@ -274,8 +274,20 @@ string* cast(Attr* attr, TypeEnum te, Memory* mem) {
     attr->place = temp_place;
     attr->type->te = te;
     
-    string code = func + *(attr->place) + "," + *temp_place;
+    string code = func + " " + *(attr->place) + "," + *temp_place;
     return new string(code);
 }
 
 /* --------------------------------------------------------------------------*/
+
+string* asm_gen(string cmd, Attr* arg1) {
+    string ir = arg1->type->te == TE_INTEGER ? "i" : "r";
+    string code = cmd + "." + ir + " " + *arg1->place;
+    return new string(code);
+}
+
+string* asm_gen(string cmd, Attr* arg1, Attr* arg2) {
+    string ir = arg1->type->te == TE_INTEGER ? "i" : "r";
+    string code = cmd + "." + ir + " " + *arg1->place + " " + *arg2->place;
+    return new string(code);
+}

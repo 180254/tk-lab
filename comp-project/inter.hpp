@@ -18,3 +18,6 @@ string* sym_to_place(Memory*,string);
 string* sym_to_place(Symbol*);
 string* cast(Attr*, TypeEnum, Memory*);
 
+string* asm_gen(string, Attr*);
+string* asm_gen(string, Attr*, Attr*);
+string* asm_three(TypeEnum, string, string, string);

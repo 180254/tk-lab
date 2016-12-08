@@ -3,6 +3,7 @@ lexer.cpp
 lexer.o
 main.o
 node.o
+inter.o
 parser.cpp
 parser.hpp
 parser.o

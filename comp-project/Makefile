@@ -1,8 +1,8 @@
-CC=clang++
+CC=gcc++
 CFLAGS=
 CPPFLAGS=-Wall -Wextra -O0 -std=gnu++14 -g -ggdb
 
-SOURCES=main.cpp node.cpp error.cpp parser.cpp lexer.cpp
+SOURCES=main.cpp node.cpp inter.cpp error.cpp parser.cpp lexer.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 
 OUT=xcomp
@@ -15,7 +15,7 @@ OUT=xcomp
 ${OUT}: $(OBJECTS)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ $^
 
-${OBJECTS}: global.hpp main.hpp node.hpp error.hpp parser.m.hpp lexer.hpp
+${OBJECTS}: global.hpp main.hpp inter.hpp node.hpp error.hpp parser.m.hpp lexer.hpp
 
 parser.cpp parser.hpp: parser.y
 	bison --warning=all --feature=all --defines=parser.hpp -o parser.cpp parser.y

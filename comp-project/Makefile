@@ -27,4 +27,3 @@ all: $(OUT)
 
 clean:
 	-rm -f $(OUT) $(OBJECTS) parser.cpp parser.hpp parser.output lexer.cpp
-

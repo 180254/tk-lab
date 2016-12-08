@@ -45,5 +45,3 @@ void usage(const char *app, const char *message) {
     cerr << "app usage: " << app << " PATH\n";
     cerr << "app usage: PATH = FILE-PATH | '-'\n";
 }
-
-

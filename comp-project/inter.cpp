@@ -7,7 +7,7 @@ Attr::Attr() : code(new vector<string*>()),
 
 /* --------------------------------------------------------------------------*/
 
-Attr* compute(Expression* expr, vector<Symbol*>* e_mem, bool e_mem_asc) {
+Attr* compute(Expression* expr, Memory* mem) {
     
     Attr* attr = new Attr();
 
@@ -23,7 +23,7 @@ Attr* compute(Expression* expr, vector<Symbol*>* e_mem, bool e_mem_asc) {
         case OP_ID:
         {
             string* sym_name = expr->args->at(0)->val.sVal;
-            int sym_id = mem_find(*e_mem, *sym_name);
+            int sym_id = mem_find(mem, *sym_name);
             
             if(sym_id == -1) {
                 attr_set_error(attr);
@@ -32,8 +32,8 @@ Attr* compute(Expression* expr, vector<Symbol*>* e_mem, bool e_mem_asc) {
                 break;
             }
             
-            attr->place = new string(sym_to_place(e_mem->at(sym_id)));
-            attr->type = new Type(*(e_mem->at(sym_id)->type));
+            attr->place = new string(sym_to_place(mem->vec->at(sym_id)));
+            attr->type = new Type(*(mem->vec->at(sym_id)->type));
         }
         break;
         
@@ -55,8 +55,8 @@ Attr* compute(Expression* expr, vector<Symbol*>* e_mem, bool e_mem_asc) {
             Expression* arg1 = expr->args->at(0)->val.eVal;
             Expression* arg2 = expr->args->at(1)->val.eVal;
             
-            Attr* attr1 = compute(arg1, e_mem, e_mem_asc);
-            Attr* attr2 = compute(arg2, e_mem, e_mem_asc);
+            Attr* attr1 = compute(arg1, mem);
+            Attr* attr2 = compute(arg2, mem);
             
             if(!type_is_num(attr1->type) || !type_is_num(attr2->type)) {
                 attr_set_error(attr);
@@ -66,8 +66,8 @@ Attr* compute(Expression* expr, vector<Symbol*>* e_mem, bool e_mem_asc) {
             }
             
             if(attr1->type->te == TE_INTEGER && attr2->type->te == TE_REAL) {
-                int temp_id = mem_temp(*e_mem, TE_INTEGER, e_mem_asc);
-                Symbol* temp = e_mem->at(temp_id);
+                int temp_id = mem_temp(mem, TE_INTEGER);
+                Symbol* temp = mem->vec->at(temp_id);
             
             }
             

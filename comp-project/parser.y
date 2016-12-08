@@ -111,7 +111,7 @@ program :
     }
     declarations {
         for (auto symbol : *$8) {
-            mem_add(memory, symbol, true, 0);
+            mem_add(&memory, symbol, 0);
         }
         DELETE($8);
     }
@@ -202,14 +202,15 @@ subprogram_declaration : // Function*
     subprogram_head declarations compound_statement {
         $$ = $1;
         
-        $$->stack = new vector<Symbol*>();
+        $$->stack = new Memory();
+        $$->stack->offset_asc = false;
         
         // copy global memory
-        for(auto sym : memory) {
-            $$->stack->push_back(new Symbol(*sym));
+        for(auto sym : *(memory.vec)) {
+            $$->stack->vec->push_back(new Symbol(*sym));
         }
         
-        auto& stack = *($$->stack);
+        auto stack = $$->stack;
         int stack_top_offset = ($$->args->size()+1)*4;
         stack_top_offset += ($$->result != nullptr ? 4 : 0);
         
@@ -219,7 +220,7 @@ subprogram_declaration : // Function*
             auto sym_a = new Symbol(*sym);
             sym_a->type->reference = true;
             sym_a->level = 1;
-            mem_add(stack, sym_a, false, args_i == 0 ? stack_top_offset : 0);
+            mem_add(stack, sym_a, args_i == 0 ? stack_top_offset : 0);
             args_i++;
         }
         
@@ -230,7 +231,7 @@ subprogram_declaration : // Function*
             result->type = new Type(*($$->result));
             result->type->reference = true;
             result->level = 1;
-            mem_add(stack, result, false, 0);
+            mem_add(stack, result, 0);
         }
         
         // push to stack special vals
@@ -239,19 +240,19 @@ subprogram_declaration : // Function*
         retaddr->type = new Type();
         retaddr->type->te = TE_SPEC;
         retaddr->level = 1;
-        mem_add(stack, retaddr, false, 0);
+        mem_add(stack, retaddr, 0);
         
         auto old_bp = new Symbol();
         old_bp->name = new string("__old__BP__");
         old_bp->type = new Type();
         old_bp->type->te = TE_SPEC;
         old_bp->level = 1;
-        mem_add(stack, old_bp, false, 0);
+        mem_add(stack, old_bp, 0);
         
         // push to stack local vars
         for(auto sym : *($2)) {
             sym->level = 1;
-            mem_add(stack, sym, false, 0);
+            mem_add(stack, sym, 0);
         }
         DELETE($2);
         
@@ -369,7 +370,7 @@ statement : // vector<Expression*>*
     | T_IF expression T_THEN statement {
         auto expr = new Expression(OP_FLOW_IF);
         expr->args->push_back(expr_arg_expr($2));
-        expr->args->push_back(expr_arg_expr_v($4));
+        expr->args->push_back(expr_arg_prog($4));
         
         $$ = new vector<Expression*>();
         $$->push_back(expr);
@@ -377,8 +378,8 @@ statement : // vector<Expression*>*
     | T_IF expression T_THEN statement T_ELSE statement {
         auto expr = new Expression(OP_FLOW_IF_THEN);
         expr->args->push_back(expr_arg_expr($2));
-        expr->args->push_back(expr_arg_expr_v($4));
-        expr->args->push_back(expr_arg_expr_v($6));
+        expr->args->push_back(expr_arg_prog($4));
+        expr->args->push_back(expr_arg_prog($6));
         
         $$ = new vector<Expression*>();
         $$->push_back(expr);
@@ -386,7 +387,7 @@ statement : // vector<Expression*>*
     | T_WHILE expression T_DO statement {
         auto expr = new Expression(OP_FLOW_WHILE);
         expr->args->push_back(expr_arg_expr($2));
-        expr->args->push_back(expr_arg_expr_v($4));
+        expr->args->push_back(expr_arg_prog($4));
         
         $$ = new vector<Expression*>();
         $$->push_back(expr);

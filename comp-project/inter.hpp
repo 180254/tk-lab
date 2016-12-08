@@ -10,7 +10,7 @@ struct Attr {
     //~Attr();
 };
 
-Attr* compute(Expression*, vector<Symbol*>*, bool);
+Attr* compute(Expression*, Memory*);
 
 void attr_set_error(Attr*);
 string sym_to_place(Symbol*);

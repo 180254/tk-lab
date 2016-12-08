@@ -14,6 +14,8 @@ struct ExprArg;
 enum ExprArgType : int;
 union ExprArgVal;
 struct Function;
+struct Memory;
+typedef vector<Expression*> Program;
 
 /* ------------------------------------------------------------------------- */
 
@@ -35,16 +37,16 @@ struct Type {
     bool           reference;
     
     Type();
-    Type(const Type &other);
+    Type(const Type&);
     ~Type();
     
-    bool operator==(const Type& other);
+    bool operator==(const Type&);
     string str();
 };
 
 /* ------------------------------------------------------------------------- */
 
-int type_size(Type* type);
+int type_size(Type*);
 bool type_is_num(Type*);
 
 /* ------------------------------------------------------------------------- */
@@ -55,10 +57,10 @@ struct Array {
     int            max;
     
     Array();
-    Array(const Array &other);
+    Array(const Array&);
     ~Array();
     
-    bool operator==(const Array& other);
+    bool operator==(const Array&);
     string str();
 };
 
@@ -71,7 +73,7 @@ struct Symbol {
     int            level;
     
     Symbol();
-    Symbol(const Symbol &other);
+    Symbol(const Symbol&);
     ~Symbol();
     string str();
 };
@@ -128,7 +130,7 @@ enum ExprArgType : int {
     E_ID_S,
     E_CONSTANT_S,
     E_EXPRESSION,
-    E_EXPRESSION_V
+    E_PROGRAM
 };
 
 /* ------------------------------------------------------------------------- */
@@ -137,7 +139,7 @@ union ExprArgVal {
     int                   iVal;
     string*               sVal;
     Expression*           eVal;
-    vector<Expression*>*  evVal;
+    Program*              pVal;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -156,7 +158,7 @@ struct ExprArg {
 ExprArg* expr_arg_id(string*);
 ExprArg* expr_arg_const(string*);
 ExprArg* expr_arg_expr(Expression*);
-ExprArg* expr_arg_expr_v(vector<Expression*>*);
+ExprArg* expr_arg_prog(Program*);
 
 /* ------------------------------------------------------------------------- */
 
@@ -164,8 +166,8 @@ struct Function {
     string*                name;
     vector<Symbol*>*       args;
     Type*                  result;
-    vector<Symbol*>*       stack;
-    vector<Expression*>*   body;
+    Memory*                stack;
+    Program*               body;
     
     Function();
     ~Function();
@@ -174,15 +176,25 @@ struct Function {
 
 /* ------------------------------------------------------------------------- */
 
-extern vector<Symbol*>      memory;
-extern vector<Function*>    functions;
-extern vector<Expression*>  program;
+struct Memory {
+    vector<Symbol*>* vec;
+    bool offset_asc;
+
+    Memory();
+    ~Memory();
+};
 
 /* ------------------------------------------------------------------------- */
 
-int mem_find(vector<Symbol*>&, string);
-void mem_add(vector<Symbol*>&, Symbol*, bool, int);
-int mem_temp(vector<Symbol*>&, TypeEnum, bool);
+extern Memory               memory;
+extern vector<Function*>    functions;
+extern Program              program;
+
+/* ------------------------------------------------------------------------- */
+
+int mem_find(Memory*, string);
+int mem_add(Memory*, Symbol*, int);
+int mem_temp(Memory*, TypeEnum);
 
 /* ------------------------------------------------------------------------- */
 

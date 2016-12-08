@@ -4,13 +4,13 @@
 
 std::ostream& operator<< (std::ostream& os, TypeEnum te) {
     switch (te) {
-        case TypeEnum::TE_UNKNOWN: return os << "TE_UNKNOWN" ;
-        case TypeEnum::TE_INTEGER: return os << "TE_INTEGER";
-        case TypeEnum::TE_REAL:    return os << "TE_REAL" ;
-        case TypeEnum::TE_ARRAY:   return os << "TE_ARRAY" ;
-        case TypeEnum::TE_BOOLEAN: return os << "TE_BOOLEAN" ;
-        case TypeEnum::TE_SPEC:    return os << "TE_SPEC" ;
-        case TypeEnum::TE_ERROR:   return os << "TE_ERROR" ;
+        case TE_UNKNOWN: return os << "TE_UNKNOWN";
+        case TE_INTEGER: return os << "TE_INTEGER";
+        case TE_REAL:    return os << "TE_REAL";
+        case TE_ARRAY:   return os << "TE_ARRAY";
+        case TE_BOOLEAN: return os << "TE_BOOLEAN";
+        case TE_SPEC:    return os << "TE_SPEC";
+        case TE_ERROR:   return os << "TE_ERROR";
     };
     return os << static_cast<std::uint16_t>(te);
 }
@@ -20,7 +20,7 @@ std::ostream& operator<< (std::ostream& os, TypeEnum te) {
 Type::Type() : te(TE_UNKNOWN), array(nullptr), reference(false) {
 }
 
-Type::Type(const Type &other) {
+Type::Type(const Type& other) {
     te = other.te;
     
     if(other.array != nullptr) {
@@ -86,7 +86,7 @@ bool type_is_num(Type* type) {
 Array::Array() : te(TE_UNKNOWN), min(-1), max(-1) {
 }
 
-Array::Array(const Array &other) {
+Array::Array(const Array& other) {
     te = other.te;
     min = other.min;
     max = other.max;
@@ -116,7 +116,7 @@ Symbol::Symbol() :
     level(0) {
 }
 
-Symbol::Symbol(const Symbol &other) {
+Symbol::Symbol(const Symbol& other) {
     if(other.name != nullptr) {
         name = new string(*(other.name));
     } else {
@@ -151,36 +151,34 @@ string Symbol::str() {
 
 /* ------------------------------------------------------------------------- */
 
-std::ostream& operator<< (std::ostream& os, Operation oper)
-{
-    switch (oper)
-    {
-        case Operation::OP_UNKNOWN :        return os << "OP_UNKNOWN" ;
-        case Operation::OP_ID:              return os << "OP_ID" ;
-        case Operation::OP_CONSTANT:        return os << "OP_CONSTANT" ;
-        case Operation::OP_ASSIGN:          return os << "OP_ASSIGN" ;
-        case Operation::OP_ARRAY_ACCESS:    return os << "OP_ARRAY_ACCESS" ;
-        case Operation::OP_MATH_PLUS:       return os << "OP_MATH_PLUS" ;
-        case Operation::OP_MATH_MINUS:      return os << "OP_MATH_MINUS" ;
-        case Operation::OP_MATH_UMINUS:     return os << "OP_MATH_UMINUS" ;
-        case Operation::OP_MATH_UPLUS:      return os << "OP_MATH_UPLUS" ;
-        case Operation::OP_MATH_MOD:        return os << "OP_MATH_MOD" ;
-        case Operation::OP_MATH_DIV1:       return os << "OP_MATH_DIV1" ;
-        case Operation::OP_MATH_DIV2:       return os << "OP_MATH_DIV2" ;
-        case Operation::OP_MATH_MUL:        return os << "OP_MATH_MUL" ;
-        case Operation::OP_FLOW_IF:         return os << "OP_FLOW_IF" ;
-        case Operation::OP_FLOW_IF_THEN:    return os << "OP_FLOW_IF_THEN" ;
-        case Operation::OP_FLOW_WHILE:      return os << "OP_FLOW_WHILE" ;
-        case Operation::OP_CALL_FUNC:       return os << "OP_CALL_FUNC" ;
-        case Operation::OP_LOG_NOT:         return os << "OP_LOG_NOT" ;
-        case Operation::OP_LOG_AND:         return os << "OP_LOG_AND" ;
-        case Operation::OP_LOG_OR:          return os << "OP_LOG_OR" ;
-        case Operation::OP_LOG_NE:          return os << "OP_LOG_NE" ;
-        case Operation::OP_LOG_LE:          return os << "OP_LOG_LE" ;
-        case Operation::OP_LOG_GE:          return os << "OP_LOG_GE" ;
-        case Operation::OP_LOG_LO:          return os << "OP_LOG_LO" ;
-        case Operation::OP_LOG_GR:          return os << "OP_LOG_GR" ;
-        case Operation::OP_LOG_EQ:          return os << "OP_LOG_EQ" ;
+std::ostream& operator<< (std::ostream& os, Operation oper) {
+    switch (oper) {
+        case OP_UNKNOWN :        return os << "OP_UNKNOWN";
+        case OP_ID:              return os << "OP_ID";
+        case OP_CONSTANT:        return os << "OP_CONSTANT";
+        case OP_ASSIGN:          return os << "OP_ASSIGN";
+        case OP_ARRAY_ACCESS:    return os << "OP_ARRAY_ACCESS";
+        case OP_MATH_PLUS:       return os << "OP_MATH_PLUS";
+        case OP_MATH_MINUS:      return os << "OP_MATH_MINUS";
+        case OP_MATH_UMINUS:     return os << "OP_MATH_UMINUS";
+        case OP_MATH_UPLUS:      return os << "OP_MATH_UPLUS";
+        case OP_MATH_MOD:        return os << "OP_MATH_MOD";
+        case OP_MATH_DIV1:       return os << "OP_MATH_DIV1";
+        case OP_MATH_DIV2:       return os << "OP_MATH_DIV2";
+        case OP_MATH_MUL:        return os << "OP_MATH_MUL";
+        case OP_FLOW_IF:         return os << "OP_FLOW_IF";
+        case OP_FLOW_IF_THEN:    return os << "OP_FLOW_IF_THEN";
+        case OP_FLOW_WHILE:      return os << "OP_FLOW_WHILE";
+        case OP_CALL_FUNC:       return os << "OP_CALL_FUNC";
+        case OP_LOG_NOT:         return os << "OP_LOG_NOT";
+        case OP_LOG_AND:         return os << "OP_LOG_AND";
+        case OP_LOG_OR:          return os << "OP_LOG_OR";
+        case OP_LOG_NE:          return os << "OP_LOG_NE";
+        case OP_LOG_LE:          return os << "OP_LOG_LE";
+        case OP_LOG_GE:          return os << "OP_LOG_GE";
+        case OP_LOG_LO:          return os << "OP_LOG_LO";
+        case OP_LOG_GR:          return os << "OP_LOG_GR";
+        case OP_LOG_EQ:          return os << "OP_LOG_EQ";
     };
     return os << static_cast<std::uint16_t>(oper);
 }
@@ -228,12 +226,11 @@ string Expression::str(int level) {
 
 std::ostream& operator<< (std::ostream& os, ExprArgType eat) {
     switch (eat) {
-        case ExprArgType::E_UNKNOWN:        return os << "E_UNKNOWN" ;
-        case ExprArgType::E_ID_S:           return os << "E_ID_S";
-        case ExprArgType::E_CONSTANT_S:     return os << "E_CONSTANT_S" ;
-        case ExprArgType::E_EXPRESSION:     return os << "E_EXPRESSION" ;
-        case ExprArgType::E_EXPRESSION_V:   return os << "E_EXPRESSION_V" ;
-
+        case E_UNKNOWN:        return os << "E_UNKNOWN";
+        case E_ID_S:           return os << "E_ID_S";
+        case E_CONSTANT_S:     return os << "E_CONSTANT_S";
+        case E_EXPRESSION:     return os << "E_EXPRESSION";
+        case E_PROGRAM:        return os << "E_PROGRAM";
     };
     return os << static_cast<std::uint16_t>(eat);
 }
@@ -256,11 +253,11 @@ ExprArg::~ExprArg() {
     } else if(type == E_EXPRESSION) {
         DELETE(val.eVal);
     
-    } else if(type == E_EXPRESSION_V) {
-        for(auto exp : *(val.evVal)) {
+    } else if(type == E_PROGRAM) {
+        for(auto exp : *(val.pVal)) {
             DELETE(exp);
         }
-        DELETE(val.evVal);
+        DELETE(val.pVal);
     }
 }
 
@@ -282,8 +279,8 @@ string ExprArg::str(int level) {
     } else if(type == E_EXPRESSION) {
         ss << "\n" << val.eVal->str(level+1);
     
-    } else if(type == E_EXPRESSION_V) {
-        for(auto exp : *(val.evVal)) {
+    } else if(type == E_PROGRAM) {
+        for(auto exp : *(val.pVal)) {
             ss << "\n" << exp->str(level+1);
         }
     }
@@ -314,10 +311,10 @@ ExprArg* expr_arg_expr(Expression* arg) {
     return var;
 }
 
-ExprArg* expr_arg_expr_v(vector<Expression*>* arg) {
+ExprArg* expr_arg_prog(Program* arg) {
     auto var = new ExprArg();
-    var->type = E_EXPRESSION_V;
-    var->val.evVal = arg;
+    var->type = E_PROGRAM;
+    var->val.pVal = arg;
     return var;
 }
 
@@ -333,17 +330,14 @@ Function::Function() :
 
 Function::~Function() {
     DELETE(name);
-    
+
     for(auto arg : *args) {
         DELETE(arg);
     }
     DELETE(args);
-    
+
     DELETE(result);
-    
-    for(auto sym : *stack) {
-        DELETE(sym);
-    }
+
     DELETE(stack);
     
     for(auto expr : *body) {
@@ -365,30 +359,40 @@ string Function::str(int level) {
    
     ss << " r|" << (result != nullptr ? result->str() : "_none_");
     
-    for(auto symbol : *stack) {
+    for(auto symbol : *stack->vec) {
         ss << "\n" << " m|" << symbol->str();
     }
 
     for(auto expr : *body) {
         ss << "\n" << expr->str(0) ;
     }
-    
-    
+
     return ss.str();
 }
-    
 /* ------------------------------------------------------------------------- */
 
-vector<Symbol*>             memory;
-vector<Function*>           functions;
-vector<Expression*>         program;
+Memory::Memory() : vec(new vector<Symbol*>()),
+                   offset_asc(true) {
+}
+
+Memory::~Memory() {
+    for(auto symbol : *vec) {
+        DELETE(symbol);
+    }
+    DELETE(vec);
+}
 
 /* ------------------------------------------------------------------------- */
 
-int mem_find(vector<Symbol*>& v_sym, string str) {
+Memory               memory;
+vector<Function*>    functions;
+Program              program;
 
-    for(size_t i = 0; i < v_sym.size(); i++) {
-        if(*(v_sym[i]->name) == str) {
+/* ------------------------------------------------------------------------- */
+
+int mem_find(Memory* mem, string str) {
+    for(size_t i = 0; i < mem->vec->size(); i++) {
+        if(*(mem->vec->at(i)->name) == str) {
             return i;
         }
     }
@@ -398,38 +402,38 @@ int mem_find(vector<Symbol*>& v_sym, string str) {
 
 /* ------------------------------------------------------------------------- */
 
-void mem_add(vector<Symbol*>& v_sym, Symbol* sym, bool asc, int offset) {
-    if(offset == 0 && v_sym.size() > 0) {
-        auto last_sym = v_sym[v_sym.size()-1];
-        auto asc_mul = asc ? 1 : -1;
+int mem_add(Memory* mem, Symbol* sym, int offset) {
+    if(offset == 0 && mem->vec->size() > 0) {
+        auto last_sym = mem->vec->at(mem->vec->size()-1);
+        auto asc_mul = mem->offset_asc ? 1 : -1;
         sym->offset = last_sym->offset + asc_mul * type_size(last_sym->type);
 
     } else {
         sym->offset = offset;
     }
 
-    v_sym.push_back(sym);
+    mem->vec->push_back(sym);
+    return mem->vec->size()-1;
 }
 
 /* ------------------------------------------------------------------------- */
 
-int mem_temp(vector<Symbol*>& v_sym, TypeEnum te, bool asc) {
+int mem_temp(Memory* mem, TypeEnum te) {
     Type* type = new Type();
     type->te = te;
     
     Symbol* sym = new Symbol();
-    sym->name = new string("$t" + to_string(v_sym.size()));
+    sym->name = new string("$t" + to_string(mem->vec->size()));
     sym->type = type;
     
-    mem_add(v_sym, sym, asc, 0);
-    return v_sym.size()-1;
+    return mem_add(mem, sym, 0);
 }
 
 /* ------------------------------------------------------------------------- */
 
 void mem_debug() {
     cout << "[MEMORY]" << "\n";
-    for(auto symbol : memory) {
+    for(auto symbol : *(memory.vec)) {
         cout << symbol->str() << "\n";
     }
     cout << "\n";
@@ -450,10 +454,10 @@ void mem_debug() {
 /* ------------------------------------------------------------------------- */
 
 void mem_free() {
-    for(auto symbol : memory) {
+    for(auto symbol : *(memory.vec)) {
         DELETE(symbol);
     }
-    memory.clear();
+    memory.vec->clear();
     
     for(auto func : functions) {
         DELETE(func);

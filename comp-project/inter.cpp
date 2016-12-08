@@ -32,7 +32,7 @@ Attr* compute(Expression* expr, Memory* mem) {
                 break;
             }
             
-            attr->place = new string(sym_to_place(mem->vec->at(sym_id)));
+            attr->place = new string(sym_to_place(mem, sym_id));
             attr->type = new Type(*(mem->vec->at(sym_id)->type));
         }
         break;
@@ -42,9 +42,9 @@ Attr* compute(Expression* expr, Memory* mem) {
         case OP_CONSTANT:
         {
             attr->place = new string("#" + *(expr->args->at(0)->val.sVal));
-            bool real = attr->place->find(".") != std::string::npos;
+            bool integer = attr->place->find(".") == std::string::npos;
             attr->type = new Type();
-            attr->type->te = real ? TE_REAL : TE_INTEGER;
+            attr->type->te = integer ? TE_INTEGER : TE_REAL;
         }
         break;
         
@@ -67,12 +67,20 @@ Attr* compute(Expression* expr, Memory* mem) {
             
             if(attr1->type->te == TE_INTEGER && attr2->type->te == TE_REAL) {
                 int temp_id = mem_temp(mem, TE_INTEGER);
-                Symbol* temp = mem->vec->at(temp_id);
-            
+                string temp_place = sym_to_place(mem, temp_id);
+                string code = "realtoint " + *attr2->place + "," + temp_place;
+                attr->code->push_back(new string(code));
+                attr2->place = new string(temp_place);
+                attr2->type->te = TE_INTEGER;
             }
             
             if(attr1->type->te == TE_REAL && attr2->type->te == TE_INTEGER) {
-            
+                int temp_id = mem_temp(mem, TE_REAL);
+                string temp_place = sym_to_place(mem, temp_id);
+                string code = "inttoreal " + *attr2->place + "," + temp_place;
+                attr->code->push_back(new string(code));
+                attr2->place = new string(temp_place);;
+                attr2->type->te = TE_REAL;
             }
         }
         break;
@@ -224,14 +232,14 @@ void attr_set_error(Attr* attr) {
 
 /* --------------------------------------------------------------------------*/
 
-string sym_to_place(Memory* mem, int index) {
-    return sym_to_place(mem->vec->at(index));
+string sym_to_place(Memory* mem, int sym_index) {
+    return sym_to_place(mem->vec->at(sym_index));
 }
 
 /* --------------------------------------------------------------------------*/
 
-string sym_to_place(Memory* mem, string var_name) {
-     int index = mem_find(mem, var_name);
+string sym_to_place(Memory* mem, string sym_name) {
+     int index = mem_find(mem, sym_name);
      return sym_to_place(mem, index);
 }
 

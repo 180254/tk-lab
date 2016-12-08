@@ -2,5 +2,5 @@
 
 void yyerror(const char* message) 
 {
-    cerr << "lex error: " << message << " (line: " << yylineno << ")" << "\n";
+    cerr << "lex error, line=" << yylineno << ": " << message << "\n";
 }

@@ -7,13 +7,15 @@ Attr::Attr() : code(new vector<string*>()),
 
 /* --------------------------------------------------------------------------*/
 
-Attr* compute(Expression* expr, vector<Symbol*>* e_mem) {
+Attr* compute(Expression* expr, vector<Symbol*>* e_mem, bool e_mem_asc) {
     
     Attr* attr = new Attr();
 
     switch(expr->oper) {
         case OP_UNKNOWN:
-        
+        {
+            attr_set_error(attr);
+        }
         break;
         
         /* ----------------------------------------------------------------- */
@@ -24,9 +26,9 @@ Attr* compute(Expression* expr, vector<Symbol*>* e_mem) {
             int sym_id = mem_find(*e_mem, *sym_name);
             
             if(sym_id == -1) {
-                set_attr_error(attr);
-                cerr << "semerr: unknown variable " << *sym_name
-                     << " (line: " << expr->line << ")" << "\n";
+                attr_set_error(attr);
+                cerr << "sem err, line=" << expr->line << ": "
+                     << "unknown variable " << *sym_name << "\n";
                 break;
             }
             
@@ -53,9 +55,25 @@ Attr* compute(Expression* expr, vector<Symbol*>* e_mem) {
             Expression* arg1 = expr->args->at(0)->val.eVal;
             Expression* arg2 = expr->args->at(1)->val.eVal;
             
+            Attr* attr1 = compute(arg1, e_mem, e_mem_asc);
+            Attr* attr2 = compute(arg2, e_mem, e_mem_asc);
             
+            if(!type_is_num(attr1->type) || !type_is_num(attr2->type)) {
+                attr_set_error(attr);
+                cerr << "sem err, line=" << expr->line << ": "
+                     << "bad assign expression" << "\n";
+                break;
+            }
             
+            if(attr1->type->te == TE_INTEGER && attr2->type->te == TE_REAL) {
+                int temp_id = mem_temp(*e_mem, TE_INTEGER, e_mem_asc);
+                Symbol* temp = e_mem->at(temp_id);
             
+            }
+            
+            if(attr1->type->te == TE_REAL && attr2->type->te == TE_INTEGER) {
+            
+            }
         }
         break;
         
@@ -199,7 +217,7 @@ Attr* compute(Expression* expr, vector<Symbol*>* e_mem) {
 
 /* --------------------------------------------------------------------------*/
 
-void set_attr_error(Attr* attr) {
+void attr_set_error(Attr* attr) {
     attr->place = new string("");
     attr->type->te = TE_ERROR;
 }
@@ -225,3 +243,6 @@ string sym_to_place(Symbol* sym) {
    
     return ss.str();
 }
+
+/* --------------------------------------------------------------------------*/
+

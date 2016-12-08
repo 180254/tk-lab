@@ -44,7 +44,8 @@ struct Type {
 
 /* ------------------------------------------------------------------------- */
 
-int type_size(Type type);
+int type_size(Type* type);
+bool type_is_num(Type*);
 
 /* ------------------------------------------------------------------------- */
 
@@ -181,6 +182,7 @@ extern vector<Expression*>  program;
 
 int mem_find(vector<Symbol*>&, string);
 void mem_add(vector<Symbol*>&, Symbol*, bool, int);
+int mem_temp(vector<Symbol*>&, TypeEnum, bool);
 
 /* ------------------------------------------------------------------------- */
 

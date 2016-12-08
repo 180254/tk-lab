@@ -7,12 +7,11 @@ struct Attr {
     Type*            type;
 
     Attr();
+    //~Attr();
 };
 
+Attr* compute(Expression*, vector<Symbol*>*, bool);
 
-
-Attr* compute(Expression*, vector<Symbol*>*);
-
-void set_attr_error(Attr*);
-
+void attr_set_error(Attr*);
 string sym_to_place(Symbol*);
+

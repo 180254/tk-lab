@@ -77,6 +77,12 @@ int type_size(Type* type) {
 
 /* ------------------------------------------------------------------------- */
 
+bool type_is_num(Type* type) {
+    return type->te == TE_INTEGER || type->te == TE_REAL;
+}
+
+/* ------------------------------------------------------------------------- */
+
 Array::Array() : te(TE_UNKNOWN), min(-1), max(-1) {
 }
 
@@ -403,6 +409,20 @@ void mem_add(vector<Symbol*>& v_sym, Symbol* sym, bool asc, int offset) {
     }
 
     v_sym.push_back(sym);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int mem_temp(vector<Symbol*>& v_sym, TypeEnum te, bool asc) {
+    Type* type = new Type();
+    type->te = te;
+    
+    Symbol* sym = new Symbol();
+    sym->name = new string("$t" + to_string(v_sym.size()));
+    sym->type = type;
+    
+    mem_add(v_sym, sym, asc, 0);
+    return v_sym.size()-1;
 }
 
 /* ------------------------------------------------------------------------- */

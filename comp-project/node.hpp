@@ -179,7 +179,7 @@ extern vector<Expression*>  program;
 
 /* ------------------------------------------------------------------------- */
 
-int mem_find(vector<Symbol*>, string);
+int mem_find(vector<Symbol*>&, string);
 void mem_add(vector<Symbol*>&, Symbol*, bool, int);
 
 /* ------------------------------------------------------------------------- */

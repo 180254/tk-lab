@@ -379,7 +379,7 @@ vector<Expression*>         program;
 
 /* ------------------------------------------------------------------------- */
 
-int mem_find(vector<Symbol*> v_sym, string str) {
+int mem_find(vector<Symbol*>& v_sym, string str) {
 
     for(size_t i = 0; i < v_sym.size(); i++) {
         if(*(v_sym[i]->name) == str) {

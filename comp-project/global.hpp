@@ -15,6 +15,7 @@
 
 #include "main.hpp"
 #include "node.hpp"
+#include "inter.hpp"
 #include "error.hpp"
 #include "parser.m.hpp"
 #include "lexer.hpp"

@@ -44,7 +44,7 @@
 
 /* -------------------------------------------------------------------------------------------- */
 
-%token UMINUS
+%token T_UMINUS
 
 %precedence T_THEN
 %precedence T_ELSE
@@ -448,7 +448,7 @@ simple_expression : // Expression*
     term {
         $$ = $1;
     }
-    | sign term %prec UMINUS {
+    | sign term %prec T_UMINUS {
         auto oper = $1 == OP_MATH_MINUS ? OP_MATH_UMINUS : OP_MATH_UPLUS;
         $$ = new Expression(oper);
         $$->args->push_back(expr_arg_expr($2));

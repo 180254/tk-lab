@@ -13,5 +13,7 @@ struct Attr {
 Attr* compute(Expression*, Memory*);
 
 void attr_set_error(Attr*);
+string sym_to_place(Memory*,int);
+string sym_to_place(Memory*,string);
 string sym_to_place(Symbol*);
 

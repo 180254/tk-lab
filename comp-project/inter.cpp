@@ -224,6 +224,19 @@ void attr_set_error(Attr* attr) {
 
 /* --------------------------------------------------------------------------*/
 
+string sym_to_place(Memory* mem, int index) {
+    return sym_to_place(mem->vec->at(index));
+}
+
+/* --------------------------------------------------------------------------*/
+
+string sym_to_place(Memory* mem, string var_name) {
+     int index = mem_find(mem, var_name);
+     return sym_to_place(mem, index);
+}
+
+/* --------------------------------------------------------------------------*/
+
 string sym_to_place(Symbol* sym) {
     stringstream ss;
     
@@ -240,7 +253,6 @@ string sym_to_place(Symbol* sym) {
     }
     
     ss << sym->offset;
-   
     return ss.str();
 }
 

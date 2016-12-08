@@ -75,6 +75,10 @@ Attr* compute(Expression* expr, Memory* mem) {
                 attr->code->push_back(cast_c);
             }
             
+            attr->type  = new Type();
+            attr->type->te = TE_VOID;
+            
+            
             
         }
         break;

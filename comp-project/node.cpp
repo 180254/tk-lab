@@ -5,6 +5,7 @@
 std::ostream& operator<< (std::ostream& os, TypeEnum te) {
     switch (te) {
         case TE_UNKNOWN: return os << "TE_UNKNOWN";
+        case TE_VOID:    return os << "TE_VOID";
         case TE_INTEGER: return os << "TE_INTEGER";
         case TE_REAL:    return os << "TE_REAL";
         case TE_ARRAY:   return os << "TE_ARRAY";
@@ -62,6 +63,7 @@ int type_size(Type* type) {
 
     switch (type->te) {
         case TE_UNKNOWN: return 0;
+        case TE_VOID:    return 0;
         case TE_INTEGER: return 4;
         case TE_REAL:    return 8;
         case TE_ARRAY:   {

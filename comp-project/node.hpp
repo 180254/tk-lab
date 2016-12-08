@@ -21,12 +21,13 @@ typedef vector<Expression*> Program;
 
 enum TypeEnum : int {
     TE_UNKNOWN = 0,
-    TE_INTEGER = 1,
-    TE_REAL    = 2,
-    TE_ARRAY   = 3,
-    TE_BOOLEAN = 4,
-    TE_SPEC    = 5,
-    TE_ERROR   = 6
+    TE_VOID    = 1,
+    TE_INTEGER = 2,
+    TE_REAL    = 3,
+    TE_ARRAY   = 4,
+    TE_BOOLEAN = 5,
+    TE_SPEC    = 6,
+    TE_ERROR   = 7
 };
 
 /* ------------------------------------------------------------------------- */

@@ -32,7 +32,7 @@ Attr* compute(Expression* expr, Memory* mem) {
                 break;
             }
             
-            attr->place = new string(sym_to_place(mem, sym_id));
+            attr->place = sym_to_place(mem, sym_id);
             attr->type = new Type(*(mem->vec->at(sym_id)->type));
         }
         break;
@@ -55,33 +55,27 @@ Attr* compute(Expression* expr, Memory* mem) {
             Expression* arg1 = expr->args->at(0)->val.eVal;
             Expression* arg2 = expr->args->at(1)->val.eVal;
             
-            Attr* attr1 = compute(arg1, mem);
-            Attr* attr2 = compute(arg2, mem);
+            Attr* arg1a = compute(arg1, mem);
+            Attr* arg2a = compute(arg2, mem);
             
-            if(!type_is_num(attr1->type) || !type_is_num(attr2->type)) {
+            if(!type_is_num(arg1a->type) || !type_is_num(arg2a->type)) {
                 attr_set_error(attr);
                 cerr << "sem err, line=" << expr->line << ": "
                      << "bad assign expression" << "\n";
                 break;
             }
             
-            if(attr1->type->te == TE_INTEGER && attr2->type->te == TE_REAL) {
-                int temp_id = mem_temp(mem, TE_INTEGER);
-                string temp_place = sym_to_place(mem, temp_id);
-                string code = "realtoint " + *attr2->place + "," + temp_place;
-                attr->code->push_back(new string(code));
-                attr2->place = new string(temp_place);
-                attr2->type->te = TE_INTEGER;
+            if(arg1a->type->te == TE_INTEGER && arg2a->type->te == TE_REAL) {
+                string* cast_c = cast(arg2a, TE_INTEGER, mem);
+                attr->code->push_back(cast_c);
             }
             
-            if(attr1->type->te == TE_REAL && attr2->type->te == TE_INTEGER) {
-                int temp_id = mem_temp(mem, TE_REAL);
-                string temp_place = sym_to_place(mem, temp_id);
-                string code = "inttoreal " + *attr2->place + "," + temp_place;
-                attr->code->push_back(new string(code));
-                attr2->place = new string(temp_place);;
-                attr2->type->te = TE_REAL;
+            if(arg1a->type->te == TE_REAL && arg2a->type->te == TE_INTEGER) {
+                string* cast_c = cast(arg2a, TE_REAL, mem);
+                attr->code->push_back(cast_c);
             }
+            
+            
         }
         break;
         
@@ -232,20 +226,20 @@ void attr_set_error(Attr* attr) {
 
 /* --------------------------------------------------------------------------*/
 
-string sym_to_place(Memory* mem, int sym_index) {
+string* sym_to_place(Memory* mem, int sym_index) {
     return sym_to_place(mem->vec->at(sym_index));
 }
 
 /* --------------------------------------------------------------------------*/
 
-string sym_to_place(Memory* mem, string sym_name) {
+string* sym_to_place(Memory* mem, string sym_name) {
      int index = mem_find(mem, sym_name);
      return sym_to_place(mem, index);
 }
 
 /* --------------------------------------------------------------------------*/
 
-string sym_to_place(Symbol* sym) {
+string* sym_to_place(Symbol* sym) {
     stringstream ss;
     
     if(sym->type->reference) {
@@ -261,8 +255,23 @@ string sym_to_place(Symbol* sym) {
     }
     
     ss << sym->offset;
-    return ss.str();
+    return new string(ss.str());
 }
 
 /* --------------------------------------------------------------------------*/
 
+string* cast(Attr* attr, TypeEnum te, Memory* mem) {
+    string func = te == TE_INTEGER ? "realtoint" : "inttoreal";
+    
+    int temp_id = mem_temp(mem, TE_INTEGER);
+    string* temp_place = sym_to_place(mem, temp_id);
+    
+    DELETE(attr->place);
+    attr->place = temp_place;
+    attr->type->te = te;
+    
+    string code = func + *(attr->place) + "," + *temp_place;
+    return new string(code);
+}
+
+/* --------------------------------------------------------------------------*/

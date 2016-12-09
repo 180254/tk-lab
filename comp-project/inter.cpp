@@ -333,7 +333,7 @@ string* sym_to_place(Symbol* sym) {
         ss << "*";
     }
 
-    if(sym->level == 2) {
+    if(sym->level == 1) {
         ss << "BP";
 
         if(sym->offset > 0) {
@@ -412,7 +412,7 @@ void asm_gen_app() {
                 alloc += type_size(sym->type);
             }
         }
-        cout << "\t" << "enter       #"  << alloc << "\n";
+        cout << "\t" << "enter.i     #"  << alloc << "\n";
 
         for(auto code: *(attr->code)) {
             cout << "\t" << *code << "\n";

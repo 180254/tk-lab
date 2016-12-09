@@ -308,18 +308,6 @@ void attr_set_error(Attr* attr) {
 
 /* --------------------------------------------------------------------------*/
 
-string* attr_to_code(Attr* attr) {
-    stringstream ss;
-    
-    for(auto code: *(attr->code)) {
-        ss << *code << "\n";
-    }
-    
-    return new string(ss.str());
-}
-
-/* --------------------------------------------------------------------------*/
-
 string* sym_to_place(Memory* mem, int sym_index) {
     return sym_to_place(mem->vec->at(sym_index));
 }
@@ -376,36 +364,45 @@ string* cast(Attr* attr, TypeEnum te, Memory* mem) {
 
 /* --------------------------------------------------------------------------*/
 
-string* asm_gen(string command, Attr* arg1, Attr* arg2, Attr* arg3) {
-    
-    string ir = arg1->type->te == TE_INTEGER ? "i" : "r";
-    string code = command + "." + ir + " " + *arg1->place;
-    
-    if(arg2 != nullptr) {
-        code += "," + *arg2->place;
-    }
-    
-    if(arg3 != nullptr) {
-        code += "," + *arg3->place;
-    }
-    
-    return new string(code);
-}
-
-/* ------------------------------------------------------------------------- */
-
-void asm_app_gen() {
-    cout << *attr_to_code(compute(&program, &memory)) << "\n";
-}
-
-
-/* --------------------------------------------------------------------------*/
-
 int lab_current = 0;
 string* lab_next() {
     stringstream ss;
     ss << "lab" << to_string(lab_current);
     return new string(ss.str());
+}
+
+/* --------------------------------------------------------------------------*/
+
+string* asm_gen(string command, Attr* arg1, Attr* arg2, Attr* arg3) {
+    stringstream ss;
+    
+    ss << command << "." << (arg1->type->te == TE_INTEGER ? "i" : "r");
+    ss << string(10-command.length(), ' ');
+    ss << *arg1->place;
+    
+    if(arg2 != nullptr) {
+        ss << "," << *(arg2->place);
+    }
+    
+    if(arg3 != nullptr) {
+        ss << "," << *(arg3->place);
+    }
+    
+    return new string(ss.str());
+}
+
+/* ------------------------------------------------------------------------- */
+
+void asm_gen_app() {
+    cout << "\t" << "jump.i      #lab0" << "\n";
+    
+    cout << "lab0:" << "\n";
+    auto attr = compute(&program, &memory);
+    for(auto code: *(attr->code)) {
+        cout << "\t" << *code << "\n";
+    }
+    
+    cout << "\t" << "exit" << "\n";
 }
 
 /* --------------------------------------------------------------------------*/

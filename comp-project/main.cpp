@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
     mem_debug();
     #endif
 
-    asm_app_gen();
+    asm_gen_app();
 
     mem_free();
 

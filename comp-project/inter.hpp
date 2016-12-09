@@ -7,7 +7,7 @@ struct Attr {
     Type*            type;
 
     Attr();
-    //~Attr();
+    ~Attr();
 };
 
 Attr* compute(Expression*, Memory*, Attr* = nullptr);

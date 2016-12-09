@@ -5,6 +5,16 @@ Attr::Attr() : code(new vector<string*>()),
                type(nullptr) {
 }
 
+Attr::~Attr() {
+    for(auto str: *code) {
+        DELETE(str);
+    }
+    DELETE(code);
+
+    DELETE(place);
+    DELETE(type);
+}
+
 /* --------------------------------------------------------------------------*/
 
 Attr* compute(Expression* expr, Memory* mem, Attr* parent) {

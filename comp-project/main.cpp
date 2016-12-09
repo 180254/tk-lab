@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
     yyparse();
     fclose(yyin);
 
-    #if defined(XC_DEBUG) && XC_DEBUG
+    #if defined(XCDEBUG) && XCDEBUG
     mem_debug();
     #endif
 
@@ -45,12 +45,6 @@ void usage(const char *app, const char *message) {
     cerr << "app error: " << message << "\n";
     cerr << "app usage: " << app << " PATH\n";
     cerr << "app usage: PATH = FILE-PATH | '-'\n";
-}
-
-/* ------------------------------------------------------------------------- */
-
-void asm_app_gen() {
-    cout << *attr_to_code(compute(&program, &memory)) << "\n";
 }
 
 /* ------------------------------------------------------------------------- */

@@ -376,21 +376,36 @@ string* cast(Attr* attr, TypeEnum te, Memory* mem) {
 
 /* --------------------------------------------------------------------------*/
 
-string* asm_gen(string cmd, Attr* arg1) {
+string* asm_gen(string command, Attr* arg1, Attr* arg2, Attr* arg3) {
+    
     string ir = arg1->type->te == TE_INTEGER ? "i" : "r";
-    string code = cmd + "." + ir + " " + *arg1->place;
+    string code = command + "." + ir + " " + *arg1->place;
+    
+    if(arg2 != nullptr) {
+        code += "," + *arg2->place;
+    }
+    
+    if(arg3 != nullptr) {
+        code += "," + *arg3->place;
+    }
+    
     return new string(code);
 }
 
-string* asm_gen(string cmd, Attr* arg1, Attr* arg2) {
-    string ir = arg1->type->te == TE_INTEGER ? "i" : "r";
-    string code = cmd + "." + ir + " " + *arg1->place + "," + *arg2->place;
-    return new string(code);
+/* ------------------------------------------------------------------------- */
+
+void asm_app_gen() {
+    cout << *attr_to_code(compute(&program, &memory)) << "\n";
 }
 
-string* asm_gen(string cmd, Attr* arg1, Attr* arg2, Attr* arg3) {
-    string ir = arg1->type->te == TE_INTEGER ? "i" : "r";
-    string code = cmd + "." + ir + " " + *arg1->place + "," + *arg2->place
-    + "," + *arg3->place;
-    return new string(code);
+
+/* --------------------------------------------------------------------------*/
+
+int lab_current = 0;
+string* lab_next() {
+    stringstream ss;
+    ss << "lab" << to_string(lab_current);
+    return new string(ss.str());
 }
+
+/* --------------------------------------------------------------------------*/

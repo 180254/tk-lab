@@ -197,6 +197,11 @@ int mem_find(Memory*, string);
 int mem_add(Memory*, Symbol*, int);
 int mem_temp(Memory*, TypeEnum);
 
+
+/* ------------------------------------------------------------------------- */
+
+int func_find(string);
+
 /* ------------------------------------------------------------------------- */
 
 void mem_debug();

@@ -433,6 +433,18 @@ int mem_temp(Memory* mem, TypeEnum te) {
 
 /* ------------------------------------------------------------------------- */
 
+int func_find(string str) {
+    for(size_t i = 0; i < functions.size(); i++) {
+        if(*(functions.at(i)->name) == str) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+/* ------------------------------------------------------------------------- */
+
 void mem_debug() {
     cout << "[MEMORY]" << "\n";
     for(auto symbol : *(memory.vec)) {

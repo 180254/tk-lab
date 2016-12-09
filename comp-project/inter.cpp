@@ -21,6 +21,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
     Attr* attr = new Attr();
 
+    repeat_switch:
     switch(expr->oper) {
         case OP_UNKNOWN:
         {
@@ -34,16 +35,27 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
         {
             string* sym_name = expr->args->at(0)->val.sVal;
             int sym_id = mem_find(mem, *sym_name);
-
-            if(sym_id == -1) {
+            int func_id = func_find(*sym_name);
+            
+            if(sym_id != -1) {
+                attr->place = sym_to_place(mem, sym_id);
+                attr->type = new Type(*(mem->vec->at(sym_id)->type));
+                break;
+            }
+            
+            if(func_id != -1) {
+                expr->oper = OP_CALL_FUNC;
+                goto repeat_switch;
+            }
+            
+            if(sym_id == -1 && func_id == -1) {
                 attr_set_error(attr);
-                string msg = "unknown variable " + *sym_name;
+                string msg = "unknown var/proc/func " + *sym_name;
                 sem_error(expr->line, msg.c_str());
                 break;
             }
 
-            attr->place = sym_to_place(mem, sym_id);
-            attr->type = new Type(*(mem->vec->at(sym_id)->type));
+            
         }
         break;
 
@@ -219,6 +231,71 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
                     DELETE(attr_e);
                 }
+
+            } else {
+                Function* func = nullptr;
+
+                for(auto f: functions) {
+                    if(*(f->name) == *f_name) {
+                        func = f;
+                        break;
+                    }
+                }
+
+                if(func == nullptr) {
+                    attr_set_error(attr);
+                    sem_error(expr->line, "such func not found");
+                    break;
+                }
+
+                if(expr->args->size()-1 != func->args->size()) {
+                    attr_set_error(attr);
+                    sem_error(expr->line, "incorrect number of params");
+                    break;
+                }
+
+                size_t pushed = 0;
+                for(size_t i = 0; i < func->args->size(); i++) {
+                    Expression* arg_e = expr->args->at(i+1)->val.eVal;
+                    Attr* attr_e = compute(arg_e, mem, attr);
+
+                    if(attr_e->type != func->args->at(i)->type) {
+                        sem_error(expr->line, "func param has bad type");
+                    }
+
+                    attr_e->place->insert(0, "#");
+                    string* asm_g = asm_gen("push", attr_e);
+                    attr->code->push_back(asm_g);
+
+                    DELETE(attr_e);
+                }
+
+                if(func->result->te != TE_VOID) {
+                    int tmp_id = mem_temp(mem, func->result->te);
+                    attr->place = sym_to_place(mem, tmp_id);
+                    
+                    Attr* push = new Attr();
+                    push->type = new Type(*(mem->vec->at(tmp_id)->type));
+                    push->place = new string(*attr->place);
+                    push->place->insert(0, "#");
+                    
+                      string* asm_g = asm_gen("push", push);
+                    attr->code->push_back(asm_g);
+                
+                } else {
+                    attr->place = new string("");
+                }
+
+                Attr* push = new Attr();
+                push->type = new Type();
+                push->type->te = TE_INTEGER;
+                push->place = new string("#" + *func->name);
+
+                string* asm_g = asm_gen("call", push);
+                attr->code->push_back(asm_g);
+
+                attr->type = new Type(*(func->result));
+                DELETE(push);
             }
         }
         break;
@@ -308,6 +385,7 @@ Attr* compute(vector<Expression*>* v_expr, Memory* mem, Attr* parent) {
 
 void attr_set_error(Attr* attr) {
     attr->place = new string("");
+    attr->type = new Type();
     attr->type->te = TE_ERROR;
 }
 

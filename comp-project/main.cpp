@@ -28,11 +28,11 @@ int main(int argc, char *argv[]) {
     yyparse();
     fclose(yyin);
 
+    asm_gen_app();
+
     #if defined(XCDEBUG) && XCDEBUG
     mem_debug();
     #endif
-
-    asm_gen_app();
 
     mem_free();
 

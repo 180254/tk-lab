@@ -10,8 +10,8 @@ struct Attr {
     //~Attr();
 };
 
-Attr* compute(Expression*, Memory*);
-Attr* compute(vector<Expression*>*, Memory*);
+Attr* compute(Expression*, Memory*, Attr* = nullptr);
+Attr* compute(vector<Expression*>*, Memory*, Attr* = nullptr);
 
 void    attr_set_error(Attr*);
 string* attr_to_code(Attr*);
@@ -26,4 +26,4 @@ string* lab_next();
 string* asm_gen(string, Attr*, Attr* = nullptr, Attr* = nullptr);
 void    asm_gen_app();
 
-
+bool    startsWith(string&, string&);

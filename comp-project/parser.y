@@ -225,14 +225,13 @@ subprogram_declaration : // Function*
         }
         
         // push to stack result
-        if($$->result != nullptr) {
-            auto result = new Symbol();
-            result->name = new string(*($$->name));
-            result->type = new Type(*($$->result));
-            result->type->reference = true;
-            result->level = 1;
-            mem_add(stack, result, 0);
-        }
+        
+        auto result = new Symbol();
+        result->name = new string(*($$->name));
+        result->type = new Type(*($$->result));
+        result->type->reference = true;
+        result->level = 1;
+        mem_add(stack, result, 0);
         
         // push to stack special vals
         auto retaddr = new Symbol();
@@ -271,12 +270,17 @@ subprogram_head : // Function*
         $$ = new Function();
         $$->name = $2;
         $$->args = $3;
+        $$->result = new Type();
+        $$->result->te = TE_VOID;
     }
     ;
 
 arguments : // vector<Symbol*>*
     '(' parameter_list ')' {
         $$ = $2;
+    }
+    | %empty {
+        $$ = new vector<Symbol*>();
     }
     ;
 

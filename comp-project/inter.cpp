@@ -58,10 +58,17 @@ Attr* compute(Expression* expr, Memory* mem) {
             Attr* arg1a = compute(arg1, mem);
             Attr* arg2a = compute(arg2, mem);
             
+                        for(auto code : *(arg1a->code)) {
+            attr->code->push_back(code);
+        }
+                    for(auto code : *(arg2a->code)) {
+            attr->code->push_back(code);
+        }
+        
             if(!type_is_num(arg1a->type) || !type_is_num(arg2a->type)) {
                 attr_set_error(attr);
                 cerr << "sem err, line=" << expr->line << ": "
-                     << "bad assign expression" << "\n";
+                     << "bad assign operand" << "\n";
                 break;
             }
             
@@ -78,7 +85,7 @@ Attr* compute(Expression* expr, Memory* mem) {
             attr->type  = new Type();
             attr->type->te = TE_VOID;
             
-            string* assign_asm = asm_gen("mov", arg1a, arg2a);
+            string* assign_asm = asm_gen("mov", arg2a, arg1a);
             attr->code->push_back(assign_asm);
         }
         break;
@@ -92,7 +99,45 @@ Attr* compute(Expression* expr, Memory* mem) {
         /* ----------------------------------------------------------------- */
         
         case OP_MATH_PLUS:
-        
+        {
+            Expression* arg1 = expr->args->at(0)->val.eVal;
+            Expression* arg2 = expr->args->at(1)->val.eVal;
+            
+            Attr* arg1a = compute(arg1, mem);
+            Attr* arg2a = compute(arg2, mem);
+            
+                for(auto code : *(arg1a->code)) {
+            attr->code->push_back(code);
+        }
+                    for(auto code : *(arg2a->code)) {
+            attr->code->push_back(code);
+        }
+            if(!type_is_num(arg1a->type) || !type_is_num(arg2a->type)) {
+                attr_set_error(attr);
+                cerr << "sem err, line=" << expr->line << ": "
+                     << "bad + operand" << "\n";
+                break;
+            }
+            
+            if(arg1a->type->te == TE_INTEGER && arg2a->type->te == TE_REAL) {
+                string* cast_c = cast(arg1a, TE_REAL, mem);
+                attr->code->push_back(cast_c);
+            }
+            
+            if(arg1a->type->te == TE_REAL && arg2a->type->te == TE_INTEGER) {
+                string* cast_c = cast(arg2a, TE_REAL, mem);
+                attr->code->push_back(cast_c);
+            }
+            
+            int temp_id = mem_temp(mem, arg1a->type->te);
+            attr->place = sym_to_place(mem, temp_id);
+                   
+            attr->type  = new Type();
+            attr->type->te = arg1a->type->te;
+            
+            string* op_asm = asm_gen("add", arg1a, arg2a, attr);
+            attr->code->push_back(op_asm);
+        }
         break;
         
         /* ----------------------------------------------------------------- */
@@ -158,7 +203,23 @@ Attr* compute(Expression* expr, Memory* mem) {
         /* ----------------------------------------------------------------- */
         
         case OP_CALL_FUNC:
-        
+        {
+            string* f_name = expr->args->at(0)->val.sVal;
+            
+            if(*f_name == "write") {
+                for(int i = 1; i < expr->args->size(); i++) {
+                    Expression* arg = expr->args->at(i)->val.eVal;
+                    Attr* arg_a = compute(arg, mem);
+                    
+                    attr->type  = new Type();
+                    attr->type->te = TE_VOID;
+                    
+                    string* assign_asm = asm_gen("write", arg_a);
+                    attr->code->push_back(assign_asm);
+                }
+         
+            }
+        }
         break;
         
         /* ----------------------------------------------------------------- */
@@ -223,9 +284,38 @@ Attr* compute(Expression* expr, Memory* mem) {
 
 /* --------------------------------------------------------------------------*/
 
+Attr* compute(vector<Expression*>* v_expr, Memory* mem) {
+    Attr* attr = new Attr();
+    attr->type = new Type();
+    attr->type->te = TE_VOID;
+    
+    for(auto expr: *v_expr) {
+        Attr* c_attr = compute(expr, mem);
+        for(auto code : *(c_attr->code)) {
+            attr->code->push_back(code);
+        }
+    }
+    
+    return attr;
+}
+
+/* --------------------------------------------------------------------------*/
+
 void attr_set_error(Attr* attr) {
     attr->place = new string("");
     attr->type->te = TE_ERROR;
+}
+
+/* --------------------------------------------------------------------------*/
+
+string* attr_to_code(Attr* attr) {
+    stringstream ss;
+    
+    for(auto code: *(attr->code)) {
+        ss << *code << "\n";
+    }
+    
+    return new string(ss.str());
 }
 
 /* --------------------------------------------------------------------------*/
@@ -265,16 +355,22 @@ string* sym_to_place(Symbol* sym) {
 /* --------------------------------------------------------------------------*/
 
 string* cast(Attr* attr, TypeEnum te, Memory* mem) {
-    string func = te == TE_INTEGER ? "realtoint" : "inttoreal";
+    string func = te == TE_INTEGER ? "realtoint.r" : "inttoreal.i";
     
     int temp_id = mem_temp(mem, TE_INTEGER);
     string* temp_place = sym_to_place(mem, temp_id);
     
-    DELETE(attr->place);
+   
+    
+    
+    string code = func + " " + *(attr->place) + "," + *temp_place;
+    
+     DELETE(attr->place);
     attr->place = temp_place;
     attr->type->te = te;
     
-    string code = func + " " + *(attr->place) + "," + *temp_place;
+    
+    
     return new string(code);
 }
 
@@ -288,6 +384,13 @@ string* asm_gen(string cmd, Attr* arg1) {
 
 string* asm_gen(string cmd, Attr* arg1, Attr* arg2) {
     string ir = arg1->type->te == TE_INTEGER ? "i" : "r";
-    string code = cmd + "." + ir + " " + *arg1->place + " " + *arg2->place;
+    string code = cmd + "." + ir + " " + *arg1->place + "," + *arg2->place;
+    return new string(code);
+}
+
+string* asm_gen(string cmd, Attr* arg1, Attr* arg2, Attr* arg3) {
+    string ir = arg1->type->te == TE_INTEGER ? "i" : "r";
+    string code = cmd + "." + ir + " " + *arg1->place + "," + *arg2->place
+    + "," + *arg3->place;
     return new string(code);
 }

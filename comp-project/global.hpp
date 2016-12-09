@@ -1,6 +1,6 @@
 #pragma once
 
-#define XC_DEBUG 1
+#define XC_DEBUG 0
 #define YYDEBUG 0
 
 #include <cstdio>

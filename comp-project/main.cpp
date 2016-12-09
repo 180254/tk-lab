@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
         }
     }
     
-    #if defined(YYDEBUG) && YYDEBUG 
+    #if defined(YYDEBUG) && YYDEBUG
     yydebug = 1;
     #endif
 
@@ -31,6 +31,8 @@ int main(int argc, char *argv[]) {
     #if defined(XC_DEBUG) && XC_DEBUG
     mem_debug();
     #endif
+    
+    cout << *attr_to_code(compute(&program, &memory)) << "\n";
     
     mem_free();
 

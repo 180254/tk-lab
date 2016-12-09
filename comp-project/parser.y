@@ -235,14 +235,14 @@ subprogram_declaration : // Function*
 
         // push to stack special vals
         auto retaddr = new Symbol();
-        retaddr->name = new string("$__retaddr__");
+        retaddr->name = new string("__$retaddr__");
         retaddr->type = new Type();
         retaddr->type->te = TE_SPEC;
         retaddr->level = 1;
         mem_add(stack, retaddr, 0);
 
         auto old_bp = new Symbol();
-        old_bp->name = new string("$__old__BP__");
+        old_bp->name = new string("__$old__bp__");
         old_bp->type = new Type();
         old_bp->type->te = TE_SPEC;
         old_bp->level = 1;

@@ -401,6 +401,28 @@ string* asm_gen(string command, Attr* arg1, Attr* arg2, Attr* arg3) {
 void asm_gen_app() {
     cout << "\t" << "jump.i      #lab0" << "\n";
 
+    for(auto func: functions) {
+        auto attr = compute(func->body, func->stack);
+        cout << *(func->name) << ":" << "\n";
+
+        int alloc = 0;
+        string s_temp = "$";
+        for(auto sym: *(func->stack->vec)) {
+            if(startsWith(*(sym->name), s_temp)) {
+                alloc += type_size(sym->type);
+            }
+        }
+        cout << "\t" << "enter       #"  << alloc << "\n";
+
+        for(auto code: *(attr->code)) {
+            cout << "\t" << *code << "\n";
+        }
+        DELETE(attr);
+
+       cout << "\t" << "leave" << "\n";
+       cout << "\t" << "return" << "\n";
+    }
+
     cout << "lab0:" << "\n";
     auto attr = compute(&program, &memory);
     for(auto code: *(attr->code)) {

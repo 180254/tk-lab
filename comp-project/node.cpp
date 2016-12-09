@@ -67,7 +67,8 @@ int type_size(Type* type) {
         case TE_INTEGER: return 4;
         case TE_REAL:    return 8;
         case TE_ARRAY:   {
-            Type arType; arType.te = type->array->te;
+            Array* array = type->array;
+            Type arType; arType.te = array->te;
             return (array->max - array->min + 1) * type_size(&arType);
         }
         case TE_BOOLEAN: return 4; // ? stored as int

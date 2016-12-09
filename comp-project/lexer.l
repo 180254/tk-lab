@@ -27,7 +27,7 @@ NUM             {DIGITS}{FRACTION_OPT}{EXPONENT_OPT}
 
 %%
 
-{[^{}]*\}       { /* comments    */ }
+\{[^{}]*\}       { /* comments    */ }
 [ \t\n]         { /* whitespaces */ }
 
 "program"       return T_PROGRAM;
@@ -45,6 +45,7 @@ NUM             {DIGITS}{FRACTION_OPT}{EXPONENT_OPT}
 "then"          return T_THEN;
 "else"          return T_ELSE;
 "while"         return T_WHILE;
+"do"            return T_DO;
 "not"           return T_NOT;
 "div"           return T_DIV;
 "mod"           return T_MOD;

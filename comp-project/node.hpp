@@ -20,14 +20,14 @@ typedef vector<Expression*> Program;
 /* ------------------------------------------------------------------------- */
 
 enum TypeEnum : int {
-    TE_UNKNOWN = 0,
-    TE_VOID    = 1,
-    TE_INTEGER = 2,
-    TE_REAL    = 3,
-    TE_ARRAY   = 4,
-    TE_BOOLEAN = 5,
-    TE_SPEC    = 6,
-    TE_ERROR   = 7
+    TE_UNKNOWN,
+    TE_VOID,
+    TE_INTEGER,
+    TE_REAL,
+    TE_ARRAY,
+    TE_BOOLEAN,
+    TE_SPEC,
+    TE_ERROR
 };
 
 /* ------------------------------------------------------------------------- */
@@ -36,11 +36,11 @@ struct Type {
     TypeEnum       te;
     Array*         array;
     bool           reference;
-    
+
     Type();
     Type(const Type&);
     ~Type();
-    
+
     bool operator==(const Type&);
     string str();
 };
@@ -56,11 +56,11 @@ struct Array {
     TypeEnum       te;
     int            min;
     int            max;
-    
+
     Array();
     Array(const Array&);
     ~Array();
-    
+
     bool operator==(const Array&);
     string str();
 };
@@ -70,9 +70,9 @@ struct Array {
 struct Symbol {
     string*        name;
     Type*          type;
-    int            offset; 
+    int            offset;
     int            level;
-    
+
     Symbol();
     Symbol(const Symbol&);
     ~Symbol();
@@ -117,7 +117,7 @@ struct Expression {
     vector<ExprArg*>*        args;
     int                      result;
     int                      line;
-    
+
     Expression();
     Expression(Operation);
     ~Expression();
@@ -148,7 +148,7 @@ union ExprArgVal {
 struct ExprArg {
     ExprArgType    type;
     ExprArgVal     val;
-    
+
     ExprArg();
     ~ExprArg();
     string str(int);
@@ -169,7 +169,7 @@ struct Function {
     Type*                  result;
     Memory*                stack;
     Program*               body;
-    
+
     Function();
     ~Function();
     string str(int);
@@ -201,3 +201,5 @@ int mem_temp(Memory*, TypeEnum);
 
 void mem_debug();
 void mem_free();
+
+/* ------------------------------------------------------------------------- */

@@ -13,7 +13,7 @@ std::ostream& operator<< (std::ostream& os, TypeEnum te) {
         case TE_SPEC:    return os << "TE_SPEC";
         case TE_ERROR:   return os << "TE_ERROR";
     };
-    return os << static_cast<std::uint16_t>(te);
+    return os << static_cast<int>(te);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -23,7 +23,7 @@ Type::Type() : te(TE_UNKNOWN), array(nullptr), reference(false) {
 
 Type::Type(const Type& other) {
     te = other.te;
-    
+
     if(other.array != nullptr) {
         array = new Array(*other.array);
     } else {
@@ -44,8 +44,8 @@ bool Type::operator==(const Type& other) {
             te == TE_ARRAY
                 ? (*array == *(other.array))
                 : true
-        )
-        && reference == other.reference;
+        );
+        // && reference == other.reference;
 }
 
 string Type::str() {
@@ -59,7 +59,7 @@ string Type::str() {
 /* ------------------------------------------------------------------------- */
 
 int type_size(Type* type) {
-    if(type->reference) return 4;
+    if (type->reference) return 4;
 
     switch (type->te) {
         case TE_UNKNOWN: return 0;
@@ -67,9 +67,8 @@ int type_size(Type* type) {
         case TE_INTEGER: return 4;
         case TE_REAL:    return 8;
         case TE_ARRAY:   {
-            Array* array = type->array;
-            Type aType; aType.te = array->te;
-            return (array->max - array->min + 1) * type_size(&aType);
+            Type arType; arType.te = type->array->te;
+            return (array->max - array->min + 1) * type_size(&arType);
         }
         case TE_BOOLEAN: return 4; // ? stored as int
         case TE_SPEC:    return 4;
@@ -124,13 +123,13 @@ Symbol::Symbol(const Symbol& other) {
     } else {
         name = nullptr;
     }
-    
+
     if(other.type != nullptr) {
         type = new Type(*(other.type));
     } else {
         type = nullptr;
     }
-    
+
     offset = other.offset;
     level = other.level;
 }
@@ -182,7 +181,7 @@ std::ostream& operator<< (std::ostream& os, Operation oper) {
         case OP_LOG_GR:          return os << "OP_LOG_GR";
         case OP_LOG_EQ:          return os << "OP_LOG_EQ";
     };
-    return os << static_cast<std::uint16_t>(oper);
+    return os << static_cast<int>(oper);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -205,22 +204,22 @@ Expression::~Expression() {
     for(auto arg : *args) {
         DELETE(arg);
     }
-    
+
     DELETE(args);
 }
 
 string Expression::str(int level) {
-    
+
     stringstream ss;
     ss << string(level, ' ');
     ss << line << "|";
     ss << oper << "|";
     ss << result;
-       
+
     for(auto exp_arg : *args) {
         ss << "\n" << exp_arg->str(level+1);
     }
-    
+
     return ss.str();
 }
 
@@ -234,7 +233,7 @@ std::ostream& operator<< (std::ostream& os, ExprArgType eat) {
         case E_EXPRESSION:     return os << "E_EXPRESSION";
         case E_PROGRAM:        return os << "E_PROGRAM";
     };
-    return os << static_cast<std::uint16_t>(eat);
+    return os << static_cast<int>(eat);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -245,16 +244,16 @@ ExprArg::ExprArg() : type(E_UNKNOWN) {
 ExprArg::~ExprArg() {
 
     if(type == E_UNKNOWN) {
-        
+
     } else if(type == E_ID_S) {
         DELETE(val.sVal);
-    
+
     } else if(type == E_CONSTANT_S) {
         DELETE(val.sVal);
-        
+
     } else if(type == E_EXPRESSION) {
         DELETE(val.eVal);
-    
+
     } else if(type == E_PROGRAM) {
         for(auto exp : *(val.pVal)) {
             DELETE(exp);
@@ -268,25 +267,25 @@ string ExprArg::str(int level) {
     stringstream ss;
     ss << string(level, ' ');
     ss << type;
-    
+
     if(type == E_UNKNOWN) {
         ss << "|" << "0";
-        
+
     } else if(type == E_ID_S) {
         ss << "|" << *(val.sVal);
-    
+
     } else if(type == E_CONSTANT_S) {
         ss << "|" << *(val.sVal);
-        
+
     } else if(type == E_EXPRESSION) {
         ss << "\n" << val.eVal->str(level+1);
-    
+
     } else if(type == E_PROGRAM) {
         for(auto exp : *(val.pVal)) {
             ss << "\n" << exp->str(level+1);
         }
     }
-    
+
     return ss.str();
 }
 
@@ -341,7 +340,7 @@ Function::~Function() {
     DELETE(result);
 
     DELETE(stack);
-    
+
     for(auto expr : *body) {
         DELETE(expr);
     }
@@ -352,15 +351,15 @@ string Function::str(int level) {
 
     stringstream ss;
     ss << string(level, ' ');
-    
+
     ss << *name << "\n";
-   
+
     for(auto arg : *args) {
         ss << " p|" << arg->str() << "\n";
     }
-   
+
     ss << " r|" << (result != nullptr ? result->str() : "_none_");
-    
+
     for(auto symbol : *stack->vec) {
         ss << "\n" << " m|" << symbol->str();
     }
@@ -398,7 +397,7 @@ int mem_find(Memory* mem, string str) {
             return i;
         }
     }
-    
+
     return -1;
 }
 
@@ -423,11 +422,11 @@ int mem_add(Memory* mem, Symbol* sym, int offset) {
 int mem_temp(Memory* mem, TypeEnum te) {
     Type* type = new Type();
     type->te = te;
-    
+
     Symbol* sym = new Symbol();
     sym->name = new string("$t" + to_string(mem->vec->size()));
     sym->type = type;
-    
+
     return mem_add(mem, sym, 0);
 }
 
@@ -439,13 +438,13 @@ void mem_debug() {
         cout << symbol->str() << "\n";
     }
     cout << "\n";
-    
+
     cout << "[FUNCTIONS]" << "\n";
     for(auto func : functions) {
         cout << func->str(0) << "\n";
     }
     cout << "\n";
-    
+
     cout << "[PROGRAM]" << "\n";
     for(auto expr : program) {
         cout << expr->str(0) << "\n";
@@ -460,14 +459,16 @@ void mem_free() {
         DELETE(symbol);
     }
     memory.vec->clear();
-    
+
     for(auto func : functions) {
         DELETE(func);
     }
     functions.clear();
-    
+
     for(auto expr : program) {
          DELETE(expr);
     }
     program.clear();
 }
+
+/* ------------------------------------------------------------------------- */

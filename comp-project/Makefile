@@ -7,10 +7,10 @@ OBJECTS=$(SOURCES:.cpp=.o)
 
 OUT=xcomp
 
-.PHONY: all clean
+.PHONY: all clean clear
 
 .cpp.o:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $< 
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 ${OUT}: $(OBJECTS)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ $^
@@ -29,3 +29,5 @@ all: $(OUT)
 
 clean:
 	-rm -f $(OUT) $(OBJECTS) parser.cpp parser.hpp parser.output lexer.cpp
+
+clear: clean

@@ -129,7 +129,7 @@ program :
     }
     '.'
     ;
-    
+
 identifier_list : // vector<string*>*
     id {
         $$ = new vector<string*>();
@@ -139,18 +139,18 @@ identifier_list : // vector<string*>*
         $$->push_back($3);
     }
     ;
-    
+
 declarations : // vector<Symbol*>*
     declarations T_VAR identifier_list ':' type ';' {
         $$ = $1;
-        
+
         for (auto ident : *$3) {
             Symbol* symbol = new Symbol();
             symbol->type = new Type(*$5);
             symbol->name = ident;
             $$->push_back(symbol);
         }
-        
+
         DELETE($3);
         DELETE($5);
     }
@@ -170,13 +170,13 @@ type : // Type*
         $$->array->te = $8->te;
         $$->array->min = stoi(*$3);
         $$->array->max = stoi(*$5);
-        
+
         DELETE($3);
         DELETE($5);
         DELETE($8);
     }
     ;
-    
+
 standard_type : // Type*
     T_INTEGER {
         $$ = new Type();
@@ -187,7 +187,7 @@ standard_type : // Type*
         $$->te = TE_REAL;
     }
     ;
-    
+
 subprogram_declarations : // vector<Function*>*
     subprogram_declarations subprogram_declaration ';' {
         $$ = $1;
@@ -197,23 +197,23 @@ subprogram_declarations : // vector<Function*>*
         $$ = new vector<Function*>();
     }
     ;
-    
+
 subprogram_declaration : // Function*
     subprogram_head declarations compound_statement {
         $$ = $1;
-        
+
         $$->stack = new Memory();
         $$->stack->offset_asc = false;
-        
+
         // copy global memory
         for(auto sym : *(memory.vec)) {
             $$->stack->vec->push_back(new Symbol(*sym));
         }
-        
+
         auto stack = $$->stack;
         int stack_top_offset = ($$->args->size()+1)*4;
         stack_top_offset += ($$->result != nullptr ? 4 : 0);
-        
+
         // push to stack args
         int args_i = 0;
         for(auto sym : *($$->args)) {
@@ -223,42 +223,42 @@ subprogram_declaration : // Function*
             mem_add(stack, sym_a, args_i == 0 ? stack_top_offset : 0);
             args_i++;
         }
-        
+
         // push to stack result
-        
+
         auto result = new Symbol();
         result->name = new string(*($$->name));
         result->type = new Type(*($$->result));
         result->type->reference = true;
         result->level = 1;
         mem_add(stack, result, 0);
-        
+
         // push to stack special vals
         auto retaddr = new Symbol();
-        retaddr->name = new string("__retaddr__");
+        retaddr->name = new string("$__retaddr__");
         retaddr->type = new Type();
         retaddr->type->te = TE_SPEC;
         retaddr->level = 1;
         mem_add(stack, retaddr, 0);
-        
+
         auto old_bp = new Symbol();
-        old_bp->name = new string("__old__BP__");
+        old_bp->name = new string("$__old__BP__");
         old_bp->type = new Type();
         old_bp->type->te = TE_SPEC;
         old_bp->level = 1;
         mem_add(stack, old_bp, 0);
-        
+
         // push to stack local vars
         for(auto sym : *($2)) {
             sym->level = 1;
             mem_add(stack, sym, 0);
         }
         DELETE($2);
-        
+
         $$->body = $3;
     }
     ;
-    
+
 subprogram_head : // Function*
     T_FUNCTION id arguments ':' standard_type ';' {
         $$ = new Function();
@@ -287,27 +287,27 @@ arguments : // vector<Symbol*>*
 parameter_list : // vector<Symbol*>*
     identifier_list ':' type {
         $$ = new vector<Symbol*>();
-        
+
         for (auto ident : *$1) {
             Symbol* symbol = new Symbol();
             symbol->type = new Type(*$3);
             symbol->name = ident;
             $$->push_back(symbol);
         }
-        
+
         DELETE($1);
         DELETE($3);
     }
     | parameter_list ';' identifier_list ':' type {
         $$ = $1;
-        
+
         for (auto ident : *$3) {
             Symbol* symbol = new Symbol();
             symbol->type = new Type(*$5);
             symbol->name = ident;
             $$->push_back(symbol);
         }
-        
+
         DELETE($3);
         DELETE($5);
     }
@@ -320,7 +320,7 @@ compound_statement : // vector<Expression*>*
         $$ = $2;
     }
     ;
-    
+
 optional_statements : // vector<Expression*>*
     statement_list {
         $$ = $1;
@@ -333,34 +333,34 @@ optional_statements : // vector<Expression*>*
 statement_list : // vector<Expression*>*
     statement {
         $$ = new vector<Expression*>();
-        
+
         for(auto st : *$1) {
             $$->push_back(st);
         }
-        
+
         DELETE($1);
     }
     | statement_list ';' statement {
         $$ = new vector<Expression*>();
-        
+
         for(auto st : *$1) {
             $$->push_back(st);
         }
         for(auto st : *$3) {
             $$->push_back(st);
         }
-          
+
         DELETE($1);
         DELETE($3);
-    } 
+    }
     ;
-    
+
 statement : // vector<Expression*>*
     variable assignop expression {
         auto expr = new Expression(OP_ASSIGN);
         expr->args->push_back(expr_arg_expr($1));
         expr->args->push_back(expr_arg_expr($3));
-        
+
         $$ = new vector<Expression*>();
         $$->push_back(expr);
     }
@@ -375,7 +375,7 @@ statement : // vector<Expression*>*
         auto expr = new Expression(OP_FLOW_IF);
         expr->args->push_back(expr_arg_expr($2));
         expr->args->push_back(expr_arg_prog($4));
-        
+
         $$ = new vector<Expression*>();
         $$->push_back(expr);
     }
@@ -384,7 +384,7 @@ statement : // vector<Expression*>*
         expr->args->push_back(expr_arg_expr($2));
         expr->args->push_back(expr_arg_prog($4));
         expr->args->push_back(expr_arg_prog($6));
-        
+
         $$ = new vector<Expression*>();
         $$->push_back(expr);
     }
@@ -392,12 +392,12 @@ statement : // vector<Expression*>*
         auto expr = new Expression(OP_FLOW_WHILE);
         expr->args->push_back(expr_arg_expr($2));
         expr->args->push_back(expr_arg_prog($4));
-        
+
         $$ = new vector<Expression*>();
         $$->push_back(expr);
-    } 
+    }
     ;
-    
+
 variable : // Expression*
     id {
         $$ = new Expression(OP_ID);
@@ -411,14 +411,14 @@ variable : // Expression*
     ;
 
 procedure_statement : // Expression*
-    id { // ???
+    id {
         $$ = new Expression(OP_CALL_FUNC);
         $$->args->push_back(expr_arg_id($1));
     }
     | id '(' expression_list ')' {
         $$ = new Expression(OP_CALL_FUNC);
         $$->args->push_back(expr_arg_id($1));
-        
+
         for(auto expr : *$3) {
             $$->args->push_back(expr_arg_expr(expr));
         }
@@ -426,7 +426,7 @@ procedure_statement : // Expression*
         DELETE($3);
     }
     ;
-    
+
 expression_list: // vector<Expression*>*
     expression {
         $$ = new vector<Expression*>();
@@ -437,7 +437,7 @@ expression_list: // vector<Expression*>*
         $1->push_back($3);
     }
     ;
-    
+
 expression : // Expression*
     simple_expression {
         $$ = $1;
@@ -448,7 +448,7 @@ expression : // Expression*
         $$->args->push_back(expr_arg_expr($3));
     }
     ;
-    
+
 simple_expression : // Expression*
     term {
         $$ = $1;
@@ -469,7 +469,7 @@ simple_expression : // Expression*
         $$->args->push_back(expr_arg_expr($3));
     }
     ;
-    
+
 term : // Expression*
     factor {
         $$ = $1;
@@ -480,7 +480,7 @@ term : // Expression*
         $$->args->push_back(expr_arg_expr($3));
     }
     ;
-    
+
 factor : // Expression*
     variable {
         $$ = $1;
@@ -488,51 +488,51 @@ factor : // Expression*
     | id '(' expression_list ')' {
         $$ = new Expression(OP_CALL_FUNC);
         $$->args->push_back(expr_arg_id($1));
-        
+
         for(auto expr : *$3) {
             $$->args->push_back(expr_arg_expr(expr));
         }
-        
+
         DELETE($3);
     }
     | num {
         $$ = new Expression(OP_CONSTANT);
         $$->args->push_back(expr_arg_const($1));
-        
+
     }
     | '(' expression ')' {
         $$ = $2;
     }
     | T_NOT factor {
         $$ = new Expression(OP_LOG_NOT);
-        $$->args->push_back(expr_arg_expr($2)); 
+        $$->args->push_back(expr_arg_expr($2));
     }
-    ;         
+    ;
 
 /* ------------------------------------------------------------------------- */
 
 relop : // Operation
     T_EQ        { $$ = OP_LOG_EQ; }
     | T_NE      { $$ = OP_LOG_NE; }
-    | T_LE      { $$ = OP_LOG_LE; } 
+    | T_LE      { $$ = OP_LOG_LE; }
     | T_GE      { $$ = OP_LOG_GE; }
     | T_LO      { $$ = OP_LOG_LO; }
     | T_GR      { $$ = OP_LOG_GR; }
     ;
-    
+
 sign : // Operation
     '-'         { $$ = OP_MATH_MINUS; }
     | '+'       { $$ = OP_MATH_PLUS; }
     ;
-    
+
 mulop : // Operation
     '*'         { $$ = OP_MATH_MUL; }
     | '/'       { $$ = OP_MATH_DIV1; }
     | T_DIV     { $$ = OP_MATH_DIV2; }
     | T_MOD     { $$ = OP_MATH_MOD; }
     | T_AND     { $$ = OP_LOG_AND; }
-    ;  
-       
+    ;
+
 or : // Operation
     T_OR        { $$ = OP_LOG_OR; }
     ;
@@ -540,15 +540,15 @@ or : // Operation
 assignop : // Operation
     T_ASSIGN    { $$ = OP_ASSIGN; }
     ;
-    
+
 num : // string*
     T_NUM       { $$ = yylval.str; }
     ;
-    
+
 id  : // string*
     T_ID        { $$ = yylval.str; }
     ;
-   
+
 %%
 
 /* ------------------------------------------------------------------------- */

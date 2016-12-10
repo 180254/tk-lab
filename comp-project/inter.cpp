@@ -518,13 +518,8 @@ void asm_gen_app() {
         auto attr = compute(func->body, func->stack);
         cout << *(func->name) << ":" << "\n";
 
-        int alloc = 0;
-        string s_temp = "$";
-        for(auto sym: *(func->stack->vec)) {
-            if(startsWith(*(sym->name), s_temp)) {
-                alloc += type_size(sym->type);
-            }
-        }
+        auto stack_v = func->stack->vec;
+        auto alloc = max(-(stack_v->at(stack_v->size()-1)->offset), 0);
         cout << "\t" << "enter.i     #"  << alloc << "\n";
 
         for(auto code: *(attr->code)) {

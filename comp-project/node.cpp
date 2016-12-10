@@ -416,8 +416,12 @@ int mem_find(Memory* mem, string str) {
 int mem_add(Memory* mem, Symbol* sym, int offset) {
     if(offset == 0 && mem->vec->size() > 0) {
         auto last_sym = mem->vec->at(mem->vec->size()-1);
-        auto asc_mul = mem->offset_asc ? 1 : -1;
-        sym->offset = last_sym->offset + asc_mul * type_size(last_sym->type);
+        
+        if (mem->offset_asc) {
+            sym->offset = last_sym->offset + type_size(last_sym->type);
+        } else {
+            sym->offset = last_sym->offset + -1 * type_size(sym->type);
+        }
 
     } else {
         sym->offset = offset;

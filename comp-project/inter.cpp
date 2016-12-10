@@ -106,7 +106,9 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
         /* ----------------------------------------------------------------- */
 
         case OP_ARRAY_ACCESS:
+        {
 
+        }
         break;
 
         /* ----------------------------------------------------------------- */
@@ -142,7 +144,6 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
             int tmp_id = mem_temp(mem, attr_1->type);
             attr->place = sym_to_place(mem, tmp_id);
-
             attr->type = new Type(*(attr_1->type));
 
             string func;
@@ -157,6 +158,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                 case OP_MATH_OR:    { func = "or";  break; }
                 default:            { func = "???"; break; }
             }
+
             string* op_asm = asm_gen(func, attr_1, attr_2, attr);
             attr->code->push_back(op_asm);
 
@@ -169,16 +171,18 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
         /* ----------------------------------------------------------------- */
 
         case OP_MATH_UMINUS:
-
+        {
+        
+        }
         break;
 
         /* ----------------------------------------------------------------- */
 
         case OP_MATH_UPLUS:
-
+        {
+            // nothing
+        }
         break;
-
-        /* ----------------------------------------------------------------- */
 
         /* ----------------------------------------------------------------- */
 
@@ -231,7 +235,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
             Function* func = functions.at(func_id);
 
-            if(expr->args->size()-1 != func->args->size()) {
+            if(expr->args->size() - 1 != func->args->size()) {
                 attr_set_error(attr);
                 sem_error(expr->line, "incorrect number of parameters");
                 break;
@@ -256,29 +260,28 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                     Attr* mov_attr = new Attr();
                     mov_attr->place = place_prev;
                     mov_attr->type = new Type(*(attr_e->type));
-
                     string* asm_g = asm_gen("mov", mov_attr, attr_e);
                     attr->code->push_back(asm_g);
-                                       DELETE(mov_attr);
+
+                    DELETE(mov_attr);
                 }
 
                 // cast?
-
                 if(type_eff(attr_e->type) != type_eff(arg_f->type)) {
                     string* cast_c = cast(attr_e, arg_f->type, mem);
                     attr->code->push_back(cast_c);
                 }
 
                 attr_e->place->insert(0, "#");
-                            //    cout << attr_e->type->te << "\n";
                 string* asm_g = asm_gen("push", attr_e);
                 attr->code->push_back(asm_g);
 
                 pushed += 4;
-
                 DELETE(attr_e);
             }
 
+            attr->type = new Type(*(func->result));
+            
             // push temp for result
             if(func->result->te != TE_VOID) {
                 int tmp_id = mem_temp(mem, func->result);
@@ -292,7 +295,6 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                 attr->code->push_back(asm_g);
 
                 pushed += 4;
-
                 DELETE(result_a);
 
             } else {
@@ -303,7 +305,6 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             call_a->type = new Type();
             call_a->type->te = TE_INTEGER;
             call_a->place = new string("#" + *func->name);
-
             string* asm_g = asm_gen("call", call_a);
             attr->code->push_back(asm_g);
 
@@ -314,14 +315,11 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                 inc_a->type = new Type();
                 inc_a->type->te = TE_INTEGER;
                 inc_a->place = new string("#" + to_string(pushed));
-
                 string* asm_g = asm_gen("incsp", inc_a);
                 attr->code->push_back(asm_g);
 
                 DELETE(inc_a);
             }
-
-            attr->type = new Type(*(func->result));
 
         }
         break;
@@ -331,9 +329,6 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
         case OP_LOG_NOT:
 
         break;
-
-        /* ----------------------------------------------------------------- */
-
 
         /* ----------------------------------------------------------------- */
 
@@ -479,7 +474,9 @@ string* asm_gen(string command, Attr* arg1, Attr* arg2, Attr* arg3) {
     stringstream ss;
 
     ss << command << ".";
-    ss << (type_eff(arg1->type) == TE_REAL && command != "push" ? "r" : "i");
+
+    bool real = type_eff(arg1->type) == TE_REAL && command != "push";
+    ss << (real ? "r" : "i");
 
     ss << string(10-command.length(), ' ');
     ss << *arg1->place;

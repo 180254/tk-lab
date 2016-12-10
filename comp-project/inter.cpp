@@ -232,8 +232,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
             if(func_id == -1) {
                 attr_set_error(attr);
-                string msg = "func " + *f_name + " not found";
-                sem_error(expr->line, msg.c_str());
+                sem_error(expr->line, "func not found");
                 break;
             }
 
@@ -249,15 +248,31 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
             // compute and push all params
             for(size_t i = 0; i < func->args->size(); i++) {
+                Symbol* arg_f = func->args->at(i);
                 Expression* arg_e = expr->args->at(i+1)->val.eVal;
                 Attr* attr_e = compute(arg_e, mem, attr);
 
+                // create temp for imm
                 string hash = "#";
-                if(startsWith(*(attr_e->place), hash)) {
+                if(startsWith(*(attr_e->place), hash)) { 
+                    string* place_prev = attr_e->place;
+
+                    int tmp_id = mem_temp(mem, attr_e->type);
+                    attr_e->place = sym_to_place(mem, tmp_id);
                     
+                    Attr* mov_attr = new Attr();
+                    mov_attr->place = place_prev;
+                    mov_attr->type = new Type(*(attr_e->type));
+                    
+                    string* asm_g = asm_gen("mov", mov_attr, attr_e);
+                    attr->code->push_back(asm_g);
                 }
                     
-                    
+                // cast?
+                if(type_eff(attr_e->type) != type_eff(arg_f->type)) {
+                    string* cast_c = cast(attr_e, arg_f->type, mem);
+                    attr->code->push_back(cast_c);
+                }
 
                 attr_e->place->insert(0, "#");
                 string* asm_g = asm_gen("push", attr_e);
@@ -268,7 +283,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                 DELETE(attr_e);
             }
 
-                // push temp for result
+            // push temp for result
             if(func->result->te != TE_VOID) {
                 int tmp_id = mem_temp(mem, func->result);
                 attr->place = sym_to_place(mem, tmp_id);

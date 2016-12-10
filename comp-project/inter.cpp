@@ -63,8 +63,9 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
         case OP_CONSTANT:
         {
             attr->place = new string("#" + *(expr->args->at(0)->val.sVal));
-            bool integer = attr->place->find(".") == std::string::npos;
+
             attr->type = new Type();
+            bool integer = attr->place->find(".") == std::string::npos;
             attr->type->te = integer ? TE_INTEGER : TE_REAL;
         }
         break;
@@ -79,8 +80,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             Attr* attr_1 = compute(arg_1, mem, attr);
             Attr* attr_2 = compute(arg_2, mem, attr);
 
-            string hash = "#";
-            if(startsWith(*(attr_1->place), hash)) {
+            if(attr_1->place->at(0) == '#') {
                 attr_set_error(attr);
                 sem_error(expr->line, "cannot assign to imm value");
                 break;
@@ -122,76 +122,90 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                 break;
             }
 
+            Attr* attr_asm_1 = new Attr();
+            Attr* attr_asm_2 = new Attr();
+            Attr* attr_asm_3 = new Attr();
+            string* asm_g;
+
             // sub
+            attr_asm_1 = new Attr();
+            attr_asm_2 = new Attr();
+            attr_asm_3 = new Attr();
+
             int sub_res = mem_temp(mem, attr_1->type);
 
-            Attr* at_sub_1 = new Attr();
-            at_sub_1->type = new Type(*(attr_1->type));
-            string at_sub1_place = "#" + to_string(sym->type->array->min);
-            at_sub_1->place = new string(at_sub1_place);
+            attr_asm_1->type  = new Type(*(attr_1->type));
+            attr_asm_1->place = new string(*(attr_1->place));
 
-            Attr* at_sub_2 = new Attr();
-            at_sub_2->type = new Type(*(attr_1->type));
-            at_sub_2->place = new string(*(attr_1->place));
-            
-            Attr* at_sub_3 = new Attr();
-            at_sub_3->type = new Type(*(attr_1->type));
-            at_sub_3->place = sym_to_place(mem, sub_res);
-            
-            string* asm_sub = asm_gen("sub", at_sub_2, at_sub_1, at_sub_3);
-            attr->code->push_back(asm_sub);
-            
-            DELETE(at_sub_1);
-            DELETE(at_sub_2);
-            DELETE(at_sub_3);
+            int arr_min = sym->type->array->min;
+            attr_asm_2->type  = new Type(*(attr_1->type));
+            attr_asm_2->place = new string( "#" + to_string(arr_min));
+
+            attr_asm_3->type  = new Type(*(attr_1->type));
+            attr_asm_3->place = sym_to_place(mem, sub_res);
+
+            asm_g = asm_gen("sub", attr_asm_1, attr_asm_2, attr_asm_3);
+            attr->code->push_back(asm_g);
+
+            DELETE(attr_asm_1);
+            DELETE(attr_asm_2);
+            DELETE(attr_asm_3);
 
             // mul
+            attr_asm_1 = new Attr();
+            attr_asm_2 = new Attr();
+            attr_asm_3 = new Attr();
+
             int mul_res = sub_res;
-            
-            Attr* at_mul_1 = new Attr();
-            at_mul_1->type = new Type(*(attr_1->type));
-            at_mul_1->place = sym_to_place(mem, sub_res);
-            
-            Attr* at_mul_2 = new Attr();
-            at_mul_2->type = new Type(*(attr_1->type));
-            Type* arType = new Type();
-            arType->te = sym->type->array->te;
-            string at_mul_2_place = "#" + to_string(type_size(arType));
-            at_mul_2->place = new string(at_mul_2_place);
-            
-            Attr* at_mul_3 = new Attr();
-            at_mul_3->type = new Type(*(attr_1->type));
-            at_mul_3->place = sym_to_place(mem, mul_res);
-            
-            string* asm_mul = asm_gen("mul", at_mul_1, at_mul_2, at_mul_3);
-            attr->code->push_back(asm_mul);
-            
-            DELETE(at_mul_1);
-            DELETE(at_mul_2);
-            DELETE(at_mul_3);
-            
+
+            attr_asm_1->type  = new Type(*(attr_1->type));
+            attr_asm_1->place = sym_to_place(mem, sub_res);
+
+            Type* ar_type = new Type();
+            ar_type->te   = sym->type->array->te;
+
+            attr_asm_2->type  = new Type(*(attr_1->type));
+            attr_asm_2->place = new string("#" + to_string(type_size(ar_type)));
+
+            attr_asm_3->type  = new Type(*(attr_1->type));
+            attr_asm_3->place = sym_to_place(mem, mul_res);
+
+            asm_g = asm_gen("mul", attr_asm_1, attr_asm_2, attr_asm_3);
+            attr->code->push_back(asm_g);
+
+            DELETE(ar_type);
+            DELETE(attr_asm_1);
+            DELETE(attr_asm_2);
+            DELETE(attr_asm_3);
+
             // add
+            attr_asm_1 = new Attr();
+            attr_asm_2 = new Attr();
+            attr_asm_3 = new Attr();
+
             int add_res = mem_temp(mem, attr_1->type);
 
-            Attr* at_add_1 = new Attr();
-            at_add_1->type = new Type(*(sym->type));
-            at_add_1->place = sym_to_place(sym);
-            
-            Attr* at_add_2 = new Attr();
-            at_add_2->type = new Type(*(attr_1->type));
-            at_add_2->place = sym_to_place(mem, mul_res);
-            
-            Attr* at_add_3 = new Attr();
-            at_add_3->type = new Type(*(attr_1->type));
-            at_add_3->place = sym_to_place(mem, add_res);
-            
-            string* asm_add = asm_gen("add", at_add_1, at_add_2, at_add_3);
-            attr->code->push_back(asm_add);
-            
-            DELETE(at_add_1);
-            DELETE(at_add_2);
-            DELETE(at_add_3);
-            
+            attr_asm_1->type  = new Type(*(sym->type));
+            attr_asm_1->place = sym_to_place(sym);
+
+            attr_asm_2->type = new Type(*(attr_1->type));
+            attr_asm_2->place = sym_to_place(mem, mul_res);
+
+            attr_asm_3->type = new Type(*(attr_1->type));
+            attr_asm_3->place = sym_to_place(mem, add_res);
+
+            attr_deref(attr_asm_1);
+
+            asm_g = asm_gen("add", attr_asm_1, attr_asm_2, attr_asm_3);
+            attr->code->push_back(asm_g);
+
+            DELETE(attr_asm_1);
+            DELETE(attr_asm_2);
+            DELETE(attr_asm_3);
+
+            // attr
+            mem->vec->at(add_res)->type->reference = true;
+
             attr->type = new Type();
             attr->type->te = TE_INTEGER;
             attr->place = sym_to_place(mem, add_res);
@@ -332,87 +346,87 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
             // compute and push all params
             for(size_t i = 0; i < func->args->size(); i++) {
-                Symbol* arg_f = func->args->at(i);
-                Expression* arg_e = expr->args->at(i+1)->val.eVal;
-                Attr* attr_e = compute(arg_e, mem, attr);
+                Symbol* arg_fu = func->args->at(i);
+
+                Expression* arg_ex = expr->args->at(i+1)->val.eVal;
+                Attr* attr_ex = compute(arg_ex, mem, attr);
 
                 // create temp for imm
-                string hash = "#";
-                if(startsWith(*(attr_e->place), hash)) {
-                    string* place_prev = attr_e->place;
+                if(attr_ex->place->at(0) == '#') {
+                    string* place_prev = attr_ex->place;
 
-                    int tmp_id = mem_temp(mem, attr_e->type);
-                    attr_e->place = sym_to_place(mem, tmp_id);
+                    int tmp_id = mem_temp(mem, attr_ex->type);
 
-                    Attr* mov_attr = new Attr();
-                    mov_attr->place = place_prev;
-                    mov_attr->type = new Type(*(attr_e->type));
-                    string* asm_g = asm_gen("mov", mov_attr, attr_e);
+                    attr_ex->place = sym_to_place(mem, tmp_id);
+
+                    Attr* attr_mov = new Attr();
+                    attr_mov->type = new Type(*(attr_ex->type));
+                    attr_mov->place = place_prev;
+
+                    string* asm_g = asm_gen("mov", attr_mov, attr_ex);
                     attr->code->push_back(asm_g);
 
-                    DELETE(mov_attr);
+                    DELETE(attr_mov);
                 }
 
                 // cast?
-                if(type_eff(attr_e->type) != type_eff(arg_f->type)) {
-                    string* cast_c = cast(attr_e, arg_f->type, mem);
+                if(type_eff(attr_ex->type) != type_eff(arg_fu->type)) {
+                    string* cast_c = cast(attr_ex, arg_fu->type, mem);
                     attr->code->push_back(cast_c);
                 }
 
-                string star = "*";
-                if(!attr_e->type->reference) {
-                    attr_e->place->insert(0, "#");
-                }
-                if(startsWith(*(attr_e->place), star)) {
-                    attr_e->place->erase(0,1);
-                }
+                attr_deref(attr_ex);
 
-                string* asm_g = asm_gen("push", attr_e);
+                string* asm_g = asm_gen("push", attr_ex);
                 attr->code->push_back(asm_g);
 
                 pushed += 4;
-                DELETE(attr_e);
+                DELETE(attr_ex);
             }
 
             attr->type = new Type(*(func->result));
 
             // push temp for result
             if(func->result->te != TE_VOID) {
-                int tmp_id = mem_temp(mem, func->result);
-                attr->place = sym_to_place(mem, tmp_id);
+                int tmp_res_id = mem_temp(mem, func->result);
+                Symbol* tmp_res = mem->vec->at(tmp_res_id);
 
-                Attr* result_a = new Attr();
-                result_a->type = new Type(*(mem->vec->at(tmp_id)->type));
-                result_a->place = new string(*attr->place);
-                result_a->place->insert(0, "#");
-                string* asm_g = asm_gen("push", result_a);
+                attr->place = sym_to_place(mem, tmp_res_id);
+
+                Attr* attr_push = new Attr();
+                attr_push->type = new Type(*(tmp_res->type));
+                attr_push->place = new string("#" + *attr->place);
+
+                string* asm_g = asm_gen("push", attr_push);
                 attr->code->push_back(asm_g);
 
                 pushed += 4;
-                DELETE(result_a);
+                DELETE(attr_push);
 
             } else {
                 attr->place = new string("");
             }
 
-            Attr* call_a = new Attr();
-            call_a->type = new Type();
-            call_a->type->te = TE_INTEGER;
-            call_a->place = new string("#" + *func->name);
-            string* asm_g = asm_gen("call", call_a);
+            Attr* attr_call = new Attr();
+            attr_call->type = new Type();
+            attr_call->type->te = TE_INTEGER;
+            attr_call->place = new string("#" + *func->name);
+
+            string* asm_g = asm_gen("call", attr_call);
             attr->code->push_back(asm_g);
 
-            DELETE(call_a);
+            DELETE(attr_call);
 
             if(pushed != 0) {
-                Attr* inc_a = new Attr();
-                inc_a->type = new Type();
-                inc_a->type->te = TE_INTEGER;
-                inc_a->place = new string("#" + to_string(pushed));
-                string* asm_g = asm_gen("incsp", inc_a);
+                Attr* attr_inc = new Attr();
+                attr_inc->type = new Type();
+                attr_inc->type->te = TE_INTEGER;
+                attr_inc->place = new string("#" + to_string(pushed));
+
+                string* asm_g = asm_gen("incsp", attr_inc);
                 attr->code->push_back(asm_g);
 
-                DELETE(inc_a);
+                DELETE(attr_inc);
             }
 
         }
@@ -495,6 +509,18 @@ void attr_set_error(Attr* attr) {
     attr->place = new string("");
     attr->type = new Type();
     attr->type->te = TE_ERROR;
+}
+
+/* --------------------------------------------------------------------------*/
+
+void attr_deref(Attr* attr) {
+    if(attr->place->at(0) == '*') {
+        attr->place->erase(0, 1);
+    }
+
+    if(attr->place->at(0) != 'B') {
+        attr->place->insert(0, "#");
+    }
 }
 
 /* --------------------------------------------------------------------------*/
@@ -616,13 +642,6 @@ void asm_gen_app() {
     DELETE(attr);
 
     cout << "\t" << "exit" << "\n";
-}
-
-/* --------------------------------------------------------------------------*/
-
-bool startsWith(string& haystack, string& needle) {
-    return needle.length() <= haystack.length()
-        && equal(needle.begin(), needle.end(), haystack.begin());
 }
 
 /* --------------------------------------------------------------------------*/

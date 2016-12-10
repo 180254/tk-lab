@@ -28,6 +28,7 @@ lexer.cpp: lexer.l
 all: $(OUT)
 
 clean:
-	-rm -f $(OUT) $(OBJECTS) parser.cpp parser.hpp parser.output lexer.cpp
+	-rm -f $(OUT) $(OBJECTS) \
+		parser.cpp parser.hpp parser.output lexer.cpp output*.asm
 
 clear: clean

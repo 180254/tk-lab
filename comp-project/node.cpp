@@ -17,7 +17,10 @@ std::ostream& operator<< (std::ostream& os, TypeEnum te) {
 
 /* ------------------------------------------------------------------------- */
 
-Type::Type() : te(TE_UNKNOWN), array(nullptr), reference(false) {
+Type::Type() :
+    te(TE_UNKNOWN),
+    array(nullptr),
+    reference(false) {
 }
 
 Type::Type(const Type& other) {

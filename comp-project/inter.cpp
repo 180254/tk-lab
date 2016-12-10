@@ -389,7 +389,52 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
         /* ----------------------------------------------------------------- */
 
         case OP_FLOW_WHILE:
+        {
 
+            string* lab1 = lab_next();
+            string* lab2 = lab_next();
+
+            Attr* lab1_attr  = new Attr();
+            lab1_attr->type  = new Type();
+            lab1_attr->type->te = TE_INTEGER;
+            lab1_attr->place = new string("#" + *lab1);
+
+            Attr* lab2_attr  = new Attr();
+            lab2_attr->type  = new Type();
+            lab2_attr->type->te = TE_INTEGER;
+            lab2_attr->place = new string("#" + *lab2);
+
+            Attr* attr_imm_0      = new Attr();
+            attr_imm_0->type      = new Type();
+            attr_imm_0->type->te  = TE_INTEGER;
+            attr_imm_0->place     = new string("#0");
+
+            attr->code->push_back(new string(*lab2 + ":"));
+
+            Expression* arg_1 = expr->args->at(0)->val.eVal;
+            Attr* attr_1 = compute(arg_1, mem, attr);
+
+            string* asm_g = asm_gen("je", attr_1, attr_imm_0, lab1_attr);
+            attr->code->push_back(asm_g);
+
+            Program* arg_2 = expr->args->at(1)->val.pVal;
+            for(auto expr: *arg_2) {
+                Attr* attr_x = compute(expr, mem, attr);
+                DELETE(attr_x);
+            }
+
+            asm_g = asm_gen("jump", lab2_attr);
+            attr->code->push_back(asm_g);
+
+            attr->code->push_back(new string(*lab1 + ":"));
+
+            DELETE(lab1);
+            DELETE(lab2);
+            DELETE(lab1_attr);
+            DELETE(lab2_attr);
+            DELETE(attr_imm_0);
+            DELETE(attr_1);
+        }
         break;
 
         /* ----------------------------------------------------------------- */

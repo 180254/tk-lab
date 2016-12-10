@@ -182,7 +182,6 @@ std::ostream& operator<< (std::ostream& os, Operation oper) {
         case OP_MATH_MUL:        return os << "OP_MATH_MUL";
         case OP_MATH_AND:        return os << "OP_MATH_AND";
         case OP_MATH_OR:         return os << "OP_MATH_OR";
-        case OP_FLOW_IF:         return os << "OP_FLOW_IF";
         case OP_FLOW_IF_THEN:    return os << "OP_FLOW_IF_THEN";
         case OP_FLOW_WHILE:      return os << "OP_FLOW_WHILE";
         case OP_CALL_FUNC:       return os << "OP_CALL_FUNC";

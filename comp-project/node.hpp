@@ -97,7 +97,6 @@ enum Operation : int {
     OP_MATH_MUL,
     OP_MATH_AND,
     OP_MATH_OR,
-    OP_FLOW_IF,
     OP_FLOW_IF_THEN,
     OP_FLOW_WHILE,
     OP_CALL_FUNC,

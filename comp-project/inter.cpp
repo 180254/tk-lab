@@ -65,7 +65,23 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             attr->place = new string("#" + *(expr->args->at(0)->val.sVal));
 
             attr->type = new Type();
-            bool integer = attr->place->find(".") == std::string::npos;
+            auto find_dot = attr->place->find(".");
+            bool integer = find_dot == std::string::npos;
+
+            if(!integer) {
+                bool only0 = true;
+                for(auto i = find_dot+1; i < attr->place->length(); i++) {
+                    if(attr->place->at(i) != '0') {
+                        only0 = false;
+                        break;
+                    }
+                }
+
+                if(only0) {
+                    attr->place->erase(find_dot);
+                }
+            }
+
             attr->type->te = integer ? TE_INTEGER : TE_REAL;
         }
         break;
@@ -311,14 +327,63 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
         /* ----------------------------------------------------------------- */
 
-        case OP_FLOW_IF:
-
-        break;
-
-        /* ----------------------------------------------------------------- */
-
         case OP_FLOW_IF_THEN:
+        {
+            Expression* arg_1 = expr->args->at(0)->val.eVal;
+            Attr* attr_1 = compute(arg_1, mem, attr);
 
+            Program* arg_2 = expr->args->at(1)->val.pVal;
+            Program* arg_3 = expr->args->at(2)->val.pVal;
+
+            string* lab1 = lab_next();
+            string* lab2 = lab_next();
+
+            Attr* lab1_attr  = new Attr();
+            lab1_attr->type  = new Type();
+            lab1_attr->type->te = TE_INTEGER;
+            lab1_attr->place = new string("#" + *lab1);
+
+            Attr* lab2_attr  = new Attr();
+            lab2_attr->type  = new Type();
+            lab2_attr->type->te = TE_INTEGER;
+            lab2_attr->place = new string("#" + *lab2);
+
+            Attr* attr_imm_0      = new Attr();
+            attr_imm_0->type      = new Type();
+            attr_imm_0->type->te  = TE_INTEGER;
+            attr_imm_0->place     = new string("#0");
+
+            string* asm_g = asm_gen("je", attr_1, attr_imm_0, lab1_attr);
+            attr->code->push_back(asm_g);
+
+            for(auto expr: *arg_2) {
+                Attr* attr_x = compute(expr, mem, attr);
+                DELETE(attr_x);
+            }
+
+            asm_g = asm_gen("jump", lab2_attr);
+            attr->code->push_back(asm_g);
+
+            attr->code->push_back(new string(*lab1 + ":"));
+
+            for(auto expr: *arg_3) {
+                Attr* attr_x = compute(expr, mem, attr);
+                DELETE(attr_x);
+            }
+
+            attr->code->push_back(new string(*lab2 + ":"));
+
+            attr->type  = new Type();
+            attr->type->te = TE_VOID;
+            attr->place = new string("");
+
+            DELETE(attr_1);
+            DELETE(lab1);
+            DELETE(lab2);
+            DELETE(lab1_attr);
+            DELETE(lab2_attr);
+            DELETE(attr_imm_0);
+        }
         break;
 
         /* ----------------------------------------------------------------- */

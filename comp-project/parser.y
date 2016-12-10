@@ -46,9 +46,6 @@
 
 %token T_UMINUS
 
-%precedence T_THEN
-%precedence T_ELSE
-
 /* ------------------------------------------------------------------------- */
 
 %union {
@@ -371,14 +368,6 @@ statement : // vector<Expression*>*
     }
     | compound_statement {
         $$ = $1;
-    }
-    | T_IF expression T_THEN statement {
-        auto expr = new Expression(OP_FLOW_IF);
-        expr->args->push_back(expr_arg_expr($2));
-        expr->args->push_back(expr_arg_prog($4));
-
-        $$ = new vector<Expression*>();
-        $$->push_back(expr);
     }
     | T_IF expression T_THEN statement T_ELSE statement {
         auto expr = new Expression(OP_FLOW_IF_THEN);

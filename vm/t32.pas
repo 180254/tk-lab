@@ -22,5 +22,9 @@ begin
   i := not i;
   p[2] := not x;
   p[2] := not o[1];
-  i := not p[10]
+  i := not p[10];
+  i := -1;
+  x := -k;
+  k := -y;
+  p[1] := -1
 end.

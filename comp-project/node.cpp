@@ -380,6 +380,7 @@ string Function::str(int level) {
 
     return ss.str();
 }
+
 /* ------------------------------------------------------------------------- */
 
 Memory::Memory() : vec(new vector<Symbol*>()),
@@ -416,7 +417,7 @@ int mem_find(Memory* mem, string str) {
 int mem_add(Memory* mem, Symbol* sym, int offset) {
     if(offset == 0 && mem->vec->size() > 0) {
         auto last_sym = mem->vec->at(mem->vec->size()-1);
-        
+
         if (mem->offset_asc) {
             sym->offset = last_sym->offset + type_size(last_sym->type);
         } else {

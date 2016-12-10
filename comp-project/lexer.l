@@ -27,7 +27,7 @@ NUM             {DIGITS}{FRACTION_OPT}{EXPONENT_OPT}
 
 %%
 
-\{[^{}]*\}       { /* comments    */ }
+\{[^{}]*\}      { /* comments    */ }
 [ \t\n]         { /* whitespaces */ }
 
 "program"       return T_PROGRAM;

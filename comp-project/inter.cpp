@@ -227,7 +227,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                 }
                 break;
             }
-            
+
             int func_id = func_find(*f_name);
 
             if(func_id == -1) {
@@ -254,20 +254,20 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
                 // create temp for imm
                 string hash = "#";
-                if(startsWith(*(attr_e->place), hash)) { 
+                if(startsWith(*(attr_e->place), hash)) {
                     string* place_prev = attr_e->place;
 
                     int tmp_id = mem_temp(mem, attr_e->type);
                     attr_e->place = sym_to_place(mem, tmp_id);
-                    
+
                     Attr* mov_attr = new Attr();
                     mov_attr->place = place_prev;
                     mov_attr->type = new Type(*(attr_e->type));
-                    
+
                     string* asm_g = asm_gen("mov", mov_attr, attr_e);
                     attr->code->push_back(asm_g);
                 }
-                    
+
                 // cast?
                 if(type_eff(attr_e->type) != type_eff(arg_f->type)) {
                     string* cast_c = cast(attr_e, arg_f->type, mem);
@@ -327,7 +327,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             }
 
             attr->type = new Type(*(func->result));
-            
+
         }
         break;
 
@@ -401,11 +401,11 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
 Attr* compute(vector<Expression*>* v_expr, Memory* mem, Attr* parent) {
     Attr* attr = parent != nullptr ? parent : new Attr();
-    
+
     attr->type = new Type();
     attr->type->te = TE_VOID;
     attr->place = new string("");
-    
+
     for(auto expr: *v_expr) {
         Attr* c_attr = compute(expr, mem, attr);
         DELETE(c_attr);

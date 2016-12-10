@@ -401,7 +401,9 @@ Program              program;
 /* ------------------------------------------------------------------------- */
 
 int mem_find(Memory* mem, string str) {
-    for(size_t i = 0; i < mem->vec->size(); i++) {
+    size_t size = mem->vec->size();
+
+    for(int i = size-1; i >=0 ; i--) {
         if(*(mem->vec->at(i)->name) == str) {
             return i;
         }

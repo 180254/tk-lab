@@ -107,7 +107,9 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
         case OP_ARRAY_ACCESS:
         {
-
+            attr->type = new Type();
+            attr->type->te = TE_INTEGER;
+            attr->place = new string("?");
         }
         break;
 
@@ -172,7 +174,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
         case OP_MATH_UMINUS:
         {
-        
+
         }
         break;
 
@@ -272,7 +274,14 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                     attr->code->push_back(cast_c);
                 }
 
-                attr_e->place->insert(0, "#");
+                string star = "*";
+                if(!attr_e->type->reference) {
+                    attr_e->place->insert(0, "#");
+                }
+                if(startsWith(*(attr_e->place), star)) {
+                    attr_e->place->erase(0,1);
+                }
+
                 string* asm_g = asm_gen("push", attr_e);
                 attr->code->push_back(asm_g);
 
@@ -281,7 +290,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             }
 
             attr->type = new Type(*(func->result));
-            
+
             // push temp for result
             if(func->result->te != TE_VOID) {
                 int tmp_id = mem_temp(mem, func->result);

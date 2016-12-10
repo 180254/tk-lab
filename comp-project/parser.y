@@ -212,7 +212,7 @@ subprogram_declaration : // Function*
 
         auto stack = $$->stack;
         int stack_top_offset = ($$->args->size()+1)*4;
-        stack_top_offset += ($$->result != nullptr ? 4 : 0);
+        stack_top_offset += ($$->result->te != TE_VOID ? 4 : 0);
 
         // push to stack args
         int args_i = 0;
@@ -225,12 +225,14 @@ subprogram_declaration : // Function*
         }
         // push to stack result
 
-        auto result = new Symbol();
-        result->name = new string(*($$->name));
-        result->type = new Type(*($$->result));
-        result->type->reference = true;
-        result->level = 1;
-        mem_add(stack, result, args_i == 0 ? stack_top_offset : 0);
+        if ($$->result->te != TE_VOID) {
+            auto result = new Symbol();
+            result->name = new string(*($$->name));
+            result->type = new Type(*($$->result));
+            result->type->reference = true;
+            result->level = 1;
+            mem_add(stack, result, args_i == 0 ? stack_top_offset : 0);
+        }
 
         // push to stack special vals
         auto retaddr = new Symbol();

@@ -24,7 +24,12 @@ with open(file[1]) as f:
 
 # ----------------------------------------------------------------------------
 
+fail = False
+
+# ----------------------------------------------------------------------------
+
 if len(lines[0]) != len(lines[1]):
+    fail = True
     print("FAIL (-1)")
 
 # ----------------------------------------------------------------------------
@@ -40,13 +45,12 @@ def fix_line(line):
 
 # ----------------------------------------------------------------------------
 
-fail = False
-
-for i,k in enumerate(lines[0]):
-    if fix_line(lines[0][i]) != fix_line(lines[1][i]):
-        fail = True
-        print("FAIL (%s)" % (i+1))
-        break
-
 if not fail:
-    print("OK")
+    for i,k in enumerate(lines[0]):
+        if fix_line(lines[0][i]) != fix_line(lines[1][i]):
+            fail = True
+            print("FAIL (%s)" % (i+1))
+            break
+
+    if not fail:
+        print("OK")

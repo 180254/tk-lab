@@ -223,7 +223,6 @@ subprogram_declaration : // Function*
             mem_add(stack, sym_a, args_i == 0 ? stack_top_offset : 0);
             args_i++;
         }
-
         // push to stack result
 
         auto result = new Symbol();
@@ -231,7 +230,7 @@ subprogram_declaration : // Function*
         result->type = new Type(*($$->result));
         result->type->reference = true;
         result->level = 1;
-        mem_add(stack, result, 0);
+        mem_add(stack, result, args_i == 0 ? stack_top_offset : 0);
 
         // push to stack special vals
         auto retaddr = new Symbol();

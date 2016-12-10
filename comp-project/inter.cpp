@@ -263,16 +263,18 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                 }
 
                 // cast?
+
                 if(type_eff(attr_e->type) != type_eff(arg_f->type)) {
                     string* cast_c = cast(attr_e, arg_f->type, mem);
                     attr->code->push_back(cast_c);
                 }
 
                 attr_e->place->insert(0, "#");
+                            //    cout << attr_e->type->te << "\n";
                 string* asm_g = asm_gen("push", attr_e);
                 attr->code->push_back(asm_g);
 
-                pushed += type_size(attr_e->type);
+                pushed += 4;
 
                 DELETE(attr_e);
             }
@@ -286,11 +288,10 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                 result_a->type = new Type(*(mem->vec->at(tmp_id)->type));
                 result_a->place = new string(*attr->place);
                 result_a->place->insert(0, "#");
-
                 string* asm_g = asm_gen("push", result_a);
                 attr->code->push_back(asm_g);
 
-                pushed += type_size(result_a->type);
+                pushed += 4;
 
                 DELETE(result_a);
 
@@ -478,7 +479,7 @@ string* asm_gen(string command, Attr* arg1, Attr* arg2, Attr* arg3) {
     stringstream ss;
 
     ss << command << ".";
-    ss << (type_eff(arg1->type) == TE_REAL ? "r" : "i");
+    ss << (type_eff(arg1->type) == TE_REAL && command != "push" ? "r" : "i");
 
     ss << string(10-command.length(), ' ');
     ss << *arg1->place;

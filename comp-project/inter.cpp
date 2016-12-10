@@ -287,7 +287,6 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
         }
         break;
 
-
         /* ----------------------------------------------------------------- */
 
         case OP_MATH_UMINUS:
@@ -465,7 +464,6 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
             for(size_t i = 0; i < func->args->size(); i++) {
                 Symbol* arg_fu = func->args->at(i);
-
 
                 // create temp for imm
                 if(attr_ex[i]->place->at(0) == '#') {

@@ -238,7 +238,7 @@ subprogram_declaration : // Function*
         retaddr->type = new Type();
         retaddr->type->te = TE_SPEC;
         retaddr->level = 1;
-        mem_add(stack, retaddr, 0);
+        mem_add(stack, retaddr, args_i == 0 ? stack_top_offset : 0);
 
         auto old_bp = new Symbol();
         old_bp->name = new string("__$old__bp__");

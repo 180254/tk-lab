@@ -47,13 +47,13 @@ begin
   write(a mod y);
   write(b mod x);
   write(b mod y);
-  write(x mod y)
-  {
+  write(x mod y);
+
   write(- a);
   write(- b);
   write(- x);
   write(- y)
-}
+
   {
   write(+ a);
   write(+ b);

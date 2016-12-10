@@ -276,7 +276,28 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
         case OP_MATH_UMINUS:
         {
+            Expression* arg_1 = expr->args->at(0)->val.eVal;
+            Attr* attr_1 = compute(arg_1, mem, attr);
 
+            int id_res = mem_temp(mem, attr_1->type);
+
+            Attr* attr_asm_1 = new Attr();
+            attr_asm_1->type = new Type(*attr_1->type);
+            attr_asm_1->place = new string("#0");
+
+            Attr* attr_asm_3 = new Attr();
+            attr_asm_3->type = new Type(*attr_1->type);
+            attr_asm_3->place = sym_to_place(mem, id_res);
+
+            string* op_asm = asm_gen("sub", attr_asm_1, attr_1, attr_asm_3);
+            attr->code->push_back(op_asm);
+
+            attr->place = sym_to_place(mem, id_res);
+            attr->type = new Type(*(attr_1->type));
+
+            DELETE(attr_asm_1);
+            DELETE(attr_1);
+            DELETE(attr_asm_3);
         }
         break;
 

@@ -107,9 +107,94 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
         case OP_ARRAY_ACCESS:
         {
+            string* sym_name = expr->args->at(0)->val.sVal;
+            int sym_id = mem_find(mem, *sym_name);
+            Symbol* sym = new Symbol(*(mem->vec->at(sym_id)));
+
+            Expression* arg_1 = expr->args->at(1)->val.eVal;
+            Attr* attr_1 = compute(arg_1, mem, attr);
+
+            if(sym_id == -1
+                || sym->type->te != TE_ARRAY
+                || attr_1->type->te != TE_INTEGER) {
+                attr_set_error(attr);
+                sem_error(expr->line, "incorrect array access");
+                break;
+            }
+
+            // sub
+            int sub_res = mem_temp(mem, attr_1->type);
+
+            Attr* at_sub_1 = new Attr();
+            at_sub_1->type = new Type(*(attr_1->type));
+            string at_sub1_place = "#" + to_string(sym->type->array->min);
+            at_sub_1->place = new string(at_sub1_place);
+
+            Attr* at_sub_2 = new Attr();
+            at_sub_2->type = new Type(*(attr_1->type));
+            at_sub_2->place = new string(*(attr_1->place));
+            
+            Attr* at_sub_3 = new Attr();
+            at_sub_3->type = new Type(*(attr_1->type));
+            at_sub_3->place = sym_to_place(mem, sub_res);
+            
+            string* asm_sub = asm_gen("sub", at_sub_2, at_sub_1, at_sub_3);
+            attr->code->push_back(asm_sub);
+            
+            DELETE(at_sub_1);
+            DELETE(at_sub_2);
+            DELETE(at_sub_3);
+
+            // mul
+            int mul_res = sub_res;
+            
+            Attr* at_mul_1 = new Attr();
+            at_mul_1->type = new Type(*(attr_1->type));
+            at_mul_1->place = sym_to_place(mem, sub_res);
+            
+            Attr* at_mul_2 = new Attr();
+            at_mul_2->type = new Type(*(attr_1->type));
+            Type* arType = new Type();
+            arType->te = sym->type->array->te;
+            string at_mul_2_place = "#" + to_string(type_size(arType));
+            at_mul_2->place = new string(at_mul_2_place);
+            
+            Attr* at_mul_3 = new Attr();
+            at_mul_3->type = new Type(*(attr_1->type));
+            at_mul_3->place = sym_to_place(mem, mul_res);
+            
+            string* asm_mul = asm_gen("mul", at_mul_1, at_mul_2, at_mul_3);
+            attr->code->push_back(asm_mul);
+            
+            DELETE(at_mul_1);
+            DELETE(at_mul_2);
+            DELETE(at_mul_3);
+            
+            // add
+            int add_res = mem_temp(mem, attr_1->type);
+
+            Attr* at_add_1 = new Attr();
+            at_add_1->type = new Type(*(sym->type));
+            at_add_1->place = sym_to_place(sym);
+            
+            Attr* at_add_2 = new Attr();
+            at_add_2->type = new Type(*(attr_1->type));
+            at_add_2->place = sym_to_place(mem, mul_res);
+            
+            Attr* at_add_3 = new Attr();
+            at_add_3->type = new Type(*(attr_1->type));
+            at_add_3->place = sym_to_place(mem, add_res);
+            
+            string* asm_add = asm_gen("add", at_add_1, at_add_2, at_add_3);
+            attr->code->push_back(asm_add);
+            
+            DELETE(at_add_1);
+            DELETE(at_add_2);
+            DELETE(at_add_3);
+            
             attr->type = new Type();
             attr->type->te = TE_INTEGER;
-            attr->place = new string("?");
+            attr->place = sym_to_place(mem, add_res);
         }
         break;
 

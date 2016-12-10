@@ -294,6 +294,12 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             Expression* arg_1 = expr->args->at(0)->val.eVal;
             Attr* attr_1 = compute(arg_1, mem, attr);
 
+            if(!type_is_num(attr_1->type)) {
+                attr_set_error(attr);
+                sem_error(expr->line, "incorrect uminus");
+                break;
+            };
+
             int id_res = mem_temp(mem, attr_1->type);
 
             Attr* attr_asm_1 = new Attr();
@@ -323,6 +329,12 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             Expression* arg_1 = expr->args->at(0)->val.eVal;
             Attr* attr_1 = compute(arg_1, mem, attr);
 
+            if(!type_is_num(attr_1->type)) {
+                attr_set_error(attr);
+                sem_error(expr->line, "incorrect uplus");
+                break;
+            };
+
             attr->type = new Type(*(attr_1->type));
             attr->place = new string(*(attr_1->place));
 
@@ -336,6 +348,12 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
         {
             Expression* arg_1 = expr->args->at(0)->val.eVal;
             Attr* attr_1 = compute(arg_1, mem, attr);
+
+            if(!type_is_num(attr_1->type)) {
+                attr_set_error(attr);
+                sem_error(expr->line, "incorrect if condition");
+                break;
+            };
 
             Program* arg_2 = expr->args->at(1)->val.pVal;
             Program* arg_3 = expr->args->at(2)->val.pVal;
@@ -396,6 +414,12 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
             Expression* arg_1 = expr->args->at(0)->val.eVal;
             Attr* attr_1 = compute(arg_1, mem, attr);
+
+            if(!type_is_num(attr_1->type)) {
+                attr_set_error(attr);
+                sem_error(expr->line, "incorrect while condition");
+                break;
+            };
 
             string* asm_g = asm_gen("je", attr_1, attr_imm_0, lab1_attr);
             attr->code->push_back(asm_g);
@@ -581,6 +605,12 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                     attr->code->push_back(cast_c);
                 }
             }
+
+            if(!type_is_num(attr_1->type) || !type_is_num(attr_2->type)) {
+                attr_set_error(attr);
+                sem_error(expr->line, "incorrect logical operand");
+                break;
+            };
 
             string func;
             switch(expr->oper) {

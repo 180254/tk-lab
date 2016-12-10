@@ -338,20 +338,9 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             string* lab1 = lab_next();
             string* lab2 = lab_next();
 
-            Attr* lab1_attr  = new Attr();
-            lab1_attr->type  = new Type();
-            lab1_attr->type->te = TE_INTEGER;
-            lab1_attr->place = new string("#" + *lab1);
-
-            Attr* lab2_attr  = new Attr();
-            lab2_attr->type  = new Type();
-            lab2_attr->type->te = TE_INTEGER;
-            lab2_attr->place = new string("#" + *lab2);
-
-            Attr* attr_imm_0      = new Attr();
-            attr_imm_0->type      = new Type();
-            attr_imm_0->type->te  = TE_INTEGER;
-            attr_imm_0->place     = new string("#0");
+            Attr* lab1_attr  = attr_imm(TE_INTEGER, "#" + *lab1);
+            Attr* lab2_attr  = attr_imm(TE_INTEGER, "#" + *lab2);
+            Attr* attr_imm_0 = attr_imm(TE_INTEGER, "#0");
 
             string* asm_g = asm_gen("je", attr_1, attr_imm_0, lab1_attr);
             attr->code->push_back(asm_g);
@@ -394,20 +383,9 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             string* lab1 = lab_next();
             string* lab2 = lab_next();
 
-            Attr* lab1_attr  = new Attr();
-            lab1_attr->type  = new Type();
-            lab1_attr->type->te = TE_INTEGER;
-            lab1_attr->place = new string("#" + *lab1);
-
-            Attr* lab2_attr  = new Attr();
-            lab2_attr->type  = new Type();
-            lab2_attr->type->te = TE_INTEGER;
-            lab2_attr->place = new string("#" + *lab2);
-
-            Attr* attr_imm_0      = new Attr();
-            attr_imm_0->type      = new Type();
-            attr_imm_0->type->te  = TE_INTEGER;
-            attr_imm_0->place     = new string("#0");
+            Attr* lab1_attr  = attr_imm(TE_INTEGER, "#" + *lab1);
+            Attr* lab2_attr  = attr_imm(TE_INTEGER, "#" + *lab2);
+            Attr* attr_imm_0 = attr_imm(TE_INTEGER, "#0");
 
             attr->code->push_back(new string(*lab2 + ":"));
 
@@ -448,7 +426,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                     Expression* arg_e = expr->args->at(i)->val.eVal;
                     Attr* attr_e = compute(arg_e, mem, attr);
 
-                    attr->type  = new Type();
+                    attr->type = new Type();
                     attr->type->te = TE_VOID;
                     attr->place = new string("");
 
@@ -479,43 +457,47 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             size_t pushed = 0;
 
             // compute and push all params
+            vector<Attr*> attr_ex;
+            for(size_t i = 0; i < func->args->size(); i++) {
+                Expression* arg_ex = expr->args->at(i+1)->val.eVal;
+                attr_ex.push_back(compute(arg_ex, mem, attr));
+            }
+
             for(size_t i = 0; i < func->args->size(); i++) {
                 Symbol* arg_fu = func->args->at(i);
 
-                Expression* arg_ex = expr->args->at(i+1)->val.eVal;
-                Attr* attr_ex = compute(arg_ex, mem, attr);
 
                 // create temp for imm
-                if(attr_ex->place->at(0) == '#') {
-                    string* place_prev = attr_ex->place;
+                if(attr_ex[i]->place->at(0) == '#') {
+                    string* place_prev = attr_ex[i]->place;
 
-                    int tmp_id = mem_temp(mem, attr_ex->type);
+                    int tmp_id = mem_temp(mem, attr_ex[i]->type);
 
-                    attr_ex->place = sym_to_place(mem, tmp_id);
+                    attr_ex[i]->place = sym_to_place(mem, tmp_id);
 
                     Attr* attr_mov = new Attr();
-                    attr_mov->type = new Type(*(attr_ex->type));
+                    attr_mov->type = new Type(*(attr_ex[i]->type));
                     attr_mov->place = place_prev;
 
-                    string* asm_g = asm_gen("mov", attr_mov, attr_ex);
+                    string* asm_g = asm_gen("mov", attr_mov, attr_ex[i]);
                     attr->code->push_back(asm_g);
 
                     DELETE(attr_mov);
                 }
 
                 // cast?
-                if(type_eff(attr_ex->type) != type_eff(arg_fu->type)) {
-                    string* cast_c = cast(attr_ex, arg_fu->type, mem);
+                if(type_eff(attr_ex[i]->type) != type_eff(arg_fu->type)) {
+                    string* cast_c = cast(attr_ex[i], arg_fu->type, mem);
                     attr->code->push_back(cast_c);
                 }
 
-                attr_deref(attr_ex);
+                attr_deref(attr_ex[i]);
 
-                string* asm_g = asm_gen("push", attr_ex);
+                string* asm_g = asm_gen("push", attr_ex[i]);
                 attr->code->push_back(asm_g);
 
                 pushed += 4;
-                DELETE(attr_ex);
+                DELETE(attr_ex[i]);
             }
 
             attr->type = new Type(*(func->result));
@@ -589,10 +571,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                 attr_2 = compute(arg_2, mem, attr);
 
             } else {
-                attr_2 = new Attr();
-                attr_2->type = new Type();
-                attr_2->type->te = TE_INTEGER;
-                attr_2->place = new string("#0");
+                attr_2 = attr_imm(TE_INTEGER, "#0");
 
                 if(type_eff(attr_1->type) != TE_INTEGER) {
                     string* cast_c = cast(attr_1, attr_2->type, mem);
@@ -627,25 +606,10 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             string* lab1 = lab_next();
             string* lab2 = lab_next();
 
-            Attr* lab1_attr  = new Attr();
-            lab1_attr->type  = new Type();
-            lab1_attr->type->te = TE_INTEGER;
-            lab1_attr->place = new string("#" + *lab1);
-
-            Attr* lab2_attr  = new Attr();
-            lab2_attr->type  = new Type();
-            lab2_attr->type->te = TE_INTEGER;
-            lab2_attr->place = new string("#" + *lab2);
-
-            Attr* attr_imm_0          = new Attr();
-            attr_imm_0->type          = new Type();
-            attr_imm_0->type->te      = TE_INTEGER;
-            attr_imm_0->place         = new string("#0");
-
-            Attr* attr_imm_1          = new Attr();
-            attr_imm_1->type          = new Type();
-            attr_imm_1->type->te      = TE_INTEGER;
-            attr_imm_1->place         = new string("#1");
+            Attr* lab1_attr  = attr_imm(TE_INTEGER, "#" + *lab1);
+            Attr* lab2_attr  = attr_imm(TE_INTEGER, "#" + *lab2);
+            Attr* attr_imm_0 = attr_imm(TE_INTEGER, "#0");
+            Attr* attr_imm_1 = attr_imm(TE_INTEGER, "#1");
 
             string* asm_g = asm_gen(func, attr_1, attr_2, lab1_attr);
             attr->code->push_back(asm_g);
@@ -726,11 +690,23 @@ void attr_set_error(Attr* attr) {
 void attr_deref(Attr* attr) {
     if(attr->place->at(0) == '*') {
         attr->place->erase(0, 1);
+    } else if(attr->place->at(0) == 'B') {
+        attr->place->insert(0, "#");
+        return;
     }
 
     if(attr->place->at(0) != 'B') {
         attr->place->insert(0, "#");
     }
+}
+/* --------------------------------------------------------------------------*/
+
+Attr* attr_imm(TypeEnum te, string value) {
+    Attr* attr  = new Attr();
+    attr->type  = new Type();
+    attr->type->te = te;
+    attr->place = new string(value);
+    return attr;
 }
 
 /* --------------------------------------------------------------------------*/

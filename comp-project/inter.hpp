@@ -15,6 +15,7 @@ Attr*   compute(vector<Expression*>*, Memory*, Attr* = nullptr);
 
 void    attr_set_error(Attr*);
 void    attr_deref(Attr*);
+Attr*   attr_imm(TypeEnum,string);
 
 string* sym_to_place(Memory*,int);
 string* sym_to_place(Memory*,string);

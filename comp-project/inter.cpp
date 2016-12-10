@@ -113,8 +113,12 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
         case OP_MATH_PLUS:
         case OP_MATH_MINUS:
-        case OP_MATH_MUL:
+        case OP_MATH_MOD:
         case OP_MATH_DIV1:
+        case OP_MATH_DIV2:
+        case OP_MATH_MUL:
+        case OP_MATH_AND:
+        case OP_MATH_OR:
         {
             Expression* arg_1 = expr->args->at(0)->val.eVal;
             Expression* arg_2 = expr->args->at(1)->val.eVal;
@@ -145,8 +149,12 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             switch(expr->oper) {
                 case OP_MATH_PLUS:  { func = "add"; break; }
                 case OP_MATH_MINUS: { func = "sub"; break; }
+                case OP_MATH_MOD:   { func = "mod"; break; }
+                case OP_MATH_DIV1:  { func = "div"; break; }
+                case OP_MATH_DIV2:  { func = "div"; break; }
                 case OP_MATH_MUL:   { func = "mul"; break; }
-                case OP_MATH_DIV1:  { func = "sub"; break; }
+                case OP_MATH_AND:   { func = "and"; break; }
+                case OP_MATH_OR:    { func = "or";  break; }
                 default:            { func = "???"; break; }
             }
             string* op_asm = asm_gen(func, attr_1, attr_2, attr);
@@ -172,19 +180,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
         /* ----------------------------------------------------------------- */
 
-        case OP_MATH_MOD:
-
-        break;
-
-        /* ----------------------------------------------------------------- */
-
-
-        /* ----------------------------------------------------------------- */
-
-        case OP_MATH_DIV2:
-
-        break;
-
+      
 
 
         /* ----------------------------------------------------------------- */
@@ -266,6 +262,8 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
                     string* asm_g = asm_gen("mov", mov_attr, attr_e);
                     attr->code->push_back(asm_g);
+                    
+                    DELETE(mov_attr);
                 }
 
                 // cast?
@@ -323,7 +321,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                 string* asm_g = asm_gen("incsp", inc_a);
                 attr->code->push_back(asm_g);
 
-                DELETE(call_a);
+                DELETE(inc_a);
             }
 
             attr->type = new Type(*(func->result));
@@ -339,15 +337,6 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
         /* ----------------------------------------------------------------- */
 
-        case OP_LOG_AND:
-
-        break;
-
-        /* ----------------------------------------------------------------- */
-
-        case OP_LOG_OR:
-
-        break;
 
         /* ----------------------------------------------------------------- */
 

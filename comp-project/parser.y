@@ -530,11 +530,11 @@ mulop : // Operation
     | '/'       { $$ = OP_MATH_DIV1; }
     | T_DIV     { $$ = OP_MATH_DIV2; }
     | T_MOD     { $$ = OP_MATH_MOD; }
-    | T_AND     { $$ = OP_LOG_AND; }
+    | T_AND     { $$ = OP_MATH_AND; }
     ;
 
 or : // Operation
-    T_OR        { $$ = OP_LOG_OR; }
+    T_OR        { $$ = OP_MATH_OR; }
     ;
 
 assignop : // Operation

@@ -177,13 +177,13 @@ std::ostream& operator<< (std::ostream& os, Operation oper) {
         case OP_MATH_DIV1:       return os << "OP_MATH_DIV1";
         case OP_MATH_DIV2:       return os << "OP_MATH_DIV2";
         case OP_MATH_MUL:        return os << "OP_MATH_MUL";
+        case OP_MATH_AND:        return os << "OP_MATH_AND";
+        case OP_MATH_OR:         return os << "OP_MATH_OR";
         case OP_FLOW_IF:         return os << "OP_FLOW_IF";
         case OP_FLOW_IF_THEN:    return os << "OP_FLOW_IF_THEN";
         case OP_FLOW_WHILE:      return os << "OP_FLOW_WHILE";
         case OP_CALL_FUNC:       return os << "OP_CALL_FUNC";
         case OP_LOG_NOT:         return os << "OP_LOG_NOT";
-        case OP_LOG_AND:         return os << "OP_LOG_AND";
-        case OP_LOG_OR:          return os << "OP_LOG_OR";
         case OP_LOG_NE:          return os << "OP_LOG_NE";
         case OP_LOG_LE:          return os << "OP_LOG_LE";
         case OP_LOG_GE:          return os << "OP_LOG_GE";

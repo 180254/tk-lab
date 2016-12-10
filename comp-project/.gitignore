@@ -1,9 +1,10 @@
 error.o
+inter.o
 lexer.cpp
 lexer.o
 main.o
 node.o
-inter.o
+output.asm
 parser.cpp
 parser.hpp
 parser.o

@@ -459,43 +459,111 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
         /* ----------------------------------------------------------------- */
 
         case OP_LOG_NOT:
-
-        break;
-
-        /* ----------------------------------------------------------------- */
-
         case OP_LOG_NE:
-
-        break;
-
-        /* ----------------------------------------------------------------- */
-
         case OP_LOG_LE:
-
-        break;
-
-        /* ----------------------------------------------------------------- */
-
         case OP_LOG_GE:
-
-        break;
-
-        /* ----------------------------------------------------------------- */
-
         case OP_LOG_LO:
-
-        break;
-
-        /* ----------------------------------------------------------------- */
-
         case OP_LOG_GR:
-
-        break;
-
-        /* ----------------------------------------------------------------- */
-
         case OP_LOG_EQ:
+        {
+            Expression* arg_1 = expr->args->at(0)->val.eVal;
+            Expression* arg_2;
 
+            Attr* attr_1 = compute(arg_1, mem, attr);
+            Attr* attr_2;
+
+            Type* attr_1_type = new Type(*(attr_1->type));
+            
+            if(expr->oper == OP_LOG_NOT) {
+                attr_2 = new Attr();
+                attr_2->type = new Type();
+                attr_2->type->te = TE_INTEGER;
+                attr_2->place = new string("#0");
+                
+                if(type_eff(attr_1->type) != TE_INTEGER) {
+                    string* cast_c = cast(attr_1, attr_2->type, mem);
+                    attr->code->push_back(cast_c);
+                }
+                
+            } else {
+                arg_2 = expr->args->at(1)->val.eVal;
+                attr_2 = compute(arg_2, mem, attr);
+            }
+            
+
+            string func;
+            switch(expr->oper) {
+                case OP_LOG_NOT:  { func = "je";  break; }
+                case OP_LOG_NE:   { func = "jne"; break; }
+                case OP_LOG_LE:   { func = "jle"; break; }
+                case OP_LOG_GE:   { func = "jge"; break; }
+                case OP_LOG_LO:   { func = "jl";  break; }
+                case OP_LOG_GR:   { func = "jg";  break; }
+                case OP_LOG_EQ:   { func = "je";  break; }
+                default:          { func = "???"; break; }
+            }
+            
+            Attr* temp_attr     = new Attr();
+            temp_attr->type     = new Type();
+            
+                        if(expr->oper == OP_LOG_NOT) {
+            temp_attr->type->te = attr_1_type->te;
+            } else {
+            
+            temp_attr->type->te = TE_INTEGER;
+            }
+            
+            int tmp_id          = mem_temp(mem, temp_attr->type);
+            temp_attr->place    = sym_to_place(mem, tmp_id);
+            
+
+            string* lab1 = lab_next();
+            string* lab2 = lab_next();
+            
+            Attr* lab1_attr  = new Attr();
+            lab1_attr->type  = new Type();
+            lab1_attr->type->te = TE_INTEGER;
+            lab1_attr->place = new string("#" + *lab1);
+            
+            Attr* lab2_attr  = new Attr();
+            lab2_attr->type  = new Type();
+            lab2_attr->type->te = TE_INTEGER;
+            lab2_attr->place = new string("#" + *lab2);
+            
+            Attr* attr_imm_0          = new Attr();
+            attr_imm_0->type          = new Type();
+            attr_imm_0->type->te      = TE_INTEGER;
+            attr_imm_0->place         = new string("#0");
+            
+            Attr* attr_imm_1          = new Attr();
+            attr_imm_1->type          = new Type();
+            attr_imm_1->type->te      = TE_INTEGER;
+            attr_imm_1->place         = new string("#1");  
+              
+            string* asm_g = asm_gen(func, attr_1, attr_2, lab1_attr);
+            attr->code->push_back(asm_g);
+            
+            asm_g = asm_gen("mov", attr_imm_0, temp_attr);
+            attr->code->push_back(asm_g);
+            
+            asm_g = asm_gen("jump", lab2_attr);
+            attr->code->push_back(asm_g);
+            
+            attr->code->push_back(new string(*lab1 + ":"));
+            
+            asm_g = asm_gen("mov", attr_imm_1, temp_attr);
+            attr->code->push_back(asm_g); 
+            
+            attr->code->push_back(new string(*lab2 + ":"));
+            
+            attr->place = sym_to_place(mem, tmp_id);
+            
+            if(expr->oper == OP_LOG_NOT) {
+                attr->type = new Type(*(attr_1_type));
+            } else {
+                attr->type = new Type(*(temp_attr->type));
+            }
+        }
         break;
 
         /* ----------------------------------------------------------------- */
@@ -605,10 +673,11 @@ string* cast(Attr* attr, Type* type, Memory* mem) {
 
 /* --------------------------------------------------------------------------*/
 
-int lab_current = 0;
+int lab_current = 1;
 string* lab_next() {
     stringstream ss;
     ss << "lab" << to_string(lab_current);
+    lab_current++;
     return new string(ss.str());
 }
 
@@ -650,7 +719,8 @@ void asm_gen_app() {
         cout << "\t" << "enter.i     #"  << alloc << "\n";
 
         for(auto code: *(attr->code)) {
-            cout << "\t" << *code << "\n";
+            if(code->at(0) != 'l') cout << "\t";
+            cout << *code << "\n";
         }
         DELETE(attr);
 
@@ -661,7 +731,8 @@ void asm_gen_app() {
     cout << "lab0:" << "\n";
     auto attr = compute(&program, &memory);
     for(auto code: *(attr->code)) {
-        cout << "\t" << *code << "\n";
+        if(code->at(0) != 'l') cout << "\t";
+        cout << *code << "\n";
     }
     DELETE(attr);
 

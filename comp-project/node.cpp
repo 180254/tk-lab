@@ -76,6 +76,8 @@ int type_size(Type* type) {
         case TE_SPEC:    return 4;
         case TE_ERROR:   return 0;
     };
+    
+    return 0;
 }
 
 /* ------------------------------------------------------------------------- */

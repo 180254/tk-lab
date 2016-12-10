@@ -122,9 +122,9 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                 break;
             }
 
-            Attr* attr_asm_1 = new Attr();
-            Attr* attr_asm_2 = new Attr();
-            Attr* attr_asm_3 = new Attr();
+            Attr* attr_asm_1;
+            Attr* attr_asm_2;
+            Attr* attr_asm_3;
             string* asm_g;
 
             // sub
@@ -209,6 +209,9 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             attr->type = new Type();
             attr->type->te = TE_INTEGER;
             attr->place = sym_to_place(mem, add_res);
+
+            DELETE(sym);
+            DELETE(attr_1);
         }
         break;
 

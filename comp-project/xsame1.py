@@ -45,11 +45,18 @@ def fix_line(line):
 
 # ----------------------------------------------------------------------------
 
+lines[0] = [fix_line(line) for line in lines[0]]
+lines[1] = [fix_line(line) for line in lines[1]]
+
+# ----------------------------------------------------------------------------
+
 if not fail:
     for i,k in enumerate(lines[0]):
-        if fix_line(lines[0][i]) != fix_line(lines[1][i]):
+        if lines[0][i] != lines[1][i]:
             fail = True
             print("FAIL (%s)" % (i+1))
+            print(lines[0][i])
+            print(lines[1][i])
             break
 
     if not fail:

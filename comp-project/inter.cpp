@@ -185,7 +185,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
             int add_res = mem_temp(mem, attr_1->type);
 
-            attr_asm_1->type  = new Type(*(sym->type));
+            attr_asm_1->type  = new Type(*(attr_1->type));
             attr_asm_1->place = sym_to_place(sym);
 
             attr_asm_2->type = new Type(*(attr_1->type));
@@ -207,7 +207,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             mem->vec->at(add_res)->type->reference = true;
 
             attr->type = new Type();
-            attr->type->te = TE_INTEGER;
+            attr->type->te = sym->type->array->te;
             attr->place = sym_to_place(mem, add_res);
 
             DELETE(sym);
@@ -305,7 +305,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
         case OP_MATH_UPLUS:
         {
-            // nothing
+            // none action required
         }
         break;
 

@@ -5,6 +5,7 @@ lexer.o
 main.o
 node.o
 output.asm
+output2.asm
 parser.cpp
 parser.hpp
 parser.o

@@ -180,9 +180,6 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
         /* ----------------------------------------------------------------- */
 
-      
-
-
         /* ----------------------------------------------------------------- */
 
         case OP_FLOW_IF:
@@ -262,8 +259,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
                     string* asm_g = asm_gen("mov", mov_attr, attr_e);
                     attr->code->push_back(asm_g);
-                    
-                    DELETE(mov_attr);
+                                       DELETE(mov_attr);
                 }
 
                 // cast?

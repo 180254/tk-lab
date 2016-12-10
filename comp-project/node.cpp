@@ -9,7 +9,6 @@ std::ostream& operator<< (std::ostream& os, TypeEnum te) {
         case TE_INTEGER: return os << "TE_INTEGER";
         case TE_REAL:    return os << "TE_REAL";
         case TE_ARRAY:   return os << "TE_ARRAY";
-        case TE_BOOLEAN: return os << "TE_BOOLEAN";
         case TE_SPEC:    return os << "TE_SPEC";
         case TE_ERROR:   return os << "TE_ERROR";
     };
@@ -71,7 +70,6 @@ int type_size(Type* type) {
             Type arType; arType.te = array->te;
             return (array->max - array->min + 1) * type_size(&arType);
         }
-        case TE_BOOLEAN: return 4; // ? stored as int
         case TE_SPEC:    return 4;
         case TE_ERROR:   return 0;
     };

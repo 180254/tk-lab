@@ -24,8 +24,7 @@ enum TypeEnum : int {
     TE_VOID,
     TE_INTEGER,
     TE_REAL,
-    TE_ARRAY,
-    TE_BOOLEAN,
+    TE_ARRAY
     TE_SPEC,
     TE_ERROR
 };

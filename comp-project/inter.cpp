@@ -320,7 +320,13 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
         case OP_MATH_UPLUS:
         {
-            // none action required
+            Expression* arg_1 = expr->args->at(0)->val.eVal;
+            Attr* attr_1 = compute(arg_1, mem, attr);
+
+            attr->type = new Type(*(attr_1->type));
+            attr->place = new string(*(attr_1->place));
+
+            DELETE(attr_1);
         }
         break;
 
@@ -425,9 +431,11 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                     Expression* arg_e = expr->args->at(i)->val.eVal;
                     Attr* attr_e = compute(arg_e, mem, attr);
 
+                    /*
                     attr->type = new Type();
                     attr->type->te = TE_VOID;
                     attr->place = new string("");
+                    */
 
                     string* asm_g = asm_gen(*f_name, attr_e);
                     attr->code->push_back(asm_g);
@@ -497,6 +505,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                 pushed += 4;
                 DELETE(attr_ex[i]);
             }
+            attr_ex.clear();
 
             attr->type = new Type(*(func->result));
 
@@ -532,10 +541,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             DELETE(attr_call);
 
             if(pushed != 0) {
-                Attr* attr_inc = new Attr();
-                attr_inc->type = new Type();
-                attr_inc->type->te = TE_INTEGER;
-                attr_inc->place = new string("#" + to_string(pushed));
+                Attr* attr_inc = attr_imm(TE_INTEGER, "#" + to_string(pushed));
 
                 string* asm_g = asm_gen("incsp", attr_inc);
                 attr->code->push_back(asm_g);

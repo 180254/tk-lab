@@ -49,6 +49,7 @@ struct Type {
 
 int type_size(Type*);
 bool type_is_num(Type*);
+TypeEnum type_eff(Type*);
 
 /* ------------------------------------------------------------------------- */
 
@@ -195,7 +196,7 @@ extern Program              program;
 
 int mem_find(Memory*, string);
 int mem_add(Memory*, Symbol*, int);
-int mem_temp(Memory*, TypeEnum);
+int mem_temp(Memory*, Type*);
 
 
 /* ------------------------------------------------------------------------- */

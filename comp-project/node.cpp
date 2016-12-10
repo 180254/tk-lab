@@ -80,8 +80,17 @@ int type_size(Type* type) {
 /* ------------------------------------------------------------------------- */
 
 bool type_is_num(Type* type) {
-    return type->te == TE_INTEGER || type->te == TE_REAL;
+    return type_eff(type) == TE_INTEGER || type_eff(type) == TE_REAL;
 }
+
+/* ------------------------------------------------------------------------- */
+
+TypeEnum type_eff(Type* type) {
+    return type->te != TE_ARRAY
+        ? type->te
+        : type->array->te;
+}
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -420,13 +429,15 @@ int mem_add(Memory* mem, Symbol* sym, int offset) {
 
 /* ------------------------------------------------------------------------- */
 
-int mem_temp(Memory* mem, TypeEnum te) {
-    Type* type = new Type();
-    type->te = te;
-
+int mem_temp(Memory* mem, Type* type) {
     Symbol* sym = new Symbol();
     sym->name = new string("$t" + to_string(mem->vec->size()));
-    sym->type = type;
+    sym->type = new Type();
+    sym->type->te = type_eff(type);
+
+    if(mem != &memory) {
+        sym->level = 1;
+    }
 
     return mem_add(mem, sym, 0);
 }

@@ -79,12 +79,6 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             Attr* attr_1 = compute(arg_1, mem, attr);
             Attr* attr_2 = compute(arg_2, mem, attr);
 
-            if(!type_is_num(attr_1->type) || !type_is_num(attr_2->type)) {
-                attr_set_error(attr);
-                sem_error(expr->line, "assign operand is not number");
-                break;
-            }
-
             string hash = "#";
             if(startsWith(*(attr_1->place), hash)) {
                 attr_set_error(attr);
@@ -92,8 +86,8 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                 break;
             }
 
-            if(attr_1->type->te != attr_2->type->te) {
-                string* cast_c = cast(attr_2, attr_1->type->te, mem);
+            if(type_eff(attr_1->type) != type_eff(attr_2->type)) {
+                string* cast_c = cast(attr_2, attr_1->type, mem);
                 attr->code->push_back(cast_c);
             }
 
@@ -130,21 +124,22 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
             if(!type_is_num(attr_1->type) || !type_is_num(attr_2->type)) {
                 attr_set_error(attr);
-                sem_error(expr->line, "math operand is not number");
+                sem_error(expr->line, "math operand incorrect");
                 break;
             }
 
-            if(attr_1->type->te != attr_2->type->te) {
-                Attr* cast_a = attr_1->type->te == TE_INTEGER ? attr_1 : attr_2;
-                string* cast_c = cast(cast_a, TE_REAL, mem);
+            if(type_eff(attr_1->type) != type_eff(attr_2->type)) {
+                TypeEnum attr1_te = type_eff(attr_1->type);
+                Attr* cast_a = attr1_te == TE_INTEGER ? attr_1 : attr_2;
+                Attr* cast_b = attr1_te == TE_INTEGER ? attr_2 : attr_1;
+                string* cast_c = cast(cast_a, cast_b->type, mem);
                 attr->code->push_back(cast_c);
             }
 
-            int tmp_id = mem_temp(mem, attr_1->type->te);
+            int tmp_id = mem_temp(mem, attr_1->type);
             attr->place = sym_to_place(mem, tmp_id);
 
-            attr->type  = new Type();
-            attr->type->te = attr_1->type->te;
+            attr->type = new Type(*(attr_1->type));
 
             string func;
             switch(expr->oper) {
@@ -230,93 +225,94 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
                     DELETE(attr_e);
                 }
+                break;
+            }
+            
+            int func_id = func_find(*f_name);
 
-            } else {
-                int func_id = func_find(*f_name);
+            if(func_id == -1) {
+                attr_set_error(attr);
+                string msg = "func " + *f_name + " not found";
+                sem_error(expr->line, msg.c_str());
+                break;
+            }
 
-                if(func_id == -1) {
-                    attr_set_error(attr);
-                    string msg = "func " + *f_name + " not found";
-                    sem_error(expr->line, msg.c_str());
-                    break;
+            Function* func = functions.at(func_id);
+
+            if(expr->args->size()-1 != func->args->size()) {
+                attr_set_error(attr);
+                sem_error(expr->line, "incorrect number of parameters");
+                break;
+            }
+
+            size_t pushed = 0;
+
+            // compute and push all params
+            for(size_t i = 0; i < func->args->size(); i++) {
+                Expression* arg_e = expr->args->at(i+1)->val.eVal;
+                Attr* attr_e = compute(arg_e, mem, attr);
+
+                string hash = "#";
+                if(startsWith(*(attr_e->place), hash)) {
+                    
                 }
+                    
+                    
 
-                Function* func = functions.at(func_id);
+                attr_e->place->insert(0, "#");
+                string* asm_g = asm_gen("push", attr_e);
+                attr->code->push_back(asm_g);
 
-                if(expr->args->size()-1 != func->args->size()) {
-                    attr_set_error(attr);
-                    sem_error(expr->line, "incorrect number of parameters");
-                    break;
-                }
+                pushed += type_size(attr_e->type);
 
-                size_t pushed = 0;
-
-                // compute and push all params
-                for(size_t i = 0; i < func->args->size(); i++) {
-                    Expression* arg_e = expr->args->at(i+1)->val.eVal;
-                    Attr* attr_e = compute(arg_e, mem, attr);
-
-                    if(!(*(attr_e->type) == *(func->args->at(i)->type))) {
-                    cout << attr_e->type->str() << "\n";
-                     cout << func->args->at(i)->type->str() << "\n";
-                        string msg = "func invoked with incorrect parameter(s)";
-                        sem_error(expr->line, msg.c_str());
-                    }
-
-                    attr_e->place->insert(0, "#");
-                    string* asm_g = asm_gen("push", attr_e);
-                    attr->code->push_back(asm_g);
-
-                    pushed += type_size(attr_e->type);
-
-                    DELETE(attr_e);
-                }
+                DELETE(attr_e);
+            }
 
                 // push temp for result
-                if(func->result->te != TE_VOID) {
-                    int tmp_id = mem_temp(mem, func->result->te);
-                    attr->place = sym_to_place(mem, tmp_id);
+            if(func->result->te != TE_VOID) {
+                int tmp_id = mem_temp(mem, func->result);
+                attr->place = sym_to_place(mem, tmp_id);
 
-                    Attr* result_a = new Attr();
-                    result_a->type = new Type(*(mem->vec->at(tmp_id)->type));
-                    result_a->place = new string(*attr->place);
-                    result_a->place->insert(0, "#");
+                Attr* result_a = new Attr();
+                result_a->type = new Type(*(mem->vec->at(tmp_id)->type));
+                result_a->place = new string(*attr->place);
+                result_a->place->insert(0, "#");
 
-                    string* asm_g = asm_gen("push", result_a);
-                    attr->code->push_back(asm_g);
+                string* asm_g = asm_gen("push", result_a);
+                attr->code->push_back(asm_g);
 
-                    pushed += type_size(result_a->type);
+                pushed += type_size(result_a->type);
 
-                    DELETE(result_a);
+                DELETE(result_a);
 
-                } else {
-                    attr->place = new string("");
-                }
+            } else {
+                attr->place = new string("");
+            }
 
-                Attr* call_a = new Attr();
-                call_a->type = new Type();
-                call_a->type->te = TE_INTEGER;
-                call_a->place = new string("#" + *func->name);
+            Attr* call_a = new Attr();
+            call_a->type = new Type();
+            call_a->type->te = TE_INTEGER;
+            call_a->place = new string("#" + *func->name);
 
-                string* asm_g = asm_gen("call", call_a);
+            string* asm_g = asm_gen("call", call_a);
+            attr->code->push_back(asm_g);
+
+            DELETE(call_a);
+
+            if(pushed != 0) {
+                Attr* inc_a = new Attr();
+                inc_a->type = new Type();
+                inc_a->type->te = TE_INTEGER;
+                inc_a->place = new string("#" + to_string(pushed));
+
+                string* asm_g = asm_gen("incsp", inc_a);
                 attr->code->push_back(asm_g);
 
                 DELETE(call_a);
-
-                if(pushed != 0) {
-                    Attr* inc_a = new Attr();
-                    inc_a->type = new Type();
-                    inc_a->type->te = TE_INTEGER;
-                    inc_a->place = new string("#" + to_string(pushed));
-
-                    string* asm_g = asm_gen("incsp", inc_a);
-                    attr->code->push_back(asm_g);
-
-                    DELETE(call_a);
-                }
-
-                attr->type = new Type(*(func->result));
             }
+
+            attr->type = new Type(*(func->result));
+            
         }
         break;
 
@@ -390,9 +386,11 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
 Attr* compute(vector<Expression*>* v_expr, Memory* mem, Attr* parent) {
     Attr* attr = parent != nullptr ? parent : new Attr();
+    
     attr->type = new Type();
     attr->type->te = TE_VOID;
     attr->place = new string("");
+    
     for(auto expr: *v_expr) {
         Attr* c_attr = compute(expr, mem, attr);
         DELETE(c_attr);
@@ -445,22 +443,22 @@ string* sym_to_place(Symbol* sym) {
 
 /* --------------------------------------------------------------------------*/
 
-string* cast(Attr* attr, TypeEnum te, Memory* mem) {
-    string func = te == TE_INTEGER ? "realtoint" : "inttoreal";
+string* cast(Attr* attr, Type* type, Memory* mem) {
+    string func = type_eff(type) == TE_REAL ? "inttoreal" : "realtoint";
 
-    int tmp_id = mem_temp(mem, te);
+    int tmp_id = mem_temp(mem, type);
     string* tmp_place = sym_to_place(mem, tmp_id);
 
     Attr* tmp_attr = new Attr();
     tmp_attr->place = new string(*tmp_place);
-
     string* code = asm_gen(func, attr, tmp_attr);
 
     DELETE(tmp_attr);
     DELETE(attr->place);
+    DELETE(attr->type);
 
     attr->place = tmp_place;
-    attr->type->te = te;
+    attr->type = new Type(*(mem->vec->at(tmp_id)->type));
 
     return code;
 }
@@ -479,7 +477,9 @@ string* lab_next() {
 string* asm_gen(string command, Attr* arg1, Attr* arg2, Attr* arg3) {
     stringstream ss;
 
-    ss << command << "." << (arg1->type->te == TE_INTEGER ? "i" : "r");
+    ss << command << ".";
+    ss << (type_eff(arg1->type) == TE_REAL ? "r" : "i");
+
     ss << string(10-command.length(), ' ');
     ss << *arg1->place;
 

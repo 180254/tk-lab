@@ -20,7 +20,7 @@ string* sym_to_place(Memory*,int);
 string* sym_to_place(Memory*,string);
 string* sym_to_place(Symbol*);
 
-string* cast(Attr*, TypeEnum, Memory*);
+string* cast(Attr*, Type*, Memory*);
 string* lab_next();
 
 string* asm_gen(string, Attr*, Attr* = nullptr, Attr* = nullptr);

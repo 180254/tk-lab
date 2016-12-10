@@ -431,17 +431,16 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                     Expression* arg_e = expr->args->at(i)->val.eVal;
                     Attr* attr_e = compute(arg_e, mem, attr);
 
-                    /*
-                    attr->type = new Type();
-                    attr->type->te = TE_VOID;
-                    attr->place = new string("");
-                    */
-
                     string* asm_g = asm_gen(*f_name, attr_e);
                     attr->code->push_back(asm_g);
 
                     DELETE(attr_e);
                 }
+
+                attr->type = new Type();
+                attr->type->te = TE_VOID;
+                attr->place = new string("");
+
                 break;
             }
 

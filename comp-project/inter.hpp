@@ -10,8 +10,8 @@ struct Attr {
     ~Attr();
 };
 
-Attr* compute(Expression*, Memory*, Attr* = nullptr);
-Attr* compute(vector<Expression*>*, Memory*, Attr* = nullptr);
+Attr*   compute(Expression*, Memory*, Attr* = nullptr);
+Attr*   compute(vector<Expression*>*, Memory*, Attr* = nullptr);
 
 void    attr_set_error(Attr*);
 string* attr_to_code(Attr*);

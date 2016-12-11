@@ -52,7 +52,12 @@ begin
   write(- a);
   write(- b);
   write(- x);
-  write(- y)
+  write(- y);
+
+  write(- a+x);
+  write(- b+a);
+  write(- x+y);
+  write(- y+3);
 
   {
   write(+ a);
@@ -60,9 +65,10 @@ begin
   write(+ x);
   write(+ y)
   }
-  
-  {write(not a);
+
+  write(not a);
   write(not b);
   write(not x);
-  write(not y);}
+  write(not y);
+  write(not (not (not (not x))))
 end.

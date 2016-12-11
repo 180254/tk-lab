@@ -626,12 +626,13 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             }
 
             Attr* temp_attr     = new Attr();
-            temp_attr->type     = new Type();
+            temp_attr->type     = nullptr;
 
             if(expr->oper != OP_LOG_NOT) {
+                temp_attr->type = new Type();
                 temp_attr->type->te = TE_INTEGER;
             } else {
-                temp_attr->type->te = attr_1_type->te;
+                temp_attr->type = new Type(*(attr_1_type));
             }
 
             int tmp_id          = mem_temp(mem, temp_attr->type);

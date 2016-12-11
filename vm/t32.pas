@@ -12,7 +12,7 @@ begin
   o := p[9]=o;
   x := i<>o;
   i := x>k;
-  p := x>o[2];
+  p[3] := x>o[2];
   o := p<x;
   x := p[1]<=i;
   p := (((((p<=i) and (k<z)) or (o<x)) and o[1]) <> p[2]);

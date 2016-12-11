@@ -4,7 +4,7 @@ var p :array [1..10] of integer;
 var o :array [1..10] of real;
 var oo :array [1..10] of real;
 var b:integer;
-
+var rr:real;
 procedure czytajtab(a: array[1..10] of integer; g: array [1..10] of real; z : integer; zz : integer);
 begin
  a[1]:=10;
@@ -35,5 +35,21 @@ begin
   p[0]:=1.2;
   oo[0]:=19;
   oo[20.2]:=19;
-  o[20.2]:=19.2
+  o[20.2]:=19.2;
+  o := oo;
+  o := p;
+  o := j;
+  o := rr;
+  o[2] := oo;
+  o[2] := p;
+  o[4] := j;
+  o[5] := rr;
+  p := oo;
+  p := p;
+  p := j;
+  p := rr;
+  p[2] := oo;
+  p[2] := p;
+  p[4] := j;
+  p[5] := rr
 end.

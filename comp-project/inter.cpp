@@ -52,7 +52,6 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                 attr_set_error(attr);
                 string msg = "unknown var/proc/func " + *sth_name;
                 sem_error(expr->line, msg.c_str());
-                break;
             }
 
         }
@@ -95,17 +94,15 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
             Attr* attr_1 = compute(arg_1, mem, attr);
             Attr* attr_2 = compute(arg_2, mem, attr);
-   
+
             if(!type_is_num(attr_1->type) || !type_is_num(attr_2->type)) {
                 attr_set_error(attr);
                 sem_error(expr->line, "assign operand incorrect");
-                break;
             }
-   
+
             if(attr_1->place->at(0) == '#') {
                 attr_set_error(attr);
                 sem_error(expr->line, "cannot assign to imm value");
-                break;
             }
 
             if(type_eff(attr_1->type) != type_eff(attr_2->type)) {
@@ -136,12 +133,17 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             Expression* arg_1 = expr->args->at(1)->val.eVal;
             Attr* attr_1 = compute(arg_1, mem, attr);
 
-            if(sym_id == -1
-                || sym->type->te != TE_ARRAY
-                || attr_1->type->te != TE_INTEGER) {
+            if(sym_id == -1 || sym->type->te != TE_ARRAY) {
                 attr_set_error(attr);
                 sem_error(expr->line, "incorrect array access");
                 break;
+            }
+
+            if(type_eff(attr_1->type) != TE_INTEGER) {
+                Attr* attr_int = attr_imm(TE_INTEGER, "#0");
+                string* cast_c = cast(attr_1, attr_int->type, mem);
+                attr->code->push_back(cast_c);
+                DELETE(attr_int);
             }
 
             Attr* attr_asm_1;
@@ -257,7 +259,6 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             if(!type_is_num(attr_1->type) || !type_is_num(attr_2->type)) {
                 attr_set_error(attr);
                 sem_error(expr->line, "math operand incorrect");
-                break;
             }
 
             if(type_eff(attr_1->type) != type_eff(attr_2->type)) {
@@ -303,7 +304,6 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             if(!type_is_num(attr_1->type)) {
                 attr_set_error(attr);
                 sem_error(expr->line, "incorrect uminus");
-                break;
             };
 
             int id_res = mem_temp(mem, attr_1->type);
@@ -338,7 +338,6 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             if(!type_is_num(attr_1->type)) {
                 attr_set_error(attr);
                 sem_error(expr->line, "incorrect uplus");
-                break;
             };
 
             attr->type = new Type(*(attr_1->type));
@@ -358,7 +357,6 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             if(!type_is_num(attr_1->type)) {
                 attr_set_error(attr);
                 sem_error(expr->line, "incorrect if condition");
-                break;
             };
 
             Program* arg_2 = expr->args->at(1)->val.pVal;
@@ -424,7 +422,6 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             if(!type_is_num(attr_1->type)) {
                 attr_set_error(attr);
                 sem_error(expr->line, "incorrect while condition");
-                break;
             };
 
             string* asm_g = asm_gen("je", attr_1, attr_imm_0, lab1_attr);
@@ -479,7 +476,6 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             if(func_id == -1) {
                 attr_set_error(attr);
                 sem_error(expr->line, "func not found");
-                break;
             }
 
             Function* func = functions.at(func_id);
@@ -615,7 +611,6 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             if(!type_is_num(attr_1->type) || !type_is_num(attr_2->type)) {
                 attr_set_error(attr);
                 sem_error(expr->line, "incorrect logical operand");
-                break;
             };
 
             string func;
@@ -719,7 +714,7 @@ Attr* compute(vector<Expression*>* v_expr, Memory* mem, Attr* parent) {
 /* --------------------------------------------------------------------------*/
 
 void attr_set_error(Attr* attr) {
-    attr->place = new string("");
+    attr->place = new string("0");
     attr->type = new Type();
     attr->type->te = TE_ERROR;
 }
@@ -870,12 +865,12 @@ void asm_gen_app() {
     DELETE(attr);
 
     cout << "\t" << "exit" << "\n";
-    
+
     if(errors.size() > 0) {
         cerr << "\n";
     }
     for(auto error: errors) {
-        cerr << *error << "\n";
+        cerr << ";" <<*error << "\n";
         DELETE(error);
     }
     errors.clear();

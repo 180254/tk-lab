@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+# usage: ./xsame2.py ../vm/gcd.pas
+
 import sys
 import os
 

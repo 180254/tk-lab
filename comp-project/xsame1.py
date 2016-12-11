@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+# usage: xsame1.py output.asm output2.asm
+
 import os
 import sys
 import re

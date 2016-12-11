@@ -46,8 +46,9 @@ int main(int argc, char *argv[]) {
 
 void usage(const char *app, const char *message) {
     cerr << "app error: " << message << "\n";
-    cerr << "app usage: " << app << " PATH\n";
-    cerr << "app usage: PATH = FILE-PATH | '-'\n";
+    cerr << "app usage: " << app << " PATH DEBUG\n";
+    cerr << "app usage: PATH  = FILE-PATH | '-'\n";
+    cerr << "app usage: DEBUG = '-d'      | empty\n";
 }
 
 /* ------------------------------------------------------------------------- */

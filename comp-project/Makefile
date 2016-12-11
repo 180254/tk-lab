@@ -1,6 +1,6 @@
 CC=clang++
 CFLAGS=
-CPPFLAGS=-Wall -Wextra -O0 -std=gnu++14 -g -ggdb
+CPPFLAGS=-Wall -Wextra -std=gnu++14 -O0 -g -ggdb
 
 SOURCES=main.cpp node.cpp inter.cpp error.cpp parser.cpp lexer.cpp
 OBJECTS=$(SOURCES:.cpp=.o)

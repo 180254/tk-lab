@@ -218,7 +218,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             attr_asm_3->type = new Type(*(attr_1->type));
             attr_asm_3->place = sym_to_place(mem, add_res);
 
-            attr_deref(attr_asm_1);
+            attr_ref_addr(attr_asm_1);
 
             asm_g = asm_gen("add", attr_asm_1, attr_asm_2, attr_asm_3);
             attr->code->push_back(asm_g);
@@ -522,7 +522,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                     attr->code->push_back(cast_c);
                 }
 
-                attr_deref(attr_ex[i]);
+                attr_ref_addr(attr_ex[i]);
 
                 string* asm_g = asm_gen("push", attr_ex[i]);
                 attr->code->push_back(asm_g);
@@ -722,7 +722,7 @@ void attr_set_error(Attr* attr) {
 
 /* --------------------------------------------------------------------------*/
 
-void attr_deref(Attr* attr) {
+void attr_ref_addr(Attr* attr) {
     if(attr->place->at(0) == '*') {
         attr->place->erase(0, 1);
     } else if(attr->place->at(0) == 'B') {

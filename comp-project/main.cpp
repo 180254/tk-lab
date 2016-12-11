@@ -4,8 +4,9 @@
 
 int main(int argc, char *argv[]) {
 
-    const char* app  = argv[0];
-    const char* path = argv[1];
+    const char* app   = argv[0];
+    const char* path  = argv[1];
+    const char* flag  = argv[2];
 
     if(argc < 2) {
         usage(app, "path parameter is misssing");
@@ -27,12 +28,14 @@ int main(int argc, char *argv[]) {
 
     yyparse();
     fclose(yyin);
+    // fclose(yyout);
+    yylex_destroy();
 
     asm_gen_app();
 
-    #if defined(XCDEBUG) && XCDEBUG
-    mem_debug();
-    #endif
+    if(argc >=3 && strcmp(flag, "-d") == 0) {
+        mem_debug();
+    }
 
     mem_free();
 

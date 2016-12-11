@@ -95,7 +95,13 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
 
             Attr* attr_1 = compute(arg_1, mem, attr);
             Attr* attr_2 = compute(arg_2, mem, attr);
-
+   
+            if(!type_is_num(attr_1->type) || !type_is_num(attr_2->type)) {
+                attr_set_error(attr);
+                sem_error(expr->line, "assign operand incorrect");
+                break;
+            }
+   
             if(attr_1->place->at(0) == '#') {
                 attr_set_error(attr);
                 sem_error(expr->line, "cannot assign to imm value");
@@ -864,6 +870,15 @@ void asm_gen_app() {
     DELETE(attr);
 
     cout << "\t" << "exit" << "\n";
+    
+    if(errors.size() > 0) {
+        cerr << "\n";
+    }
+    for(auto error: errors) {
+        cerr << *error << "\n";
+        DELETE(error);
+    }
+    errors.clear();
 }
 
 /* --------------------------------------------------------------------------*/

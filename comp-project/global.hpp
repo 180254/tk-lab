@@ -1,6 +1,5 @@
 #pragma once
 
-#define XCDEBUG 0
 #define YYDEBUG 0
 
 #include <cstdio>

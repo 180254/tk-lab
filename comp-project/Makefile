@@ -7,7 +7,7 @@ OBJECTS=$(SOURCES:.cpp=.o)
 
 OUT=xcomp
 
-.PHONY: all clean clear
+.PHONY: dist clean clear
 
 .cpp.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
@@ -25,7 +25,7 @@ parser.cpp parser.hpp: parser.y
 lexer.cpp: lexer.l
 	flex -o lexer.cpp lexer.l
 
-all: $(OUT)
+dist: $(OUT)
 
 clean:
 	-rm -f $(OUT) $(OBJECTS) \

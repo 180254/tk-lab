@@ -14,7 +14,7 @@ Attr*   compute(Expression*, Memory*, Attr* = nullptr);
 Attr*   compute(vector<Expression*>*, Memory*, Attr* = nullptr);
 
 void    attr_set_error(Attr*);
-void    attr_ref_addr(Attr*);
+void    attr_set_addr(Attr*);
 Attr*   attr_imm(TypeEnum,string);
 
 string* sym_to_place(Memory*,int);

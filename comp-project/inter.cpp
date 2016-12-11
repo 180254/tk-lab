@@ -218,7 +218,7 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
             attr_asm_3->type = new Type(*(attr_1->type));
             attr_asm_3->place = sym_to_place(mem, add_res);
 
-            attr_ref_addr(attr_asm_1);
+            attr_set_addr(attr_asm_1);
 
             asm_g = asm_gen("add", attr_asm_1, attr_asm_2, attr_asm_3);
             attr->code->push_back(asm_g);
@@ -516,13 +516,20 @@ Attr* compute(Expression* expr, Memory* mem, Attr* parent) {
                     DELETE(attr_mov);
                 }
 
+                // valid array given?
+                if(arg_fu->type->te == TE_ARRAY
+                    && !(*attr_ex[i]->type == *(arg_fu->type))) {
+                        attr_set_error(attr);
+                        sem_error(expr->line, "incorrect parameter given");
+                }
+
                 // cast?
                 if(type_eff(attr_ex[i]->type) != type_eff(arg_fu->type)) {
                     string* cast_c = cast(attr_ex[i], arg_fu->type, mem);
                     attr->code->push_back(cast_c);
                 }
 
-                attr_ref_addr(attr_ex[i]);
+                attr_set_addr(attr_ex[i]);
 
                 string* asm_g = asm_gen("push", attr_ex[i]);
                 attr->code->push_back(asm_g);
@@ -722,15 +729,10 @@ void attr_set_error(Attr* attr) {
 
 /* --------------------------------------------------------------------------*/
 
-void attr_ref_addr(Attr* attr) {
+void attr_set_addr(Attr* attr) {
     if(attr->place->at(0) == '*') {
         attr->place->erase(0, 1);
-    } else if(attr->place->at(0) == 'B') {
-        attr->place->insert(0, "#");
-        return;
-    }
-
-    if(attr->place->at(0) != 'B') {
+    } else if(attr->place->at(0) != '#'){
         attr->place->insert(0, "#");
     }
 }

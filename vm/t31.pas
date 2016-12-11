@@ -3,6 +3,7 @@ var j,i,o:integer;
 var p :array [1..10] of integer;
 var o :array [1..10] of real;
 var oo :array [1..10] of real;
+var oo :array [1..101] of real;
 var b:integer;
 var rr:real;
 procedure czytajtab(a: array[1..10] of integer; g: array [1..10] of real; z : integer; zz : integer);
@@ -12,18 +13,26 @@ begin
  a[3]:=g[2];
  g[7]:=a[4];
  a[0]:=1.2;
- g[0]:=19
+ g[0]:=19;
+ a:=g;
+ g:=a;
+ a:=oo[-4];
+ oo:=a
 end;
 
 procedure bubblesort(a:array[1..10] of integer; g: array [1..10] of real;  z : integer; zz : integer);
 begin
- czytajtab(a, o, z, j);
+ czytajtab(a, o, z, oo);
  a[2]:=10;
  a[6]:=a[5];
  a[3]:=g[2];
  g[7]:=a[4];
  a[0]:=1.2;
- g[0]:=19
+ g[0]:=19;
+ a:=g;
+ g:=a;
+ a:=oo;
+ oo:=a
 end;
 
 begin

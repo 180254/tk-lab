@@ -29,6 +29,6 @@ dist: $(OUT)
 
 clean:
 	-rm -f $(OUT) $(OBJECTS) \
-		parser.cpp parser.hpp parser.output lexer.cpp output*.asm
+		parser.cpp parser.hpp parser.output lexer.cpp *.asm
 
 clear: clean

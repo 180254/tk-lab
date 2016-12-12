@@ -114,7 +114,6 @@ enum Operation : int {
 struct Expression {
     Operation                oper;
     vector<ExprArg*>*        args;
-    int                      result;
     int                      line;
 
     Expression();

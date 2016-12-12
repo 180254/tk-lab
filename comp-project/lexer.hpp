@@ -3,5 +3,5 @@
 int yylex();
 int yylex_destroy();
 extern int yylineno;
-extern FILE *yyin;
-extern FILE *yyout;
+extern FILE* yyin;
+extern FILE* yyout;

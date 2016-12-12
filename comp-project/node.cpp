@@ -199,14 +199,12 @@ std::ostream& operator<< (std::ostream& os, Operation oper) {
 Expression::Expression() :
     oper(OP_UNKNOWN),
     args(new vector<ExprArg*>()),
-    result(-1),
-    line (-1) {
+    line(-1) {
 }
 
 Expression::Expression(Operation operation) :
     oper(operation),
     args(new vector<ExprArg*>()),
-    result(-1),
     line(yylineno) {
 }
 
@@ -223,8 +221,7 @@ string Expression::str(int level) {
     stringstream ss;
     ss << string(level, ' ');
     ss << line << "|";
-    ss << oper << "|";
-    ss << result;
+    ss << oper;
 
     for(auto exp_arg : *args) {
         ss << "\n" << exp_arg->str(level+1);

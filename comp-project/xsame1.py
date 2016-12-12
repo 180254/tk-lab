@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# usage: xsame1.py output.asm output2.asm
+# usage: xsame1.py output1.asm output2.asm
 
 import os
 import sys
@@ -56,10 +56,12 @@ if not fail:
     for i,k in enumerate(lines[0]):
         if lines[0][i] != lines[1][i]:
             fail = True
-            print("FAIL (%s)" % (i+1))
+            print("FAIL (%d)" % (i+1))
             print(lines[0][i])
             print(lines[1][i])
             break
 
     if not fail:
         print("OK")
+
+# ----------------------------------------------------------------------------

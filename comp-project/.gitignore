@@ -7,6 +7,6 @@ node.o
 parser.cpp
 parser.hpp
 parser.o
-xcomp
+xcomp*
 *.pas
 *.asm

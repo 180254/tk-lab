@@ -5,7 +5,7 @@
 WIN ?= 0
 ifeq ($(WIN), 0)
 	CC=clang++
-	OUT=xcomp-elf32
+	OUT=xcomp-elf
 else
 	CC=i686-w64-mingw32-g++
 	OUT=xcomp-win32.exe

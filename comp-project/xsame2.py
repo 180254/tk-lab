@@ -7,7 +7,7 @@ import os
 
 if os.path.isfile(sys.argv[1]) :
     os.system("../vm/komp %s output1.asm > /dev/null" % sys.argv[1])
-    os.system("./xcomp-elf32 %s > output2.asm" % sys.argv[1])
+    os.system("./xcomp-elf %s > output2.asm" % sys.argv[1])
     os.system("python3 xsame1.py output1.asm output2.asm")
 else:
     print("no such file")

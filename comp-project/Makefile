@@ -1,3 +1,7 @@
+# Makefile for comp-project
+# make WIN=[01] DEBUG=[01]
+# make // defaults: WIN=0 DEBUG=1
+
 WIN ?= 0
 ifeq ($(WIN), 0)
 	CC=clang++
